@@ -1,0 +1,6 @@
+@CleaningSuppliesSystem.API_HostAddress = http://localhost:5217
+
+GET {{CleaningSuppliesSystem.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
