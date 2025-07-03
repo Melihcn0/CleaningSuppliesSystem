@@ -1,16 +1,18 @@
 using CleaningSuppliesSystem.DataAccess.Context;
 using CleaningSuppliesSystem.Entity.Entities;
+using CleaningSuppliesSystem.WebUI.Services.UserServices;
+using CleaningSuppliesSystem.WebUI.Validator;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddDbContext<CleaningSuppliesSystemContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
 });
-builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<CleaningSuppliesSystemContext>();
+builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<CleaningSuppliesSystemContext>().AddErrorDescriber<CustomErrorDescriber>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

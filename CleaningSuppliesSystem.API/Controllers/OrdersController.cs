@@ -10,20 +10,22 @@ namespace CleaningSuppliesSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController(IGenericService<Order> _orderService, IMapper _mapper) : ControllerBase
+    public class OrdersController(IOrderService _orderService, IMapper _mapper) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var values = await _orderService.TGetListAsync();
-            return Ok(values);
+            var values = await _orderService.TGetOrderItemWithAppUserandOrderItemsandInvoiceAsync();
+            var orders = _mapper.Map<List<ResultOrderDto>>(values);
+            return Ok(orders);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var value = await _orderService.TGetByIdAsync(id);
-            return Ok(value);
+            var value = await _orderService.TGetByIdAsyncWithAppUserandOrderItemsandInvoice(id);
+            var result = _mapper.Map<ResultOrderDto>(value);
+            return Ok(result);
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

@@ -10,11 +10,10 @@ namespace CleaningSuppliesSystem.Entity.Entities
     {
         public int Id { get; set; } // Sipariş kimliği
         public DateTime CreatedDate { get; set; } // Oluşturulma zamanı
-        public string Status { get; set; } // Sipariş durumu ("Pending", "Shipped" vs.)
+        public string Status { get; set; } = "Ödeme Bekleniyor"; // Sipariş durumu
         public int AppUserId { get; set; } // Siparişi veren kullanıcı
         public AppUser AppUser { get; set; } // Navigation
         public ICollection<OrderItem> OrderItems { get; set; } // Sipariş detay satırları
-        public Payment Payment { get; set; } // Ödeme ilişkisi (1:1)
         public Invoice Invoice { get; set; } // Fatura ilişkisi (1:1)
     }
 }

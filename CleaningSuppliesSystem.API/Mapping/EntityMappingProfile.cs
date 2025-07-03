@@ -4,7 +4,6 @@ using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
-using CleaningSuppliesSystem.DTO.DTOs.PaymentDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
@@ -38,11 +37,6 @@ namespace CleaningSuppliesSystem.API.Mapping
             // Invoice
             CreateMap<CreateInvoiceDto, Invoice>().ReverseMap();
             CreateMap<ResultInvoiceDto, Invoice>().ReverseMap();
-
-            // Payment
-            CreateMap<CreatePaymentDto, Payment>().ReverseMap();
-            CreateMap<UpdatePaymentDto, Payment>().ReverseMap();
-            CreateMap<ResultPaymentDto, Payment>().ReverseMap();
 
             // Order
             CreateMap<CreateOrderDto, Order>().ReverseMap();

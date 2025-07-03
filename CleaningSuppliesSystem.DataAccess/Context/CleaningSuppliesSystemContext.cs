@@ -16,7 +16,6 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Finance> Finances { get; set; }
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<StockEntry> StockEntries { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
 
@@ -29,6 +28,9 @@ namespace CleaningSuppliesSystem.DataAccess.Context
                 .WithOne(oi => oi.Order)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderItem>()
+                .ToTable(tb => tb.HasTrigger("TR_DeleteOrder_WhenNoOrderItems"));
 
         }
     }

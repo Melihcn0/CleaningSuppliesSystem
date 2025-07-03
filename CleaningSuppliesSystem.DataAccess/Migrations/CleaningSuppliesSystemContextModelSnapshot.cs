@@ -256,32 +256,12 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
-                });
+                    b.ToTable("OrderItems", t =>
+                        {
+                            t.HasTrigger("TR_DeleteOrder_WhenNoOrderItems");
+                        });
 
-            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Payments");
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Product", b =>
@@ -453,7 +433,7 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Order", b =>
                 {
                     b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppUser", "AppUser")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -470,7 +450,7 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("CleaningSuppliesSystem.Entity.Entities.Product", "Product")
-                        .WithMany("OrderItems")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -478,17 +458,6 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Payment", b =>
-                {
-                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.Order", "Order")
-                        .WithOne("Payment")
-                        .HasForeignKey("CleaningSuppliesSystem.Entity.Entities.Payment", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Product", b =>
@@ -564,6 +533,11 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.AppUser", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -575,15 +549,10 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("OrderItems");
-
-                    b.Navigation("Payment")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Product", b =>
                 {
-                    b.Navigation("OrderItems");
-
                     b.Navigation("StockEntries");
                 });
 #pragma warning restore 612, 618

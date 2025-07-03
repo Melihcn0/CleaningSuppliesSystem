@@ -12,5 +12,6 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public ICollection<Order> Orders { get; set; }
     }
 }

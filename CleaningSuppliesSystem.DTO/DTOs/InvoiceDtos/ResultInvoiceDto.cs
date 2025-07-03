@@ -15,6 +15,5 @@ namespace CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos
         public string FileName { get; set; }
         public byte[] FileContent { get; set; }
         public int OrderId { get; set; }
-        public ResultOrderDto Order { get; set; }
     }
 }

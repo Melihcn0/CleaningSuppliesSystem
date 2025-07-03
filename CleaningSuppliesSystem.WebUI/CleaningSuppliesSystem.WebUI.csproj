@@ -7,7 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\login-form-07\.DS_Store" />
+    <None Include="wwwroot\login-form-07\css\.DS_Store" />
+    <None Include="wwwroot\login-form-07\fonts\.DS_Store" />
+    <None Include="wwwroot\login-form-07\images\.DS_Store" />
+    <None Include="wwwroot\login-form-07\scss\.DS_Store" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CleaningSuppliesSystem.DataAccess\CleaningSuppliesSystem.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,5 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public int CategoryId { get; set; } // Bağlı olduğu kategori kimliği
         public Category Category { get; set; } // Navigation property
         public ICollection<StockEntry> StockEntries { get; set; } // Ürünün stok girişleri
-        public ICollection<OrderItem> OrderItems { get; set; } // Siparişlerde ürün satırları
     }
 }

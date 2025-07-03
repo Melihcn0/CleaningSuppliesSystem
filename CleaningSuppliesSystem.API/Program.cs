@@ -17,6 +17,13 @@ builder.Services.AddScoped<IProductService, ProductManager>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IStockEntryService, StockEntryManager>();
 builder.Services.AddScoped<IStockEntryRepository, StockEntryRepository>();
+builder.Services.AddScoped<IOrderItemService, OrderItemManager>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IOrderService, OrderManager>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IInvoiceService, InvoiceManager>();
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+
 
 //builder.Services.AddControllers().AddJsonOptions(options => DONGULER ÝÇÝN JSON SERÝZALÝZER EDER
 //{

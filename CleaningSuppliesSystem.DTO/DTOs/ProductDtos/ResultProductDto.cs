@@ -17,6 +17,5 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
         public decimal UnitPrice { get; set; }
         public int CategoryId { get; set; }
         public ResultCategoryDto Category { get; set; }
-        public ICollection<ResultOrderItemDto> OrderItems { get; set; }
     }
 }
