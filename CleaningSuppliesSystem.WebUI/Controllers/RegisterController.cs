@@ -2,6 +2,7 @@
 using CleaningSuppliesSystem.WebUI.Services.UserServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using static CleaningSuppliesSystem.WebUI.Validators.Validators;
 
 namespace CleaningSuppliesSystem.WebUI.Controllers
 {
@@ -14,16 +15,31 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp(UserRegisterDto userRegisterDto)
         {
-            var result = await _userService.CreateUserAsync(userRegisterDto);
-            if(!result.Succeeded || !ModelState.IsValid)
+            var validator = new UserRegisterValidator();
+            var result = await validator.ValidateAsync(userRegisterDto);
+
+            if (!result.IsValid)
             {
-                foreach (var item in result.Errors)
+                foreach (var x in result.Errors)
                 {
-                    ModelState.AddModelError("", item.Description);
+                    ModelState.Remove(x.PropertyName);
+                    ModelState.AddModelError(x.PropertyName, x.ErrorMessage);
                 }
-                return View();
+                return View(userRegisterDto);
             }
-            return RedirectToAction("Index","Login");
+
+            var identityResult = await _userService.CreateUserAsync(userRegisterDto);
+
+            if (!identityResult.Succeeded)
+            {
+                foreach (var x in identityResult.Errors)
+                {
+                    ModelState.AddModelError("", x.Description);
+                }
+                return View(userRegisterDto);
+            }
+
+            return RedirectToAction("Index", "Login");
         }
     }
 }

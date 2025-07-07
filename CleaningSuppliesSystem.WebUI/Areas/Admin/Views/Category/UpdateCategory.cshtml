@@ -1,0 +1,56 @@
+﻿@model UpdateCategoryDto
+
+@{
+    ViewData["Title"] = "Kategori Güncelleme Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form id="updateCategoryForm" method="post">
+    <input type="hidden" asp-for="Id" />
+    <label>Kategori Fotoğrafı</label>
+    <input type="text" asp-for="ImageUrl" class="form-control" />
+    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    <br />
+    <label>Kategori Adı</label>
+    <input type="text" asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+    <br />
+    <button type="button" onclick="updateCategory()" class="btn btn-outline-primary">Güncelle</button>
+</form>
+
+@section Scripts {
+<script>
+    function updateCategory() {
+        const form = document.getElementById("updateCategoryForm");
+        const theme = document.documentElement.getAttribute("data-theme");
+
+        // Önce form validasyonunu kontrol et
+        if (!form.checkValidity()) {
+            form.reportValidity(); // Hataları göster
+            return; // Onay alerti gösterme
+        }
+
+        // Validasyon geçtiyse onay sor
+        Swal.fire({
+            title: "Değişiklikler kaydedilsin mi?",
+            text: "İşlemi onaylıyor musunuz?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Evet, kaydet!",
+            cancelButtonText: "İptal",
+            background: theme === "dark" ? "#1e1e2f" : "#fff",
+            color: theme === "dark" ? "#fff" : "#000",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+</script>
+}

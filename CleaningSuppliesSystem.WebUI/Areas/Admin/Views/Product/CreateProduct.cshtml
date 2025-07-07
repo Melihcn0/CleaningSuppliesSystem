@@ -1,0 +1,28 @@
+﻿@model CreateProductDto
+@{
+    ViewData["Title"] = "Ürün Ekleme Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    <label>Ürün Fotoğraf Url</label>
+    <input type="text" asp-for="ImageUrl" class="form-control" />
+    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    <br />
+    <label>Ürün Kategorisi</label>
+    <select asp-items="@ViewBag.categories" asp-for="CategoryId" class="form-control">
+        <option value="" disabled selected>Kategori Seçin</option>
+    </select>
+    <span asp-validation-for="CategoryId" class="text-danger"></span>
+    <br />
+    <label>Ürün Adı</label>
+    <input type="text" asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+    <br />
+    <label>Ürün Birim Fiyatı</label>
+    <input type="text" asp-for="UnitPrice" class="form-control" />
+    <span asp-validation-for="UnitPrice" class="text-danger"></span>
+    <br />
+    <button class="btn btn-outline-primary">Kaydet</button>
+</form>
+

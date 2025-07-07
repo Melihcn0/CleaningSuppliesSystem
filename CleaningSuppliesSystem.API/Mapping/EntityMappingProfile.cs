@@ -32,7 +32,6 @@ namespace CleaningSuppliesSystem.API.Mapping
             // Finance
             CreateMap<CreateFinanceDto, Finance>().ReverseMap();
             CreateMap<UpdateFinanceDto, Finance>().ReverseMap();
-            CreateMap<ResultFinanceDto, Finance>().ReverseMap();
 
             // Invoice
             CreateMap<CreateInvoiceDto, Invoice>().ReverseMap();

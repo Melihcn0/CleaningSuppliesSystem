@@ -1,0 +1,187 @@
+﻿@model List<ResultCategoryDto>
+@{
+    ViewData["Title"] = "Kategori Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+
+}
+
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Kategori Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a asp-action="CreateCategory" asp-controller="Category" asp-area="Admin" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Kategori Ekle
+            </a>
+            <a asp-action="DeletedCategory" asp-controller="Category" asp-area="Admin" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Kategori Fotoğrafı</th>
+                    <th>Kategori Adı</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <img src="@item.ImageUrl" alt="Kategori Fotoğrafı" style="width: 75px; height: 75px; object-fit: cover;" />
+                        </td>
+                        <td>@item.Name</td>
+                        <td>
+                            <a asp-action="UpdateCategory" asp-controller="Category" asp-area="Admin" asp-route-id="@item.Id"
+                               class="btn btn-outline-info-600 btn-sm d-inline-flex align-items-center me-2">
+                                <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                            </a>
+                            <button onclick="deletedCategory(@item.Id)"
+                                    class="btn btn-outline-danger-600 btn-sm d-inline-flex align-items-center">
+                                <span class="material-symbols-outlined me-1">delete</span> Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const theme = document.documentElement.getAttribute("data-theme");
+
+            const table = $('#dataTable').DataTable({
+                paging: true,
+                pageLength: 10,
+                ordering: true,
+                order: [[0, "asc"]],
+                columnDefs: [
+                    { orderable: false, targets: 3 }
+                ],
+                language: {
+                    lengthMenu: "Sayfa başına _MENU_ kayıt göster",
+                    zeroRecords: "Kayıt bulunamadı",
+                    emptyTable: "Kayıt yok",
+                    info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
+                    infoEmpty: "Kayıt yok",
+                    infoFiltered: "(toplam _MAX_ kayıt içerisinden filtrelendi)",
+                    search: "Ara:",
+                    paginate: {
+                        first: "İlk",
+                        last: "Son",
+                        next: ">",
+                        previous: "<"
+                    }
+                },
+                classes: {
+                    sTable: 'table table-hover'
+                },
+                initComplete: function () {
+                    const wrapper = $('#dataTable_wrapper');
+                    const length = wrapper.find('.dataTables_length');
+                    const filter = wrapper.find('.dataTables_filter');
+
+                    // Floatları kaldır
+                    length.css({ 'float': 'none', 'margin-right': '1rem' });
+                    filter.css({ 'float': 'none' });
+
+                    // dt-layout-row içinde hizalama
+                    const layoutRow = wrapper.find('.dt-layout-row').first();
+                    layoutRow.addClass('d-flex justify-content-start align-items-center flex-wrap gap-3');
+                }
+            });
+
+            // Tablo kenarlığını kaldır
+            $('#dataTable').removeClass('table-bordered');
+
+            // Tema uyumlu renkler
+            const tableElement = $('#dataTable');
+            if (theme === "dark") {
+                tableElement.removeClass('table-theme-light').addClass('table-theme-dark');
+                $('.dataTables_paginate a, .dataTables_info, .dataTables_length label, .dataTables_filter label').css('color', 'white');
+            } else {
+                tableElement.removeClass('table-theme-dark').addClass('table-theme-light');
+                $('.dataTables_paginate a, .dataTables_info, .dataTables_length label, .dataTables_filter label').css('color', '');
+            }
+        });
+
+            function deletedCategory(id) {
+            const theme = document.documentElement.getAttribute("data-theme");
+            Swal.fire({
+                title: "Silmek istediğinizden emin misiniz?",
+                text: "Bu işlemi geri alamazsınız!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Evet, sil!",
+                cancelButtonText: "İptal",
+                background: theme === "dark" ? "#1e1e2f" : "#fff",
+                color: theme === "dark" ? "#fff" : "#000",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/Admin/Category/SoftDeletedCategory/${id}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ id: id })
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                        // JSON döndürülmediğinde hata vermemek için kontrol:
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.includes("application/json")) {
+                            return response.json();
+                        } else {
+                            // JSON değilse response text olarak alabiliriz veya boş dönebilir
+                            return response.text();
+                        }
+                    })
+                    .then(() => {
+                        Swal.fire({
+                            title: "Silindi!",
+                            text: "Kategori başarıyla silindi.",
+                            icon: "success",
+                            confirmButtonText: "Tamam",
+                            confirmButtonColor: "#3085d6",
+                            background: theme === "dark" ? "#1e1e2f" : "#fff",
+                            color: theme === "dark" ? "#fff" : "#000",
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: "Hata!",
+                            text: error.message,
+                            icon: "error",
+                            confirmButtonText: "Tamam",
+                            background: theme === "dark" ? "#1e1e2f" : "#fff",
+                            color: theme === "dark" ? "#fff" : "#000",
+                        });
+                    });
+                }
+            });
+        }
+
+
+    </script>
+}

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.FinanceDtos
+namespace CleaningSuppliesSystem.WebUI.DTOs.FinanceDtos
 {
     public class CreateFinanceDto
     {
         public string Title { get; set; }
         public string Type { get; set; }
-        public decimal Total { get; set; }
-        public DateTime Date { get; set; }
+        public decimal Amount { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime Date { get; set; } = DateTime.Now;
     }
 }

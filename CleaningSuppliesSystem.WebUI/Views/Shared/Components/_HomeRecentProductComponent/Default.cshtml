@@ -1,0 +1,10 @@
+﻿@model List<ResultProductDto>
+<section class="py-4">
+    <div class="container-lg">
+        <h2 class="my-4">Müşteriler Bunları da Arıyor</h2>
+        @foreach(var item in Model)
+        {
+            <a href="#" class="btn btn-outline-secondary me-2 mb-2">@item.Name</a>
+        }
+    </div>
+</section>

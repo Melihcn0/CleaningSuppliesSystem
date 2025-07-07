@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos
+namespace CleaningSuppliesSystem.WebUI.DTOs.InvoiceDtos
 {
     public class CreateInvoiceDto
     {

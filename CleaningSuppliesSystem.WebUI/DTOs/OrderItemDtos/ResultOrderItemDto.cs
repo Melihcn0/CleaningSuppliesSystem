@@ -1,13 +1,13 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
-using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
-using CleaningSuppliesSystem.Entity.Entities;
+﻿using CleaningSuppliesSystem.Entity.Entities;
+using CleaningSuppliesSystem.WebUI.DTOs.OrderDtos;
+using CleaningSuppliesSystem.WebUI.DTOs.ProductDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos
+namespace CleaningSuppliesSystem.WebUI.DTOs.OrderItemDtos
 {
     public class ResultOrderItemDto
     {

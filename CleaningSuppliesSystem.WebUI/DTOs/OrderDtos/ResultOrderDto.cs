@@ -1,14 +1,13 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
-using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
-using CleaningSuppliesSystem.DTO.DTOs.PaymentDtos;
-using CleaningSuppliesSystem.Entity.Entities;
+﻿using CleaningSuppliesSystem.Entity.Entities;
+using CleaningSuppliesSystem.WebUI.DTOs.InvoiceDtos;
+using CleaningSuppliesSystem.WebUI.DTOs.OrderItemDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.OrderDtos
+namespace CleaningSuppliesSystem.WebUI.DTOs.OrderDtos
 {
     public class ResultOrderDto
     {

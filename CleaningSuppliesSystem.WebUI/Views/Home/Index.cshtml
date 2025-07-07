@@ -1,8 +1,258 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Ana Sayfa";
+    Layout = "~/Views/UILayout/Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section style="background-image: url('/organic-1.0.0/images/banner-1.jpg');background-repeat: no-repeat;background-size: cover;">
+    <div class="container-lg">
+        <div class="row">
+            <div class="col-lg-6 pt-5 mt-5">
+                <h2 class="display-1 ls-1"><span class="fw-bold text-primary">Organic</span> Foods at your <span class="fw-bold">Doorsteps</span></h2>
+                <p class="fs-4">Dignissim massa diam elementum.</p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="btn btn-primary text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Start Shopping</a>
+                    <a href="#" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Join Now</a>
+                </div>
+                <div class="row my-5">
+                    <div class="col">
+                        <div class="row text-dark">
+                            <div class="col-auto"><p class="fs-1 fw-bold lh-sm mb-0">14k+</p></div>
+                            <div class="col"><p class="text-uppercase lh-sm mb-0">Product Varieties</p></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="row text-dark">
+                            <div class="col-auto"><p class="fs-1 fw-bold lh-sm mb-0">50k+</p></div>
+                            <div class="col"><p class="text-uppercase lh-sm mb-0">Happy Customers</p></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="row text-dark">
+                            <div class="col-auto"><p class="fs-1 fw-bold lh-sm mb-0">10+</p></div>
+                            <div class="col"><p class="text-uppercase lh-sm mb-0">Store Locations</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-3 g-0 justify-content-center">
+            <div class="col">
+                <div class="card border-0 bg-primary rounded-0 p-4 text-light">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <svg width="60" height="60"><use xlink:href="#fresh"></use></svg>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body p-0">
+                                <h5 class="text-light">Fresh from farm</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card border-0 bg-secondary rounded-0 p-4 text-light">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <svg width="60" height="60"><use xlink:href="#organic"></use></svg>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body p-0">
+                                <h5 class="text-light">100% Organic</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card border-0 bg-danger rounded-0 p-4 text-light">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <svg width="60" height="60"><use xlink:href="#delivery"></use></svg>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body p-0">
+                                <h5 class="text-light">Free delivery</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Category -->
+@await Component.InvokeAsync("_HomeCategoryComponent")
+<!-- Product -->
+@await Component.InvokeAsync("_HomeProductComponent")
+<!-- Slogan1 -->
+<section class="py-3">
+    <div class="container-lg">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="banner-blocks">
+                    <div class="banner-ad d-flex large bg-info block-1" style="background: url('/Images/Image1.png') no-repeat; background-size: cover; position: relative;">
+                        <div class="banner-content p-5">
+                            <div class="content-wrapper text-light position-absolute" style="top: 20px; left: 20px;">
+                                <h3 class="banner-title text-light">İndirimdeki Ürünler</h3>
+                                <p>%30’a varan indirimler</p>
+                                <a href="#" class="btn-link text-white">Hemen Al</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="banner-ad d-flex large bg-success-subtle block-2" style="background:url('/Images/Image2.png'); no-repeat; background-size: cover;">
+                        <div class="banner-content p-5 position-relative">
+                            <div class="content-wrapper text-light position-absolute" style="top: 20px; left: 20px;">
+                                <h3 class="banner-title text-light">Kaçırılmayacak Fırsatlar</h3>
+                                <p>%30’a varan indirimler</p>
+                                <a href="#" class="btn-link text-white">Hemen Al</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="banner-ad bg-danger block-3" style="background:url('/Images/Image3.png'); no-repeat; background-size: cover;">
+                        <div class="banner-content align-items-center p-5">
+                            <div class="content-wrapper text-light">
+                                <h3 class="banner-title text-light">Yeni Gelenler</h3>
+                                <p>%30’a varan indirimler</p>
+                                <a href="#" class="btn-link text-white">Hemen Al</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Mail Subscriber -->
+<section>
+    <div class="container-lg">
+
+        <div class="bg-secondary text-light py-5 my-5" style="background: url('/Images/Image4.png') no-repeat; background-size: cover;">
+            <div class="container">
+                <div class="row justify-content-center">
+
+                    <div class="col-md-5 p-3">
+                        <div class="section-header">
+                            <h2 class="section-title display-5 text-light">En Yeni Ürünlerden İlk Sen Haberdar Ol</h2>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 p-3">
+                        <form method="#">
+                            <div class="mb-3">
+                                <label for="email" class="form-label d-none">E-posta</label>
+                                <input type="email" class="form-control form-control-md rounded-0" name="email" id="email" placeholder="E-posta adresiniz">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-dark btn-md rounded-0">Gönder</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<!-- Slogan2 -->
+<section class="pb-4 my-4">
+    <div class="container-lg">
+        <div class="rounded-5 overflow-hidden" style="background: linear-gradient(135deg, #343a40, #495057);">
+            <div class="container py-5">
+                <div class="row justify-content-center align-items-center">
+                    <!-- Yazı Alanı -->
+                    <div class="col-md-6">
+                        <h2 class="fw-bold mb-3 text-white">Temizliğin Güvencesi, Kalitenin Adresi</h2>
+                        <p class="mb-4 text-white">Kolay, hızlı ve güvenli sipariş deneyimi şimdi cebinizde.</p>
+                    </div>
+
+                    <!-- Görsel Alanı -->
+                    <div class="col-md-5 text-center" style="margin-left: 20px;">
+                        <img src="/images/Image5.png" alt="Banner Image"
+                             class="img-fluid"
+                             style="max-width: 80%; border-radius: 16px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Recent Products -->
+@await Component.InvokeAsync("_HomeRecentProductComponent")
+
+<section class="py-5">
+    <div class="container-lg">
+        <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-5">
+
+            <div class="col">
+                <div class="card mb-3 bg-dark border border-dark-subtle p-3" style="height: 215px;">
+                    <div class="text-white mb-3">
+                        <svg width="32" height="32"><use xlink:href="#package"></use></svg>
+                    </div>
+                    <div class="card-body p-0">
+                        <h5 class="text-white">Ücretsiz Teslimat</h5>
+                        <p class="card-text text-white">1000 TL ve üzeri siparişlerde adresinize ücretsiz teslimat.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3 bg-dark border-dark-subtle p-3" style="height: 215px;">
+                    <div class="text-white mb-3">
+                        <svg width="32" height="32"><use xlink:href="#secure"></use></svg>
+                    </div>
+                    <div class="card-body p-0">
+                        <h5 class="text-white">Güvenli Ödeme</h5>
+                        <p class="card-text text-white">Ödemeleriniz firmamız tarafından kayda alınır ve dekont ile doğrulanarak işleme alınır.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3 bg-dark border border-dark-subtle p-3" style="height: 215px;">
+                    <div class="text-white mb-3">
+                        <svg width="32" height="32"><use xlink:href="#quality"></use></svg>
+                    </div>
+                    <div class="card-body p-0">
+                        <h5 class="text-white">Kalite Kontrol Süreci</h5>
+                        <p class="card-text text-white">
+                            Siparişleriniz, sevkiyat öncesi kalite ve doğruluk açısından kontrol edilir.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3 bg-dark border border-dark-subtle p-3" style="height: 215px;">
+                    <div class="text-white mb-3">
+                        <svg width="32" height="32"><use xlink:href="#savings"></use></svg>
+                    </div>
+                    <div class="card-body p-0">
+                        <h5 class="text-white">Ekonomik Seçenekler</h5>
+                        <p class="card-text text-white">Toplu alımlarda özel fiyat avantajları sizi bekliyor.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3 bg-dark border border-dark-subtle p-3" style="height: 215px;">
+                    <div class="text-white mb-3">
+                        <svg width="32" height="32"><use xlink:href="#offers"></use></svg>
+                    </div>
+                    <div class="card-body p-0">
+                        <h5 class="text-white">Günlük Kampanyalar</h5>
+                        <p class="card-text text-white">Her gün yenilenen indirimli ürün fırsatlarını kaçırma.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>

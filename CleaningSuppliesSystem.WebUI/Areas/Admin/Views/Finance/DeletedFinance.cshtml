@@ -1,0 +1,146 @@
+﻿@model List<ResultFinanceDto>
+@{
+    ViewData["Title"] = "Finans Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Silinen Finans Listesi</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Finans Adı</th>
+                    <th>Finans Tipi</th>
+                    <th>Miktar</th>
+                    <th>Tarih</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>@item.Title</td>
+                        <td>@(item.Type == "Income" ? "Gelir" : item.Type == "Expense" ? "Gider" : "Bilinmiyor")</td>
+                        <td>@item.Amount</td>
+                        <td>@item.Date.ToShortDateString() @item.Date.ToShortTimeString() <br /> @item.Date.ToLongDateString()</td>
+                        <td>
+                            <form asp-action="UndoDeletedFinance" asp-controller="Finance" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2">
+                                    <span class="material-symbols-outlined">undo</span> Geri al
+                                </button>
+                            </form>
+                            <button onclick="deleteFinance(@item.Id)"
+                                    class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+                                <span class="material-symbols-outlined me-1">delete</span> Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const theme = document.documentElement.getAttribute("data-theme");
+
+            const table = $('#dataTable').DataTable({
+                paging: true,
+                pageLength: 10,
+                ordering: true,
+                order: [[0, "asc"]],
+                columnDefs: [
+                    { orderable: false, targets: 3 }
+                ],
+                language: {
+                    lengthMenu: "Sayfa başına _MENU_ kayıt göster",
+                    zeroRecords: "Kayıt bulunamadı",
+                    emptyTable: "Kayıt yok",
+                    info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
+                    infoEmpty: "Kayıt yok",
+                    infoFiltered: "(toplam _MAX_ kayıt içerisinden filtrelendi)",
+                    search: "Ara:",
+                    paginate: {
+                        first: "İlk",
+                        last: "Son",
+                        next: ">",
+                        previous: "<"
+                    }
+                },
+                classes: {
+                    sTable: 'table table-hover'
+                },
+                initComplete: function () {
+                    const wrapper = $('#dataTable_wrapper');
+                    const length = wrapper.find('.dataTables_length');
+                    const filter = wrapper.find('.dataTables_filter');
+
+                    // Floatları kaldır
+                    length.css({ 'float': 'none', 'margin-right': '1rem' });
+                    filter.css({ 'float': 'none' });
+
+                    // dt-layout-row içinde hizalama
+                    const layoutRow = wrapper.find('.dt-layout-row').first();
+                    layoutRow.addClass('d-flex justify-content-start align-items-center flex-wrap gap-3');
+                }
+            });
+
+            // Tablo kenarlığını kaldır
+            $('#dataTable').removeClass('table-bordered');
+
+            // Tema uyumlu renkler
+            const tableElement = $('#dataTable');
+            if (theme === "dark") {
+                tableElement.removeClass('table-theme-light').addClass('table-theme-dark');
+                $('.dataTables_paginate a, .dataTables_info, .dataTables_length label, .dataTables_filter label').css('color', 'white');
+            } else {
+                tableElement.removeClass('table-theme-dark').addClass('table-theme-light');
+                $('.dataTables_paginate a, .dataTables_info, .dataTables_length label, .dataTables_filter label').css('color', '');
+            }
+        });
+
+        function deleteFinance(id) {
+             const theme = document.documentElement.getAttribute("data-theme");
+             Swal.fire({
+                 title: "Silmek istediğinizden emin misiniz?",
+                 text: "Bu işlemi geri alamazsınız!",
+                 icon: "warning",
+                 showCancelButton: true,
+                 confirmButtonColor: "#3085d6",
+                 cancelButtonColor: "#d33",
+                 confirmButtonText: "Evet, sil!",
+                 cancelButtonText: "İptal",
+                 background: theme === "dark" ? "#1e1e2f" : "#fff",
+                 color: theme === "dark" ? "#fff" : "#000",
+                 allowOutsideClick: false,
+                 allowEscapeKey: false,
+                 allowEnterKey: false
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     Swal.fire({
+                         title: "Silindi!",
+                         text: "Kategori başarıyla silindi.",
+                         icon: "success",
+                         confirmButtonText: "Tamam",
+                         confirmButtonColor: "#3085d6",
+                         background: theme === "dark" ? "#1e1e2f" : "#fff",
+                         color: theme === "dark" ? "#fff" : "#000",
+                         allowOutsideClick: false,
+                         allowEscapeKey: false
+                     }).then(() => {
+                         window.location.href = `/Admin/Finance/DeleteFinance/${id}`;
+                     });
+                 }
+             });
+         }
+    </script>
+}

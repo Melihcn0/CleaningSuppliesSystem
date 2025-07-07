@@ -14,5 +14,6 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public int Quantity { get; set; } // Girilen miktar (adet)
         public DateTime EntryDate { get; set; } // Giriş tarihi
         public string? Description { get; set; } // Açıklama (opsiyonel)
+        public bool IsDeleted { get; set; }
     }
 }

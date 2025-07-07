@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.OrderDtos
+namespace CleaningSuppliesSystem.WebUI.DTOs.OrderDtos
 {
     public class UpdateOrderDto
     {
