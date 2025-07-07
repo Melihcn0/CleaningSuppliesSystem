@@ -12,6 +12,7 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public string ImageUrl { get; set; } // Ürün Fotoğrafı
         public string Name { get; set; } // Ürün adı
         public decimal UnitPrice { get; set; } // Satış fiyatı
+        public decimal DiscountRate { get; set; }  // indirim
         public DateTime CreatedAt { get; set; } // tarih
         public bool IsDeleted { get; set; }
         public int CategoryId { get; set; } // Bağlı olduğu kategori kimliği

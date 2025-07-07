@@ -8,6 +8,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using static CleaningSuppliesSystem.WebUI.Validators.Validators;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
@@ -36,6 +37,42 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var products = values.Where(x => x.IsDeleted == false).ToList();
             return View(products);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyDiscount(UpdateProductDto updateProductDto)
+        {
+            var validator = new DiscountValidator();
+            var result = await validator.ValidateAsync(updateProductDto);
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                return View(updateProductDto);
+            }
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == updateProductDto.Id);
+            product.DiscountRate = updateProductDto.DiscountRate;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Üründe %{updateProductDto.DiscountRate} indirim yapıldı.";
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> ApplyDiscount(int id)
+        {
+            var product = await _context.Products.Where(p => p.Id == id)
+                .Select(p => new UpdateProductDto
+                {
+                    Id = p.Id,
+                    UnitPrice = p.UnitPrice,
+                    DiscountRate = p.DiscountRate
+                })
+                .FirstOrDefaultAsync();
+            ViewBag.ShowBackButton = true;
+            return View(product);
+        }
+
         [HttpPost]
         public async Task<IActionResult> SoftDeletedProduct(int id)
         {

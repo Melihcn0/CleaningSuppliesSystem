@@ -13,6 +13,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
         public string ImageUrl { get; set; }
         public string Name { get; set; }
         public decimal UnitPrice { get; set; }
+        public decimal DiscountRate { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public int CategoryId { get; set; }

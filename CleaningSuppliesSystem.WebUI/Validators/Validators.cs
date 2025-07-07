@@ -73,6 +73,16 @@ namespace CleaningSuppliesSystem.WebUI.Validators
                     .LessThanOrEqualTo(1000).WithMessage("Ürün birim fiyatı 1000 TL'den fazla olamaz.");
             }
         }
+        public class DiscountValidator : AbstractValidator<UpdateProductDto>
+        {
+            public DiscountValidator()
+            {
+                RuleFor(x => x.DiscountRate)
+                    .NotEmpty().WithMessage("İndirim oranı boş bırakılamaz.")
+                    .GreaterThan(0).WithMessage("İndirim sıfırdan büyük olmalı.")
+                    .LessThanOrEqualTo(100).WithMessage("İndirim %100’ü geçemez.");
+            }
+        }
         public class CreateFinanceValidator : AbstractValidator<CreateFinanceDto>
         {
             public CreateFinanceValidator()

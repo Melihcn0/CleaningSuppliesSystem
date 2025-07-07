@@ -16,7 +16,6 @@
                 <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5">
                    @foreach(var item in Model)
                     {
-                        var basePrice = item.UnitPrice * 1.30m;
                     <div class="col">
                         <div class="product-item">                                
                             <figure>
@@ -36,9 +35,9 @@
                                     </span>
                                 </div>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <del>@basePrice.ToString("0.00") ₺</del>
-                                    <span class="text-dark fw-semibold">@item.UnitPrice ₺</span>
-                                    <span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary">%30 İndirim</span>
+                                    <del>@item.UnitPrice ₺</del>
+                                        <span class="text-dark fw-semibold">@((item.UnitPrice * (1 - item.DiscountRate / 100)).ToString("N2")) ₺</span>@if (item.DiscountRate > 0)
+                                        {<span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary"> @item.DiscountRate.ToString("F0") %</span>}
                                 </div>
                                 <div class="button-area p-3 pt-0">
                                     <div class="row g-1 mt-2">

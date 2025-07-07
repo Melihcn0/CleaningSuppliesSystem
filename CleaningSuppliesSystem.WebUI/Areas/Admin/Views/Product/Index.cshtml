@@ -5,8 +5,6 @@
     int count = 0;
 }
 
-
-
 <div class="card basic-data-table">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Kategori Listesi</h5>
@@ -27,6 +25,8 @@
                     <th>Ürün Fotoğrafı</th>
                     <th>Ürün Adı</th>
                     <th>Birim Fiyat</th>
+                    <th>İndirim Oranı</th>
+                    <th>İndirimli Fiyat</th>
                     <th>Kategori</th>
                     <th>Eklenme Tarihi</th>
                     <th>İşlem</th>
@@ -42,10 +42,16 @@
                             <img src="@item.ImageUrl" alt="Ürün görseli" style="width: 75px; height: 75px; object-fit: cover;" />
                         </td>
                         <td>@item.Name</td>
-                        <td>@item.UnitPrice</td>
+                        <td>@item.UnitPrice ₺</td>
+                        <td>@item.DiscountRate.ToString("F0") %</td>
+                        <td>@((item.UnitPrice * (1 - item.DiscountRate / 100)).ToString("N2")) ₺</td>
                         <td>@item.Category.Name</td>
                         <td>@item.CreatedAt.ToShortDateString() @item.CreatedAt.ToShortTimeString() <br /> @item.CreatedAt.ToLongDateString()</td>
                         <td>
+                            <a asp-action="ApplyDiscount" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id"
+                               class="btn btn-outline-success-600 btn-sm d-inline-flex align-items-center me-2">
+                                <span class="material-symbols-outlined">sell</span>
+                            </a>
                             <a asp-action="UpdateProduct" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id"
                                class="btn btn-outline-info-600 btn-sm d-inline-flex align-items-center me-2">
                                 <span class="material-symbols-outlined me-1">edit</span> Düzenle
@@ -71,7 +77,7 @@
                 ordering: true,
                 order: [[0, "asc"]],
                 columnDefs: [
-                    { orderable: false, targets: 6 }
+                    { orderable: false, targets: 8 }
                 ],
                 language: {
                     lengthMenu: "Sayfa başına _MENU_ kayıt göster",
