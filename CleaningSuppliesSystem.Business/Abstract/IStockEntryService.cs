@@ -1,4 +1,6 @@
-﻿using CleaningSuppliesSystem.Entity.Entities;
+﻿using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
+using CleaningSuppliesSystem.Entity.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +13,9 @@ namespace CleaningSuppliesSystem.Business.Abstract
     {
         Task<List<StockEntry>> TGetStockEntryWithProductsandCategoriesAsync();
         Task<StockEntry> TGetByIdAsyncWithProductsandCategories(int id);
+        Task<(bool IsSuccess, string Message)> TCreateStockEntryAsync(CreateStockEntryDto createStockEntryDto);
+        Task<(bool IsSuccess, string Message)> TUpdateStockEntryAsync(UpdateStockEntryDto updateStockEntryDto);
+        Task<(bool IsSuccess, string Message)> TSoftDeleteStockEntryAsync(int id);
+        Task<(bool IsSuccess, string Message)> TUndoSoftDeleteStockEntryAsync(int id);
     }
 }

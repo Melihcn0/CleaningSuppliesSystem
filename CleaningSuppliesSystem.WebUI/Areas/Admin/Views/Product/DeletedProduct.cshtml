@@ -43,7 +43,7 @@
                                     <span class="material-symbols-outlined">undo</span> Geri al
                                 </button>
                             </form>
-                            <button onclick="deletedProduct(@item.Id)"
+                            <button onclick="deleteProduct(@item.Id)"
                                     class="btn btn-outline-danger-600 btn-sm d-inline-flex align-items-center">
                                 <span class="material-symbols-outlined me-1">delete</span> Sil
                             </button>
@@ -65,7 +65,7 @@
                 ordering: true,
                 order: [[0, "asc"]],
                 columnDefs: [
-                    { orderable: false, targets: 3 }
+                    { orderable: false, targets: 6 }
                 ],
                 language: {
                     lengthMenu: "Sayfa başına _MENU_ kayıt göster",

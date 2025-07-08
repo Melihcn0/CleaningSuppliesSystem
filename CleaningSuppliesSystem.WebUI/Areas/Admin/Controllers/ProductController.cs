@@ -1,21 +1,18 @@
-﻿using CleaningSuppliesSystem.DataAccess.Context;
-using CleaningSuppliesSystem.Entity.Entities;
-using CleaningSuppliesSystem.WebUI.DTOs.CategoryDtos;
-using CleaningSuppliesSystem.WebUI.DTOs.FinanceDtos;
-using CleaningSuppliesSystem.WebUI.DTOs.ProductDtos;
+﻿using CleaningSuppliesSystem.Business.Abstract;
+using CleaningSuppliesSystem.DataAccess.Context;
+using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.WebUI.Helpers;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using static CleaningSuppliesSystem.WebUI.Validators.Validators;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Route("[area]/[controller]/[action]/{id?}")]
-    public class ProductController(CleaningSuppliesSystemContext _context) : Controller
+    public class ProductController(CleaningSuppliesSystemContext context, IProductService _productService) : Controller
     {
         private readonly HttpClient _client = HttpClientInstance.CreateClient();
 
@@ -42,45 +39,32 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyDiscount(UpdateProductDto updateProductDto)
         {
-            var validator = new DiscountValidator();
-            var result = await validator.ValidateAsync(updateProductDto);
-            if (!result.IsValid)
+            (bool isSuccess, List<string> errors) = await _productService.TApplyDiscountAsync(updateProductDto);
+            if (!isSuccess)
             {
-                foreach (var error in result.Errors)
+                foreach (var error in errors)
                 {
-                    ModelState.Remove(error.PropertyName);
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    ModelState.AddModelError("", error);
                 }
                 return View(updateProductDto);
             }
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == updateProductDto.Id);
-            product.DiscountRate = updateProductDto.DiscountRate;
-            await _context.SaveChangesAsync();
+
             TempData["SuccessMessage"] = $"Üründe %{updateProductDto.DiscountRate} indirim yapıldı.";
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
         public async Task<IActionResult> ApplyDiscount(int id)
         {
-            var product = await _context.Products.Where(p => p.Id == id)
-                .Select(p => new UpdateProductDto
-                {
-                    Id = p.Id,
-                    UnitPrice = p.UnitPrice,
-                    DiscountRate = p.DiscountRate
-                })
-                .FirstOrDefaultAsync();
+            var productDto = await _productService.TGetProductForDiscountAsync(id);
+            if (productDto == null)
+                return NotFound();
+
             ViewBag.ShowBackButton = true;
-            return View(product);
+            return View(productDto);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> SoftDeletedProduct(int id)
-        {
-            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
-            product.IsDeleted = true;
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+
 
         public async Task<IActionResult> DeletedProduct()
         {
@@ -91,14 +75,33 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> SoftDeletedProduct(int id)
+        {
+            var (isSuccess, message) = await _productService.TSoftDeleteProductAsync(id);
+            if (!isSuccess)
+            {
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["SuccessMessage"] = message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UndoDeletedProduct(int id)
         {
-            ViewBag.ShowBackButton = true;
-            var products = await _context.Products.FindAsync(id);
-            products.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            var (isSuccess, message) = await _productService.TUndoSoftDeleteProductAsync(id);
+            if (!isSuccess)
+            {
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction(nameof(DeletedProduct));
+            }
+
+            TempData["SuccessMessage"] = message;
             return RedirectToAction(nameof(DeletedProduct));
         }
+
         public async Task<IActionResult> DeleteProduct(int id)
         {
             await _client.DeleteAsync($"products/{id}");
@@ -112,22 +115,65 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProduct(CreateProductDto createProductDto)
         {
-            var validator = new Validators.Validators.CreateProductValidator();
+            var validator = new Business.Validators.Validators.CreateProductValidator();
             var result = await validator.ValidateAsync(createProductDto);
+
+
             await CategoryDropdown();
+
             if (!result.IsValid)
             {
-                foreach (var x in result.Errors)
+                foreach (var error in result.Errors)
                 {
-                    ModelState.Remove(x.PropertyName);
-                    ModelState.AddModelError(x.PropertyName, x.ErrorMessage);
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
                 return View(createProductDto);
             }
 
-            await _client.PostAsJsonAsync("products", createProductDto);
+            var (isSuccess, message) = await _productService.TCreateProductAsync(createProductDto);
+
+            if (!isSuccess)
+            {
+                ModelState.AddModelError("", message);
+                return View(createProductDto);
+            }
+
+            TempData["SuccessMessage"] = "Ürün başarıyla oluşturuldu.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProduct(UpdateProductDto updateProductDto)
+        {
+            var validator = new Business.Validators.Validators.UpdateProductValidator();
+            var result = await validator.ValidateAsync(updateProductDto);
+
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                await CategoryDropdown();
+                return View(updateProductDto);
+            }
+
+            var (isSuccess, message) = await _productService.TUpdateProductAsync(updateProductDto);
+
+            if (!isSuccess)
+            {
+                ModelState.AddModelError("", message);
+                await CategoryDropdown();
+                return View(updateProductDto);
+            }
+
+            TempData["SuccessMessage"] = "Ürün başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -139,27 +185,5 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return View(value);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateProduct(UpdateProductDto updateProductDto)
-        {
-            var validator = new Validators.Validators.UpdateProductValidator();
-            var result = await validator.ValidateAsync(updateProductDto);
-
-            if (!result.IsValid)
-            {
-                foreach (var x in result.Errors)
-                {
-                    ModelState.Remove(x.PropertyName);
-                    ModelState.AddModelError(x.PropertyName, x.ErrorMessage);
-                }
-                await CategoryDropdown();
-                return View(updateProductDto);
-            }
-            await CategoryDropdown();
-            await _client.PutAsJsonAsync("products", updateProductDto);
-
-            TempData["SuccessMessage"] = "Ürün başarıyla güncellendi.";
-            return RedirectToAction(nameof(Index));
-        }
     }
 }

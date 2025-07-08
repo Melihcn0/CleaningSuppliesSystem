@@ -34,11 +34,22 @@
                                         <svg width="18" height="18" class="text-warning"><use xlink:href="#star-half"></use></svg>
                                     </span>
                                 </div>
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <del>@item.UnitPrice ₺</del>
-                                        <span class="text-dark fw-semibold">@((item.UnitPrice * (1 - item.DiscountRate / 100)).ToString("N2")) ₺</span>@if (item.DiscountRate > 0)
-                                        {<span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary"> @item.DiscountRate.ToString("F0") %</span>}
-                                </div>
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        @if (item.DiscountRate > 0)
+                                        {
+                                            <del>@item.UnitPrice ₺</del>
+                                            <span class="text-dark fw-semibold">
+                                                @((item.UnitPrice * (1 - item.DiscountRate / 100)).ToString("N2")) ₺
+                                            </span>
+                                            <span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary">
+                                                @item.DiscountRate.ToString("F0")% İndirim
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-dark fw-semibold">@item.UnitPrice.ToString("N2") ₺</span>
+                                        }
+                                    </div>
                                 <div class="button-area p-3 pt-0">
                                     <div class="row g-1 mt-2">
                                         <div class="col-3"><input type="number" name="quantity" class="form-control border-dark-subtle input-number quantity" value="1"></div>

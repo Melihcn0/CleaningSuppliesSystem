@@ -1,14 +1,34 @@
+using CleaningSuppliesSystem.Business.Abstract;
+using CleaningSuppliesSystem.Business.Concrete;
+using CleaningSuppliesSystem.DataAccess.Abstract;
+using CleaningSuppliesSystem.DataAccess.Concrete;
 using CleaningSuppliesSystem.DataAccess.Context;
+using CleaningSuppliesSystem.DataAccess.Repositories;
 using CleaningSuppliesSystem.Entity.Entities;
 using CleaningSuppliesSystem.WebUI.Services.UserServices;
 using CleaningSuppliesSystem.WebUI.Validator;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericManager<>));
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductService, ProductManager>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryManager>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IFinanceService, FinanceManager>();
+builder.Services.AddScoped<IFinanceRepository, FinanceRepository>();
+builder.Services.AddScoped<IStockEntryService, StockEntryManager>();
+builder.Services.AddScoped<IStockEntryRepository, StockEntryRepository>();
+
+
 builder.Services.AddDbContext<CleaningSuppliesSystemContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));

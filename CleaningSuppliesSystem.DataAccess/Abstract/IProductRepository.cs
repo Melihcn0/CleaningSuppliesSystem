@@ -11,5 +11,10 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
     {
         Task<List<Product>> GetProductsWithCategoriesAsync();
         Task<Product> GetByIdAsyncWithCategory(int id);
+        Task<Product> GetByIdAsync(int id);
+        Task CreateAsync(Product product);
+        Task UpdateAsync(Product product);
+        Task SoftDeleteAsync(Product product);
+        Task UndoSoftDeleteAsync(Product product);
     }
 }

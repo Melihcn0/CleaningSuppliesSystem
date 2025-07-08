@@ -14,8 +14,8 @@ namespace CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos
         public int ProductId { get; set; }
         public ResultProductDto Product { get; set; }
         public int Quantity { get; set; }
-        public DateTime EntryDate { get; set; }
+        public DateTime EntryDate { get; set; } = DateTime.Now;
         public string? Description { get; set; }
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

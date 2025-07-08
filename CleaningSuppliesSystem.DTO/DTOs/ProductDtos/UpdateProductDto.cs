@@ -18,7 +18,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
         public decimal UnitPrice { get; set; }
         public decimal DiscountRate { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int CategoryId { get; set; }
     }
 }

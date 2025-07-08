@@ -1,6 +1,7 @@
-﻿using CleaningSuppliesSystem.DataAccess.Context;
-using CleaningSuppliesSystem.Entity.Entities;
-using CleaningSuppliesSystem.WebUI.DTOs.CategoryDtos;
+﻿using AutoMapper;
+using CleaningSuppliesSystem.Business.Abstract;
+using CleaningSuppliesSystem.DataAccess.Context;
+using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.WebUI.Helpers;
 using CleaningSuppliesSystem.WebUI.Validators;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Route("[area]/[controller]/[action]/{id?}")]
-    public class CategoryController(CleaningSuppliesSystemContext _context) : Controller
+    public class CategoryController(CleaningSuppliesSystemContext _context, ICategoryService _categoryService, IMapper _mapper) : Controller
     {
         private readonly HttpClient _client = HttpClientInstance.CreateClient();
         public async Task<IActionResult> Index()
@@ -22,6 +23,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteCategory(int id)
         {
             await _client.DeleteAsync($"categories/{id}");
+            TempData["SuccessMessage"] = "Kategori başarıyla silindi.";
             return RedirectToAction(nameof(DeletedCategory));
         }
         public IActionResult CreateCategory()
@@ -29,16 +31,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             ViewBag.ShowBackButton = true;
             return View();
         }
-
-        [HttpPost]
-        public async Task<IActionResult> SoftDeletedCategory(int id)
-        {
-            var category = await _context.Categories.FirstOrDefaultAsync(x => x.Id == id);
-            category.IsDeleted = true;
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
         public async Task<IActionResult> DeletedCategory()
         {
             ViewBag.ShowBackButton = true;
@@ -48,61 +40,91 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> SoftDeletedCategory(int id)
+        {
+            var (isSuccess, message) = await _categoryService.TSoftDeleteCategoryAsync(id);
+            if (!isSuccess)
+            {
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["SuccessMessage"] = message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UndoDeletedCategory(int id)
         {
-            ViewBag.ShowBackButton = true;
-            var category = await _context.Categories.FindAsync(id);
-            category.IsDeleted = false;
-            await _context.SaveChangesAsync();
+            var (isSuccess, message) = await _categoryService.TUndoSoftDeleteCategoryAsync(id);
+            if (!isSuccess)
+            {
+                TempData["ErrorMessage"] = message;
+                return RedirectToAction(nameof(DeletedCategory));
+            }
+
+            TempData["SuccessMessage"] = message;
             return RedirectToAction(nameof(DeletedCategory));
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCategory(CreateCategoryDto createCategoryDto)
         {
-            var validator = new Validators.Validators.CreateCategoryValidator();
+            var validator = new Business.Validators.Validators.CreateCategoryValidator();
             var result = await validator.ValidateAsync(createCategoryDto);
-            if(!result.IsValid)
+            if (!result.IsValid)
             {
-                foreach (var x in result.Errors)
+                foreach (var error in result.Errors)
                 {
-                    ModelState.Remove(x.PropertyName);
-                    ModelState.AddModelError(x.PropertyName, x.ErrorMessage);
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
                 return View(createCategoryDto);
             }
-            await _client.PostAsJsonAsync("categories", createCategoryDto);
+            var (isSuccess, message) = await _categoryService.TCreateCategoryAsync(createCategoryDto);
+            if (!isSuccess)
+            {
+                ModelState.AddModelError("", message);
+                return View(createCategoryDto);
+            }
+
+            TempData["SuccessMessage"] = "Kategori başarıyla oluşturuldu.";
             return RedirectToAction(nameof(Index));
         }
-        
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateCategory(UpdateCategoryDto updateCategoryDto)
+        {
+            var validator = new Business.Validators.Validators.UpdateCategoryValidator();
+            var result = await validator.ValidateAsync(updateCategoryDto);
+
+            if (!result.IsValid)
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+                return View(updateCategoryDto);
+            }
+            var (isSuccess, message) = await _categoryService.TUpdateCategoryAsync(updateCategoryDto);
+            if (!isSuccess)
+            {
+                ModelState.AddModelError("", message);
+                return View(updateCategoryDto);
+            }
+
+            TempData["SuccessMessage"] = "Kategori başarıyla güncellendi.";
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> UpdateCategory(int id)
         {
             var value = await _client.GetFromJsonAsync<UpdateCategoryDto>($"categories/{id}");
             ViewBag.ShowBackButton = true;
             return View(value);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateCategory(UpdateCategoryDto updateCategoryDto)
-        {
-            var validator = new Validators.Validators.UpdateCategoryValidator();
-            var result = await validator.ValidateAsync(updateCategoryDto);
-            var category = await _client.GetFromJsonAsync<ResultCategoryDto>($"categories/{updateCategoryDto.Id}");
-            if (!result.IsValid)
-            {
-                foreach (var x in result.Errors)
-                {
-                    ModelState.Remove(x.PropertyName);
-                    ModelState.AddModelError(x.PropertyName, x.ErrorMessage);
-                }
-                updateCategoryDto.Name = category.Name;
-                return View(updateCategoryDto);
-            }
-
-            await _client.PutAsJsonAsync("categories", updateCategoryDto);
-
-            TempData["SuccessMessage"] = "Kategori başarıyla güncellendi.";
-            return RedirectToAction(nameof(Index));
         }
 
     }

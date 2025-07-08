@@ -39,7 +39,7 @@
                                     <span class="material-symbols-outlined">undo</span> Geri al
                                 </button>
                             </form>
-                            <button onclick="deletedStockEntry(@item.Id)"
+                            <button onclick="deleteStockEntry(@item.Id)"
                                     class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
                                 <span class="material-symbols-outlined me-1">delete</span> Sil
                             </button>
@@ -110,7 +110,7 @@
             }
         });
 
-        function deletedStockEntry(id) {
+        function deleteStockEntry(id) {
             const theme = document.documentElement.getAttribute("data-theme");
             Swal.fire({
                 title: "Silmek istediğinizden emin misiniz?",

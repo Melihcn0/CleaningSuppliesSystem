@@ -11,7 +11,7 @@ namespace CleaningSuppliesSystem.WebUI.DTOs.StockEntryDtos
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }
-        public DateTime EntryDate { get; set; }
+        public DateTime EntryDate { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; } = false;
         public string? Description { get; set; }
     }

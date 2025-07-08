@@ -7,7 +7,7 @@
 <form id="updateStockEntryForm" method="post">
     <input type="hidden" asp-for="Id" />
     <label>Ürün Seçin</label>
-    <select asp-items="@ViewBag.categories" asp-for="ProductId" class="form-control">
+    <select asp-items="@ViewBag.products" asp-for="ProductId" class="form-control">
         <option value="" disabled selected>Ürün Seçin</option>
     </select>
     <span asp-validation-for="ProductId" class="text-danger"></span>
