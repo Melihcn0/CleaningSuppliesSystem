@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.WebUI.DTOs.ProductDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Mvc;
 

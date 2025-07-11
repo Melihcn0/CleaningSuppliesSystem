@@ -1,0 +1,54 @@
+﻿@model List<ResultRoleDto>
+@{
+    ViewData["Title"] = "Rol Listesi Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Rol Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            @if (ViewBag.ShowCreateRoleButton != null && (bool)ViewBag.ShowCreateRoleButton)
+            {
+                <a asp-action="CreateRole" asp-controller="Role" asp-area="Admin"
+                   class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center">
+                    <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Rol Ekle
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Rol Adı</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>
+                            @{
+                                var badgeClass = item.Name == "Customer" ? "bg-dark-dark-gradient"
+                                : item.Name == "Admin" ? "bg-dark-info-gradient"
+                                : "bg-dark-warning-gradient";
+
+                                var displayText = item.Name == "Customer" ? "Müşteri"
+                                : item.Name == "Admin" ? "Yetkili"
+                                : "Admin";
+                            }
+
+                            <span class="badge text-sm fw-semibold @badgeClass px-20 py-9 radius-4 text-white">@displayText</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

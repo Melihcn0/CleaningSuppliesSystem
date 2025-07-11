@@ -3,14 +3,14 @@ using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DataAccess.Context;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.WebUI.Helpers;
-using CleaningSuppliesSystem.WebUI.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Area("Admin")]
-    [Route("[area]/[controller]/[action]/{id?}")]
     public class CategoryController(CleaningSuppliesSystemContext _context, ICategoryService _categoryService, IMapper _mapper) : Controller
     {
         private readonly HttpClient _client = HttpClientInstance.CreateClient();

@@ -1,0 +1,99 @@
+﻿@model List<UserViewModel>
+@{
+    ViewData["Title"] = "Rol Atama Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+    var userIdToEdit = TempData["userId"] != null ? (int)TempData["userId"] : 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Rol Atama</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover mb-0" id="dataTable">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Mail</th>
+                    <th>Kayıt Tarihi</th>
+                    <th>Rol</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(++count)</td>
+                        <td>@item.NameSurname</td>
+                        <td>@item.UserName</td>
+                        <td>@item.Email</td>
+                        <td>
+                            @item.CreatedAt.ToShortDateString() @item.CreatedAt.ToShortTimeString()
+                            <br />@item.CreatedAt.ToLongDateString()
+                        </td>
+                        <td>
+                            @foreach (var role in item.Role)
+                            {
+                                var badgeClass = role == "Customer" ? "bg-dark-dark-gradient"
+                                : role == "Admin" ? "bg-dark-info-gradient"
+                                : "bg-dark-warning-gradient";
+
+                                var displayText = role == "Customer" ? "Müşteri"
+                                : role == "Admin" ? "Yetkili"
+                                : "Admin";
+
+                                <span class="badge text-sm fw-semibold @badgeClass px-20 py-9 radius-4 text-white">@displayText</span>
+                            }
+                        </td>
+                        <td>
+                            @{
+                                var currentRole = item.Role.FirstOrDefault();
+                                var otherRole = currentRole == "Admin" ? "Customer"
+                                : currentRole == "Customer" ? "Admin"
+                                : null;
+
+                                var switchBadgeClass = otherRole == "Customer" ? "bg-dark-dark-gradient"
+                                : otherRole == "Admin" ? "bg-dark-info-gradient"
+                                : "bg-dark-warning-gradient";
+
+                                var switchDisplayText = otherRole == "Customer" ? "Müşteri"
+                                : otherRole == "Admin" ? "Yetkili"
+                                : "Rol Yok";
+                            }
+
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Rol Ata
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if (!string.IsNullOrEmpty(otherRole))
+                                    {
+                                        <li>
+                                            <form asp-action="AssignRole" asp-controller="RoleAssign" asp-area="Admin" method="post">
+                                                <input type="hidden" name="userId" value="@item.Id" />
+                                                <input type="hidden" name="selectedRole" value="@otherRole" />
+                                                <button type="submit" class="dropdown-item text-white fw-semibold @switchBadgeClass px-16 py-8 rounded">
+                                                    @switchDisplayText
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <span class="dropdown-item text-muted">Uygun rol bulunamadı</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

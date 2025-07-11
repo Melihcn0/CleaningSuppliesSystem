@@ -32,13 +32,11 @@
             const form = document.getElementById("updateStockEntryForm");
             const theme = document.documentElement.getAttribute("data-theme");
 
-            // Önce form validasyonunu kontrol et
             if (!form.checkValidity()) {
-                form.reportValidity(); // Hataları göster
-                return; // Onay alerti gösterme
+                form.reportValidity();
+                return;
             }
 
-            // Validasyon geçtiyse onay sor
             Swal.fire({
                 title: "Değişiklikler kaydedilsin mi?",
                 text: "İşlemi onaylıyor musunuz?",

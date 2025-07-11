@@ -69,51 +69,6 @@
 </div>
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // DataTable başlat
-            $('#dataTable').DataTable({
-                paging: true,
-                pageLength: 10,
-                ordering: true,
-                order: [[0, "asc"]],
-                columnDefs: [
-                    { orderable: false, targets: 8 }
-                ],
-                language: {
-                    lengthMenu: "Sayfa başına _MENU_ kayıt göster",
-                    zeroRecords: "Kayıt bulunamadı",
-                    emptyTable: "Kayıt yok",
-                    info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
-                    infoEmpty: "Kayıt yok",
-                    infoFiltered: "(toplam _MAX_ kayıt içerisinden filtrelendi)",
-                    search: "Ara:",
-                    paginate: {
-                        first: "ilk",
-                        last: "Son",
-                        next: ">",
-                        previous: "<"
-                    }
-                }
-            });
-
-                // Tabloya tema sınıfı ekle ve renkleri ayarla
-            const tableElement = $('#dataTable');
-            if (theme === "dark") {
-                tableElement.removeClass('table-theme-light').addClass('table-theme-dark');
-                $('.dataTables_paginate a').css('color', 'white');
-                $('.dataTables_info').css('color', 'white');
-                $('.dataTables_length label').css('color', 'white');
-                $('.dataTables_filter label').css('color', 'white');
-            } else {
-                tableElement.removeClass('table-theme-dark').addClass('table-theme-light');
-                $('.dataTables_paginate a').css('color', '');
-                $('.dataTables_info').css('color', '');
-                $('.dataTables_length label').css('color', '');
-                $('.dataTables_filter label').css('color', '');
-            }
-
-        });
-
 
            function deletedProduct(id) {
             const theme = document.documentElement.getAttribute("data-theme");

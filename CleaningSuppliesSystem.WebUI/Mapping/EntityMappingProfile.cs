@@ -7,6 +7,7 @@ using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -46,6 +47,14 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<CreateOrderItemDto, OrderItem>().ReverseMap();
             CreateMap<UpdateOrderItemDto, OrderItem>().ReverseMap();
             CreateMap<ResultOrderItemDto, OrderItem>().ReverseMap();
+
+            // Role
+            CreateMap<CreateRoleDto, AppRole>()
+                .ForMember(dest => dest.ConcurrencyStamp, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+                .ForMember(dest => dest.NormalizedName, opt => opt.MapFrom(src => src.Name.ToUpper()));
+            CreateMap<ResultRoleDto, AppRole>().ReverseMap();
+
+
         }
     }
 }

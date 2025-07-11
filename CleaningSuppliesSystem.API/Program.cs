@@ -4,13 +4,31 @@ using CleaningSuppliesSystem.DataAccess.Abstract;
 using CleaningSuppliesSystem.DataAccess.Concrete;
 using CleaningSuppliesSystem.DataAccess.Context;
 using CleaningSuppliesSystem.DataAccess.Repositories;
+using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+// DbContext ekle
+builder.Services.AddDbContext<CleaningSuppliesSystemContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
+});
+
+// Identity servisini ekle (UserManager ve RoleManager otomatik eklenir)
+builder.Services.AddIdentity<AppUser, AppRole>(options =>
+{
+   
+})
+.AddEntityFrameworkStores<CleaningSuppliesSystemContext>()
+.AddDefaultTokenProviders();
+
+// Repository ve servis kayýtlarý
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericManager<>));
 builder.Services.AddScoped<IProductService, ProductManager>();
@@ -23,26 +41,18 @@ builder.Services.AddScoped<IOrderService, OrderManager>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IInvoiceService, InvoiceManager>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IMailService, MailManager>();
 
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-//builder.Services.AddControllers().AddJsonOptions(options => DONGULER ÝÇÝN JSON SERÝZALÝZER EDER
-//{
-//    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-//});
-
-
-builder.Services.AddDbContext<CleaningSuppliesSystemContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
-});
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -51,9 +61,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
-

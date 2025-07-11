@@ -464,9 +464,9 @@ button:focus {
   outline: none;
 }
 
-span {
+/*span {
   display: inline-block;
-}
+}*/
 
 a {
   text-decoration: none;
@@ -12275,7 +12275,9 @@ div.dt-container .dt-paging .dt-paging-button:hover:hover, div.dt-container .dt-
 }
 
 .input-group-text {
-  color: var(--text-secondary-light);
+    border: 1px solid var(--input-form-light);
+    background-color: var(--neutral-200);
+    color: var(--text-secondary-light);
 }
 
 .form-control.is-invalid, .was-validated .form-control:invalid {
@@ -12293,7 +12295,7 @@ div.dt-container .dt-paging .dt-paging-button:hover:hover, div.dt-container .dt-
 
 .icon-field .icon {
   position: absolute;
-  top: 12px;
+  top: 17px;
   inset-inline-start: 0;
   width: 40px;
   display: flex;

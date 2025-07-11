@@ -1,0 +1,26 @@
+﻿@model CreateRoleDto
+@{
+    ViewData["Title"] = "CreateRole";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    <label>Rol Seçimi</label>
+    <select asp-for="Name" class="form-control">
+        <option value="" disabled selected>-- Rol Seçiniz --</option>
+        @foreach (var role in ViewBag.SelectableRoles as List<string>)
+        {
+            string displayText = role switch
+            {
+                "Admin" => "Admin",
+                "Customer" => "Müşteri",
+                _ => role
+            };
+
+            <option value="@role">@displayText</option>
+        }
+    </select>
+    <span asp-validation-for="Name" class="text-danger"></span>
+    <br />
+    <button class="btn btn-outline-primary-600">Kaydet</button>
+</form>

@@ -1,0 +1,211 @@
+﻿@model UserLoginDto
+@{
+    Layout = null;
+}
+
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ess Star | Oturum Aç</title>
+    <link rel="icon" type="image/png" href="~/wowdash-admin/assets/images/favicon.png" sizes="16x16">
+    <!-- remix icon font css  -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/remixicon.css">
+    <!-- BootStrap css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/bootstrap.min.css">
+    <!-- Apex Chart css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/apexcharts.css">
+    <!-- Data Table css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/dataTables.min.css">
+    <!-- Text Editor css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/editor-katex.min.css">
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/editor.atom-one-dark.min.css">
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/editor.quill.snow.css">
+    <!-- Date picker css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/flatpickr.min.css">
+    <!-- Calendar css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/full-calendar.css">
+    <!-- Vector Map css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/jquery-jvectormap-2.0.5.css">
+    <!-- Popup css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/magnific-popup.css">
+    <!-- Slick Slider css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/slick.css">
+    <!-- prism css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/prism.css">
+    <!-- file upload css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/file-upload.css">
+
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/audioplayer.css">
+    <!-- main css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/style.css">
+    <!-- Google Material Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+<body>
+    </style>
+    <section class="auth bg-base d-flex flex-wrap">
+        <div class="auth-left d-lg-block d-none">
+            <!--<div class="d-flex align-items-center flex-column h-100 justify-content-center">
+                <img src="~/wowdash-admin/assets/images/auth/auth-img.png" alt="">
+            </div>-->
+        </div>
+        <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
+            <!-- Ana Sayfa Butonu -->
+            <a href="~/Home/Index"
+               class="btn btn-sm btn-secondary rounded-circle position-absolute top-0 start-0 m-3 z-3 d-flex align-items-center justify-content-center" style="width:38px; height:38px;">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div class="max-w-464-px mx-auto w-100">
+                <div>
+                    <!-- <a href="index.html" class="mb-40 max-w-290-px">
+                        <img src="~/wowdash-admin/assets/images/logo.png" alt="">
+                    </a>-->
+                    <h4 class="mb-12">Giriş Yap</h4>
+                    <p class="mb-28 text-secondary-light text-lg">Sipariş vermek için giriş yapın.</p>
+                    <!--<p class="mb-32 text-secondary-light text-lg">Tekrardan Hoş Geldiniz</p>-->
+                </div>
+                <form asp-action="SignIn" method="post">
+                    <div class="mb-3">
+                        <label for="Identifier" class="form-label">Email veya Kullanıcı Adı</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-end-0">
+                                <iconify-icon icon="mage:email"></iconify-icon>
+                            </span>
+                            <input asp-for="Identifier" class="form-control border-start-0" placeholder="Email veya Kullanıcı Adı" />
+                        </div>
+                        <span asp-validation-for="Identifier" class="text-danger text-sm d-block mt-1"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Password" class="form-label">Şifre</label>
+                        <div class="input-group position-relative">
+                            <span class="input-group-text border-end-0">
+                                <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+                            </span>
+                            <input type="password" asp-for="Password" class="form-control border-start-0" id="your-password" placeholder="Şifre" />
+                            <span class="toggle-password position-absolute top-50 translate-middle-y end-0 me-3 text-secondary-light cursor-pointer" data-toggle="#your-password">
+                                <i class="ri-eye-line"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger text-sm d-block mt-1"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-2">
+                        <a href="/PasswordReset/Index" class="text-primary-600 fw-medium">Şifremi unuttum?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-4">Giriş Yap</button>
+
+                    <div class="mt-4 text-center text-sm">
+                        <p class="mb-0">Hesabın yok mu? <a href="/Register/SignUp" class="text-primary-600 fw-semibold">Kayıt ol</a></p>
+                    </div>
+                </form>
+
+                @if (ViewBag.RemainingAttempts != null)
+                {
+                    <div class="alert alert-warning mt-2 text-sm">
+                        @ViewBag.RemainingAttempts
+                    </div>
+                }
+
+            </div>
+        </div>
+    </section>
+
+    <!-- jQuery library js -->
+    <script src="~/wowdash-admin/assets/js/lib/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="~/wowdash-admin/assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Apex Chart js -->
+    <script src="~/wowdash-admin/assets/js/lib/apexcharts.min.js"></script>
+    <!-- Data Table js -->
+    <script src="~/wowdash-admin//js/lib/dataTables.min.js"></script>
+    <!-- Iconify Font js -->
+    <script src="~/wowdash-admin/assets/js/lib/iconify-icon.min.js"></script>
+    <!-- jQuery UI js -->
+    <script src="~/wowdash-admin/assets/js/lib/jquery-ui.min.js"></script>
+    <!-- Vector Map js -->
+    <script src="~/wowdash-admin/assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
+    <script src="~/wowdash-admin/assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
+    <!-- Popup js -->
+    <script src="~/wowdash-admin/assets/js/lib/magnifc-popup.min.js"></script>
+    <!-- Slick Slider js -->
+    <script src="~/wowdash-admin/assets/js/lib/slick.min.js"></script>
+    <!-- prism js -->
+    <script src="~/wowdash-admin/assets/js/lib/prism.js"></script>
+    <!-- file upload js -->
+    <script src="~/wowdash-admin/assets/js/lib/file-upload.js"></script>
+    <!-- audioplayer -->
+    <script src="~/wowdash-admin/assets/js/lib/audioplayer.js"></script>
+    <!-- main js -->
+    <script src="~/wowdash-admin/assets/js/app.js"></script>
+
+    <script>
+                    // Sadece bu sayfa için geçici olarak dark mod uygula ve değiştirilmesini engelle
+            document.addEventListener("DOMContentLoaded", function () {
+                const html = document.documentElement;
+                if (html.getAttribute("data-theme") !== "dark") {
+                    html.setAttribute("data-theme", "dark");
+                }
+            });
+        // ================== Password Show Hide Js Start ==========
+            function initializePasswordToggle(toggleSelector) {
+            $(toggleSelector).on('click', function () {
+                var $icon = $(this).find('i'); // i öğesini seç
+                var input = $($(this).attr("data-toggle"));
+
+                // Şifreyi göster/gizle
+                if (input.attr("type") === "password") {
+                    input.attr("type", "text");
+                    $icon.removeClass("ri-eye-line").addClass("ri-eye-off-line"); // ikonu değiştir
+                } else {
+                    input.attr("type", "password");
+                    $icon.removeClass("ri-eye-off-line").addClass("ri-eye-line"); // ikonu geri al
+                }
+            });
+        }
+        initializePasswordToggle('.toggle-password');
+    </script>
+
+</body>
+</html>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const type = '@TempData["AlertType"]';
+        const msg = '@TempData["AlertMessage"]';
+        const remaining = '@ViewBag.RemainingAttempts';
+
+        // Ana alert gösterimi
+        if (type && msg) {
+            Swal.fire({
+                icon: type,
+                title: type === 'success' ? 'Başarılı' :
+                       type === 'error' ? 'Hata' :
+                       type === 'warning' ? 'Uyarı' : 'Bilgi',
+                text: msg,
+                confirmButtonText: 'Tamam',
+                showConfirmButton: true,
+                timer: type === 'success' ? 2000 : undefined
+            }).then(() => {
+                // Başarılı giriş sonrası yönlendirme
+                if (type === 'success') {
+                    window.location.href = '/Home/Index'; // ➕ role göre dinamikleştirilebilir
+                }
+            });
+        }
+
+        // 🔁 Kalan deneme hakkı varsa ayrı bilgilendirme
+        if (remaining && type !== 'error') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Kalan Deneme Hakkınız',
+                text: remaining,
+                confirmButtonText: 'Tamam'
+            });
+        }
+    </script>
+}

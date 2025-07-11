@@ -1,0 +1,96 @@
+﻿@model List<UserViewModel>
+@{
+    ViewData["Title"] = "Kullanıcı Listesi Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Kullanıcı Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Mail</th>
+                    <th>Rol</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>@item.NameSurname</td>
+                        <td>@item.UserName</td>
+                        <td>@item.Email</td>
+                        <td>
+                            @foreach (var role in item.Role)
+                            {
+                                var badgeClass = role == "Customer" ? "bg-dark-dark-gradient"
+                                : role == "Admin" ? "bg-dark-info-gradient"
+                                : "bg-dark-warning-gradient";
+
+                                var displayText = role == "Customer" ? "Müşteri"
+                                : role == "Admin" ? "Yetkili"
+                                : "Admin";
+
+                                <span class="badge text-sm fw-semibold @badgeClass px-20 py-9 radius-4 text-white">@displayText</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Pasif</span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon" type="button" data-bs-toggle="dropdown">
+                                    Hesap Durumu
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if (!item.IsActive)
+                                    {
+                                    <li>
+                                        <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
+                                            <input type="hidden" name="userId" value="@item.Id" />
+                                            <input type="hidden" name="newStatus" value="true" />
+                                            <button type="submit" class="btn rounded-pill btn-success-100 text-success-600 radius-8 btn-sm text-sm">Aktif Yap</button>
+                                        </form>
+                                    </li>
+                                    }
+                                    else
+                                    {
+                                    <li>
+                                        <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
+                                            <input type="hidden" name="userId" value="@item.Id" />
+                                            <input type="hidden" name="newStatus" value="false" />
+                                            <button type="submit" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 btn-sm text-sm">Pasif Yap</button>
+                                        </form>
+                                    </li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

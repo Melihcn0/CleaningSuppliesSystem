@@ -48,63 +48,6 @@
 </div>
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            const theme = document.documentElement.getAttribute("data-theme");
-
-            const table = $('#dataTable').DataTable({
-                paging: true,
-                pageLength: 10,
-                ordering: true,
-                order: [[0, "asc"]],
-                columnDefs: [
-                    { orderable: false, targets: 3 }
-                ],
-                language: {
-                    lengthMenu: "Sayfa başına _MENU_ kayıt göster",
-                    zeroRecords: "Kayıt bulunamadı",
-                    emptyTable: "Kayıt yok",
-                    info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
-                    infoEmpty: "Kayıt yok",
-                    infoFiltered: "(toplam _MAX_ kayıt içerisinden filtrelendi)",
-                    search: "Ara:",
-                    paginate: {
-                        first: "İlk",
-                        last: "Son",
-                        next: ">",
-                        previous: "<"
-                    }
-                },
-                classes: {
-                    sTable: 'table table-hover'
-                },
-                initComplete: function () {
-                    const wrapper = $('#dataTable_wrapper');
-                    const length = wrapper.find('.dataTables_length');
-                    const filter = wrapper.find('.dataTables_filter');
-
-                    // Floatları kaldır
-                    length.css({ 'float': 'none', 'margin-right': '1rem' });
-                    filter.css({ 'float': 'none' });
-
-                    // dt-layout-row içinde hizalama
-                    const layoutRow = wrapper.find('.dt-layout-row').first();
-                    layoutRow.addClass('d-flex justify-content-start align-items-center flex-wrap gap-3');
-                }
-            });
-
-            // Tablo kenarlığını kaldır
-            $('#dataTable').removeClass('table-bordered');
-
-            // Tema uyumlu renkler
-            const tableElement = $('#dataTable');
-            if (theme === "dark") {
-                tableElement.removeClass('table-theme-light').addClass('table-theme-dark');
-                $('.dataTables_paginate a, .dataTables_info, .dataTables_length label, .dataTables_filter label').css('color', 'white');
-            } else {
-                tableElement.removeClass('table-theme-dark').addClass('table-theme-light');
-                $('.dataTables_paginate a, .dataTables_info, .dataTables_length label, .dataTables_filter label').css('color', '');
-            }
-        });
 
         function deleteCategory(id) {
             const theme = document.documentElement.getAttribute("data-theme");

@@ -3,6 +3,7 @@ using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +14,7 @@ namespace CleaningSuppliesSystem.API.Controllers
     public class CategoriesController(IGenericService<Category> _categoryService , IMapper _mapper) : ControllerBase
     {
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             var values = await _categoryService.TGetListAsync();
@@ -21,6 +23,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             var value = await _categoryService.TGetByIdAsync(id);

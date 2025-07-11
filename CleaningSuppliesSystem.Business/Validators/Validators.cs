@@ -1,6 +1,7 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
+using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
 using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
 using FluentValidation;
@@ -176,13 +177,73 @@ namespace CleaningSuppliesSystem.Business.Validators
                 RuleFor(x => x.Password)
                     .NotEmpty().WithMessage("Şifre boş bırakılamaz.")
                     .MinimumLength(8).WithMessage("Şifre en az 8 karakter olmalıdır.")
-                    .MaximumLength(30).WithMessage("Şifre en fazla 30 karakter olabilir.");
+                    .MaximumLength(30).WithMessage("Şifre en fazla 30 karakter olabilir.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
 
                 RuleFor(x => x.ConfirmPassword)
                     .NotEmpty().WithMessage("Şifre tekrar alanı boş bırakılamaz.")
-                    .Equal(x => x.Password).WithMessage("Şifreler birbiriyle uyumlu değil.");
+                    .Equal(x => x.Password).WithMessage("Şifreler birbiriyle uyumlu değil.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
             }
-
         }
+        public class UserLoginValidator : AbstractValidator<UserLoginDto>
+        {
+            public UserLoginValidator()
+            {
+                RuleFor(x => x.Identifier)
+                    .NotEmpty().WithMessage("Kullanıcı adı veya email boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Kullanıcı adı veya email en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Password)
+                    .NotEmpty().WithMessage("Şifre boş bırakılamaz")
+                    .Matches(@"[A-Z]").WithMessage("Şifre en az bir büyük harf içermelidir.")
+                    .Matches(@"[a-z]").WithMessage("Şifre en az bir küçük harf içermelidir.")
+                    .Matches(@"[0-9]").WithMessage("Şifre en az bir rakam içermelidir.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+            }
+        }
+
+        public class CreateRoleValidator : AbstractValidator<CreateRoleDto>
+        {
+            public CreateRoleValidator()
+            {
+                RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Rol tipi seçimi zorunludur.");
+            }
+        }
+
+        public class ForgotPasswordValidator : AbstractValidator<ForgotPasswordDto>
+        {
+            public ForgotPasswordValidator()
+            {
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("Email alanı boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.")
+                    .MaximumLength(50).WithMessage("Email en fazla 50 karakter olabilir.");
+            }
+        }
+
+        public class ResetPasswordValidator : AbstractValidator<ResetPasswordDto>
+        {
+            public ResetPasswordValidator()
+            {
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("Email alanı boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.")
+                    .MaximumLength(50).WithMessage("Email en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.NewPassword)
+                    .NotEmpty().WithMessage("Şifre boş bırakılamaz.")
+                    .MinimumLength(8).WithMessage("Şifre en az 8 karakter olmalıdır.")
+                    .MaximumLength(30).WithMessage("Şifre en fazla 30 karakter olabilir.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+
+                RuleFor(x => x.ConfirmPassword)
+                    .NotEmpty().WithMessage("Şifre tekrar alanı boş bırakılamaz.")
+                    .Equal(x => x.NewPassword).WithMessage("Şifreler birbiriyle uyumlu değil.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+            }
+        }
+
     }
 }
