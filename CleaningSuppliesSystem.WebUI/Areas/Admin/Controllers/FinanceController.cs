@@ -1,85 +1,78 @@
-﻿using AutoMapper;
-using CleaningSuppliesSystem.Business.Abstract;
-using CleaningSuppliesSystem.DataAccess.Context;
+﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.FinanceValidatorDto;
 using CleaningSuppliesSystem.WebUI.Helpers;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Json;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
     [Authorize(Roles = "Admin")]
     [Area("Admin")]
-    public class FinanceController(CleaningSuppliesSystemContext _context, IFinanceService _financeService, IMapper _mapper) : Controller
+    public class FinanceController : Controller
     {
-        private readonly HttpClient _client = HttpClientInstance.CreateClient();
+        private readonly HttpClient _client;
+
+        public FinanceController(IHttpClientFactory clientFactory)
+        {
+            _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        }
         public async Task<IActionResult> Index()
         {
-            var values = await _client.GetFromJsonAsync<List<ResultFinanceDto>>("finances");
-            var finances = values.Where(x => x.IsDeleted == false).ToList();
+            var finances = await _client.GetFromJsonAsync<List<ResultFinanceDto>>("Finances/active");
             return View(finances);
         }
+
         [HttpPost]
         public async Task<IActionResult> SoftDeletedFinance(int id)
         {
-            var (isSuccess, message) = await _financeService.TSoftDeleteFinanceAsync(id);
-            if (!isSuccess)
-            {
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction(nameof(Index));
-            }
+            var response = await _client.PostAsync($"Finances/softdelete/{id}", null);
+            var msg = await response.Content.ReadAsStringAsync();
 
-            TempData["SuccessMessage"] = message;
-            return RedirectToAction(nameof(Index));
+            if (response.IsSuccessStatusCode)
+                return Ok(msg);
+            else
+                return BadRequest(msg);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UndoDeletedFinance(int id)
+        public async Task<IActionResult> UndoSoftDeletedFinance(int id)
         {
-            var (isSuccess, message) = await _financeService.TUndoSoftDeleteFinanceAsync(id);
-            if (!isSuccess)
-            {
-                TempData["ErrorMessage"] = message;
-                return RedirectToAction(nameof(DeletedFinance));
-            }
-
-            TempData["SuccessMessage"] = message;
+            var response = await _client.PostAsync($"Finances/undosoftdelete/{id}", null);
+            TempData["SuccessMessage"] = response.IsSuccessStatusCode ? "Finans kaydı geri alındı." : "Geri alma işlemi başarısız.";
             return RedirectToAction(nameof(DeletedFinance));
         }
 
+        // Soft silinmiş kayıtlar
         public async Task<IActionResult> DeletedFinance()
         {
             ViewBag.ShowBackButton = true;
-            var values = await _client.GetFromJsonAsync<List<ResultFinanceDto>>("finances");
-            var finances = values.Where(x => x.IsDeleted == true).ToList();
-            return View(finances);
+            var values = await _client.GetFromJsonAsync<List<ResultFinanceDto>>("finances/deleted");
+            return View(values);
         }
 
-        public async Task<IActionResult> DeleteFinance(int id)
-        { 
-            await _client.DeleteAsync($"finances/{id}");
-            TempData["SuccessMessage"] = "Finans kaydı başarıyla silindi.";
-            return RedirectToAction(nameof(DeletedFinance));
-        }
+        // Yeni finans oluşturma sayfası
         public IActionResult CreateFinance()
         {
             ViewBag.ShowBackButton = true;
             return View();
         }
+
+        // Güncelleme sayfası
         public async Task<IActionResult> UpdateFinance(int id)
         {
             var value = await _client.GetFromJsonAsync<UpdateFinanceDto>($"finances/{id}");
             ViewBag.ShowBackButton = true;
+            if (value == null) return NotFound();
             return View(value);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFinance(CreateFinanceDto createFinanceDto)
         {
-            var validator = new Business.Validators.Validators.CreateFinanceValidator();
+            var validator = new CreateFinanceValidator();
             var result = await validator.ValidateAsync(createFinanceDto);
             if (!result.IsValid)
             {
@@ -90,10 +83,11 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 }
                 return View(createFinanceDto);
             }
-            var (isSuccess, message) = await _financeService.TCreateFinanceAsync(createFinanceDto);
-            if (!isSuccess)
+
+            var response = await _client.PostAsJsonAsync("finances", createFinanceDto);
+            if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", message);
+                ModelState.AddModelError("", "Finans oluşturma işlemi başarısız.");
                 return View(createFinanceDto);
             }
 
@@ -102,10 +96,9 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateFinance(UpdateFinanceDto updateFinanceDto)
         {
-            var validator = new Business.Validators.Validators.UpdateFinanceValidator();
+            var validator = new UpdateFinanceValidator();
             var result = await validator.ValidateAsync(updateFinanceDto);
 
             if (!result.IsValid)
@@ -117,15 +110,76 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 }
                 return View(updateFinanceDto);
             }
-            var (isSuccess, message) = await _financeService.TUpdateFinanceAsync(updateFinanceDto);
-            if (!isSuccess)
+
+            var response = await _client.PutAsJsonAsync("finances", updateFinanceDto);
+            if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", message);
+                ModelState.AddModelError("", "Finans güncelleme işlemi başarısız.");
                 return View(updateFinanceDto);
             }
 
-            TempData["SuccessMessage"] = "Finans Kaydı başarıyla güncellendi.";
+            TempData["SuccessMessage"] = "Finans kaydı başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        public async Task<IActionResult> PermanentDeleteFinance(int id)
+        {
+            var response = await _client.DeleteAsync($"finances/permanent/{id}");
+            var content = await response.Content.ReadAsStringAsync();
+
+            return response.IsSuccessStatusCode ? Ok(content) : BadRequest(content);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Hiç kategori seçilmedi.");
+            var response = await _client.PostAsJsonAsync("finances/DeleteMultiple", ids);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadAsStringAsync();
+                return Ok(message);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return BadRequest(error);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Hiç kategori seçilmedi.");
+            var response = await _client.PostAsJsonAsync("finances/UndoSoftDeleteMultiple", ids);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadAsStringAsync();
+                return Ok(message);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return BadRequest(error);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Hiç kategori seçilmedi.");
+            var response = await _client.PostAsJsonAsync("finances/PermanentDeleteMultiple", ids);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadAsStringAsync();
+                return Ok(message);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return BadRequest(error);
+        }
+
     }
 }

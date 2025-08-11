@@ -1,167 +1,119 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
-using CleaningSuppliesSystem.Entity.Entities;
+﻿using CleaningSuppliesSystem.DTO.DTOs.ToggleDtos;
+using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.RoleValidatorDto;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.ToggleStatusValidatorDto;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
-using CleaningSuppliesSystem.WebUI.Services.EmailServices;
-using CleaningSuppliesSystem.WebUI.Services.UserServices;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Area("Admin")]
-    public class RoleAssignController(IUserService _userService, UserManager<AppUser> _userManager, RoleManager<AppRole> _roleManager, IEmailService _emailService) : Controller
+    public class RoleAssignController : Controller
     {
+        private readonly HttpClient _client;
+
+        public RoleAssignController(IHttpClientFactory clientFactory)
+        {
+            _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        }
+
         public async Task<IActionResult> Index()
         {
-            var values = await _userService.GetAllUsersAsync();
+            var response = await _client.GetAsync("roleassign");
+            if (!response.IsSuccessStatusCode)
+                return View(new List<UserListDto>());
 
-            var userList = new List<UserViewModel>();
-            foreach (var user in values)
+            var users = await response.Content.ReadFromJsonAsync<List<UserListDto>>();
+            ViewBag.AllRoles = new List<string> { "Admin", "Customer" };
+
+            return View(users);
+        }
+
+
+        // GET: /Admin/RoleAssign/RolesIndex
+        public async Task<IActionResult> RolesIndex()
+        {
+            var response = await _client.GetAsync("roleassign/rolesindex");
+            if (!response.IsSuccessStatusCode)
+                return View(new List<UserViewModel>());
+
+            var users = await response.Content.ReadFromJsonAsync<List<UserViewModel>>();
+            return View(users);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AssignRole(List<AssignRoleDto> assignRoleList, int userId)
+        {
+            var dto = new UserAssignRoleDto
             {
-                var roles = await _userManager.GetRolesAsync(user);
+                UserId = userId,
+                Roles = assignRoleList.Where(r => r.RoleExist).ToList()  // Sadece seçili rolleri al
+            };
 
-                userList.Add(new UserViewModel
-                {
-                    Id = user.Id,
-                    NameSurname = $"{user.FirstName} {user.LastName}",
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    CreatedAt = user.CreatedAt,
-                    IsActive = user.IsActive,
-                    Role = roles.ToList()
-                });
+            var validator = new UserAssignRoleValidator();
+            var result = await validator.ValidateAsync(dto);
+
+            if (!result.IsValid)
+            {
+                TempData["ErrorMessage"] = string.Join("<br>", result.Errors.Select(e => e.ErrorMessage));
+                return RedirectToAction("RolesIndex");
             }
 
-            return View(userList);
+            var response = await _client.PostAsJsonAsync("roleassign/assignrole", dto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Rol başarıyla atandı.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Rol atama sırasında bir hata oluştu.";
+            }
+
+            return RedirectToAction("RolesIndex");
         }
+
+
+
+
         [HttpPost]
         public async Task<IActionResult> ToggleStatus(int userId, bool newStatus)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
-            if (user == null)
+            var dto = new ToggleStatusDto
             {
-                Console.WriteLine("Kullanıcı bulunamadı.");
+                UserId = userId,
+                NewStatus = newStatus
+            };
+
+            var validator = new ToggleStatusValidator();
+            var validationResult = await validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
                 return RedirectToAction("Index");
             }
 
-            user.IsActive = newStatus;
-            var result = await _userManager.UpdateAsync(user);
+            var response = await _client.PostAsJsonAsync($"roleassign/togglestatus?userId={userId}&newStatus={newStatus}", new { });
 
-            if (result.Succeeded && newStatus)
+            if (response.IsSuccessStatusCode)
             {
-                // ✅ Hesap aktif edildiyse bilgilendirme maili gönder
-                await _emailService.SendAccountActivationMailAsync(user.UserName, user.Email);
-                Console.WriteLine("Aktivasyon maili gönderildi.");
+                return RedirectToAction("Index");
             }
 
-            Console.WriteLine($"Kullanıcının durumu güncellendi: {(newStatus ? "Aktif" : "Pasif")}");
             return RedirectToAction("Index");
-        }
-
-        public async Task<IActionResult> RolesIndex()
-        {
-            var users = await _userService.GetAllUsersAsync();
-            var allRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-
-            var userList = new List<UserViewModel>();
-
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                userList.Add(new UserViewModel
-                {
-                    Id = user.Id,
-                    NameSurname = $"{user.FirstName} {user.LastName}",
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    CreatedAt = user.CreatedAt,
-                    Role = roles.ToList(),
-                    AllRoles = allRoles
-                });
-            }
-
-            return View(userList); // View modelin List<UserViewModel> olacak
-        }       
-        public async Task<IActionResult> RolesIndex2()
-        {
-            var users = await _userService.GetAllUsersAsync();
-            var allRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-
-            var userList = new List<UserViewModel>();
-
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                userList.Add(new UserViewModel
-                {
-                    Id = user.Id,
-                    NameSurname = $"{user.FirstName} {user.LastName}",
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    CreatedAt = user.CreatedAt,
-                    Role = roles.ToList(),
-                    AllRoles = allRoles
-                });
-            }
-
-            return View(userList); // View modelin List<UserViewModel> olacak
-        }
-
-
-        public async Task<IActionResult> AssignRole(int id)
-        {
-            ViewBag.ShowBackButton = true;
-
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                Console.WriteLine("Kullanıcı bulunamadı.");
-                return View("Index");
-            }
-
-            TempData["userId"] = user.Id;
-
-            var roles = await _roleManager.Roles.ToListAsync();
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var assignRoleList = roles.Select(role => new AssignRoleDto
-            {
-                RoleId = role.Id,
-                RoleName = role.Name,
-                RoleExist = userRoles.Contains(role.Name)
-            }).ToList();
-
-            return View(assignRoleList);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AssignRole(string selectedRole, int userId)
-        {
-            var user = await _userService.GetUserByIdAsync(userId);
-            if (user == null)
-            {
-                Console.WriteLine("Rol atama işlemi user null.");
-                return RedirectToAction("Index");
-            }
-
-            var currentRoles = await _userManager.GetRolesAsync(user);
-
-            // Önce mevcut tüm rolleri kaldır
-            foreach (var role in currentRoles)
-            {
-                await _userManager.RemoveFromRoleAsync(user, role);
-            }
-
-            // Yeni rolü ata (boş değilse)
-            if (!string.IsNullOrEmpty(selectedRole))
-            {
-                await _userManager.AddToRoleAsync(user, selectedRole);
-            }
-
-            Console.WriteLine("Rol atama işlemi başarıyla tamamlandı.");
-            return RedirectToAction("RolesIndex", new { id = userId });
         }
 
     }

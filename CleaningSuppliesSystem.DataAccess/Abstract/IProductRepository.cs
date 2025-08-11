@@ -9,12 +9,17 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<List<Product>> GetProductsWithCategoriesAsync();
-        Task<Product> GetByIdAsyncWithCategory(int id);
         Task<Product> GetByIdAsync(int id);
         Task CreateAsync(Product product);
         Task UpdateAsync(Product product);
         Task SoftDeleteAsync(Product product);
         Task UndoSoftDeleteAsync(Product product);
+        Task<List<Product>> GetAllAsync();
+        Task<List<Product>> GetActiveProductsAsync();
+        Task<List<Product>> GetActiveByBrandsIdAsync(int brandId);
+        Task<List<Product>> GetDeletedProductAsync();
+        Task SoftDeleteRangeAsync(List<int> ids);
+        Task UndoSoftDeleteRangeAsync(List<int> ids);
+        Task PermanentDeleteRangeAsync(List<int> ids);
     }
 }

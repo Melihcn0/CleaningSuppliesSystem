@@ -1,4 +1,6 @@
-﻿namespace CleaningSuppliesSystem.WebUI.Helpers
+﻿using CleaningSuppliesSystem.WebUI.Services.TokenServices;
+
+namespace CleaningSuppliesSystem.WebUI.Helpers
 {
     public static class HttpClientInstance
     {

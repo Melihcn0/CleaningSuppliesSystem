@@ -22,9 +22,26 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         {
             return await _cleaningSuppliesContext.Invoices.Include(x => x.Order).ToListAsync();
         }
-        public async Task<Invoice> GetByIdAsyncWithOrder(int id)
+        public async Task<Invoice> GetByIdAsyncWithOrder(int invoiceId)
         {
-            return await _cleaningSuppliesContext.Invoices.Include(x => x.Order).FirstOrDefaultAsync(x => x.Id == id);
+            return await _cleaningSuppliesContext.Invoices
+                       .Include(x => x.Order)
+                       .FirstOrDefaultAsync(x => x.Id == invoiceId);
         }
+        public async Task<Invoice> GetInvoiceByOrderIdAsync(int orderId)
+        {
+            return await _cleaningSuppliesContext.Invoices
+                .Include(i => i.Order)   // Burada Order'ı dahil et
+                .FirstOrDefaultAsync(i => i.OrderId == orderId);
+        }
+
+        public async Task<List<Invoice>> GetInvoicesByUserIdAsync(int userId)
+        {
+            return await _cleaningSuppliesContext.Invoices
+                .Include(i => i.Order)
+                .Where(i => i.Order.AppUserId == userId)
+                .ToListAsync();
+        }
+
     }
 }

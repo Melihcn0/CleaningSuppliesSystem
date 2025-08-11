@@ -24,6 +24,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <!-- Google Material Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
 </head>
 <body>
@@ -92,49 +94,6 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="offcanvasCart">
-        <div class="offcanvas-header justify-content-center">
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="order-md-last">
-                <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-primary">Your cart</span>
-                    <span class="badge bg-primary rounded-pill">3</span>
-                </h4>
-                <ul class="list-group mb-3">
-                    <li class="list-group-item d-flex justify-content-between lh-sm">
-                        <div>
-                            <h6 class="my-0">Growers cider</h6>
-                            <small class="text-body-secondary">Brief description</small>
-                        </div>
-                        <span class="text-body-secondary">$12</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between lh-sm">
-                        <div>
-                            <h6 class="my-0">Fresh grapes</h6>
-                            <small class="text-body-secondary">Brief description</small>
-                        </div>
-                        <span class="text-body-secondary">$8</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between lh-sm">
-                        <div>
-                            <h6 class="my-0">Heinz tomato ketchup</h6>
-                            <small class="text-body-secondary">Brief description</small>
-                        </div>
-                        <span class="text-body-secondary">$5</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Total (USD)</span>
-                        <strong>$20</strong>
-                    </li>
-                </ul>
-
-                <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
-            </div>
-        </div>
-    </div>
-
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar">
 
         <div class="offcanvas-header justify-content-between">
@@ -142,7 +101,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
-        <div class="offcanvas-body">
+        <div class="offcanvas-body"> <!-- Kategoriler ama burası sayfalar olarak yapılcak hakkımda hizmet sözleşmesi s.s.s gibi -->
 
             <ul class="navbar-nav justify-content-end menu-list list-unstyled d-flex gap-md-3 mb-0">
                 <li class="nav-item border-dashed active">
@@ -265,85 +224,127 @@
 
     <header>
         <div class="container-fluid">
-            <div class="row py-3 border-bottom">
+            <div class="row py-3 border-bottom align-items-center">
 
-                <div class="col-sm-4 col-lg-2 text-center text-sm-start d-flex gap-3 justify-content-center justify-content-md-start">
-                    <div class="d-flex align-items-center my-3 my-sm-0">
-                        <a href="index.html">
-                            <img src="~/organic-1.0.0/images/logo.svg" alt="logo" class="img-fluid">
-                        </a>
-                    </div>
+                <!-- Sol taraf: Logo + Toggle + Navigation -->
+                <div class="col-lg-6 d-flex align-items-center justify-content-start flex-wrap gap-5">
+
+                    <!-- Logo -->
+                    <a href="/Home/Index">
+                        <img src="~/images/ess_star_yatay_logo_dark1.png" style="height:48px;" alt="logo" class="img-fluid">
+                    </a>
+
+                    <!-- Toggle Menü -->
                     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
                             aria-controls="offcanvasNavbar">
-                        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#menu"></use></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <use xlink:href="#menu"></use>
+                        </svg>
                     </button>
-                </div>
+                    <!-- Navigation -->
+                    <ul class="navbar-nav list-unstyled d-flex flex-row gap-5 justify-content-start align-items-center mb-0 fw-bold text-uppercase text-dark">
 
-                <div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-4">
-                    <div class="search-bar row bg-light p-2 rounded-4">
-                        <div class="col-md-4 d-none d-md-block">
-                            <select class="form-select border-0 bg-transparent">
-                                <option>Tüm Kategoriler</option>
-                                <option>Groceries</option>
-                                <option>Drinks</option>
-                                <option>Chocolates</option>
-                            </select>
-                        </div>
-                        <div class="col-11 col-md-7">
-                            <form id="search-form" class="text-center" action="index.html" method="post">
-                                <input type="text" class="form-control border-0 bg-transparent" placeholder="Ürünleri Ara">
-                            </form>
-                        </div>
-                        <div class="col-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z" /></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <ul class="navbar-nav list-unstyled d-flex flex-row gap-3 gap-lg-5 justify-content-center flex-wrap align-items-center mb-0 fw-bold text-uppercase text-dark">
-                        <li class="nav-item active">
-                            <a href="index.html" class="nav-link">Ana Sayfa</a>
-                        </li>
                         <li class="nav-item">
-                            <a href="index.html" class="nav-link">Ürünler</a>
+                            <a href="/Home/Index"
+                               class="nav-link px-1 custom-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                                Ana Sayfa
+                            </a>
                         </li>
-                        <li class="nav-item active">
-                            <a href="/Login/SignIn" class="nav-link">Giriş Yap</a>
+
+                        <li class="nav-item">
+                            <a href="/Product/Index"
+                               class="nav-link px-1 custom-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")">
+                                Ürünler
+                            </a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle pe-3" role="button" id="pages" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
-                            <ul class="dropdown-menu border-0 p-3 rounded-0 shadow" aria-labelledby="pages">
-                                <li><a href="index.html" class="dropdown-item">Hakkımızda </a></li>
-                                <li><a href="index.html" class="dropdown-item">Ürünler </a></li>
-                            </ul>
-                        </li>
+
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a href="/Login/SignIn" class="nav-link px-1 custom-nav-link">
+                                    Giriş Yap
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a href="/Admin/TopCategory/Index" class="nav-link px-1 custom-nav-link">
+                                        Yönetim Paneli
+                                    </a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Customer"))
+                            {
+                                <li class="nav-item">
+                                    <a href="/Customer/Order/Index" class="nav-link px-1 custom-nav-link">
+                                        Müşteri Paneli
+                                    </a>
+                                </li>
+                            }
+                        }
+
                     </ul>
+
+                    <style>
+                        .custom-nav-link {
+                            position: relative;
+                            color: #111;
+                            transition: color 0.3s ease;
+                            padding-bottom: 4px;
+                        }
+
+                            .custom-nav-link::after {
+                                content: '';
+                                position: absolute;
+                                width: 0;
+                                height: 2px;
+                                bottom: 0;
+                                left: 0;
+                                background-color: #111;
+                                transition: width 0.3s ease;
+                            }
+
+                            .custom-nav-link:hover::after {
+                                width: 100%;
+                            }
+
+                            .custom-nav-link.active {
+                                color: #111;
+                            }
+
+                                .custom-nav-link.active::after {
+                                    width: 100%;
+                                }
+                    </style>
+
+
+
                 </div>
 
-                <div class="col-sm-8 col-lg-2 d-flex gap-5 align-items-center justify-content-center justify-content-sm-end">
-                    <ul class="d-flex justify-content-end list-unstyled m-0">
+@*                 <!-- Sağ taraf: sepet ve profil -->
+                <div class="col-lg-6 d-flex justify-content-end">
+                    <ul class="d-flex gap-3 list-unstyled mb-0">
                         <li>
-                            <a href="#" class="p-2 mx-1">
-                                <svg width="24" height="24"><use xlink:href="#user"></use></svg>
+                            <a href="#" class="p-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+                                <span class="material-symbols-outlined" style="font-size: 32px;">shopping_bag</span>
                             </a>
-                        </li>
+                        </li> 
                         <li>
-                            <a href="#" class="p-2 mx-1">
-                                <svg width="24" height="24"><use xlink:href="#wishlist"></use></svg>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                                <svg width="24" height="24"><use xlink:href="#shopping-bag"></use></svg>
+                            <a href="#" class="p-2">
+                                <span class="material-symbols-outlined" style="font-size: 32px;">account_circle</span>
                             </a>
                         </li>
                     </ul>
-                </div>
+                </div> *@
 
             </div>
         </div>
     </header>
+
+
 
    @RenderBody()
 
@@ -353,121 +354,46 @@
 
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer-menu">
-                        <img src="~/organic-1.0.0/images/logo.svg" width="240" height="70" alt="logo">
-                        <div class="social-links mt-3">
-                            <ul class="d-flex list-unstyled gap-2">
-                                <li>
-                                    <a href="#" class="btn btn-outline-light">
-                                        <svg width="16" height="16"><use xlink:href="#facebook"></use></svg>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="btn btn-outline-light">
-                                        <svg width="16" height="16"><use xlink:href="#twitter"></use></svg>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="btn btn-outline-light">
-                                        <svg width="16" height="16"><use xlink:href="#youtube"></use></svg>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="btn btn-outline-light">
-                                        <svg width="16" height="16"><use xlink:href="#instagram"></use></svg>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="btn btn-outline-light">
-                                        <svg width="16" height="16"><use xlink:href="#amazon"></use></svg>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                        <img src="~/images/ess_star_yatay_logo_dark1.png" width="240" height="70" alt="logo">
                     </div>
                 </div>
 
                 <div class="col-md-2 col-sm-6">
                     <div class="footer-menu">
-                        <h5 class="widget-title">Organic</h5>
+                        <h5 class="widget-title">Ess Star</h5>
                         <ul class="menu-list list-unstyled">
                             <li class="menu-item">
-                                <a href="#" class="nav-link">About us</a>
+                                <a href="#" class="nav-link">Hakkımızda</a>
                             </li>
                             <li class="menu-item">
-                                <a href="#" class="nav-link">Conditions </a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Our Journals</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Careers</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Affiliate Programme</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Ultras Press</a>
+                                <a href="#" class="nav-link">Vizyonumuz </a>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-2 col-sm-6">
                     <div class="footer-menu">
-                        <h5 class="widget-title">Quick Links</h5>
+                        <h5 class="widget-title">Müşteri Servisi</h5>
                         <ul class="menu-list list-unstyled">
                             <li class="menu-item">
-                                <a href="#" class="nav-link">Offers</a>
+                                <a href="#" class="nav-link">İletişim</a>
                             </li>
                             <li class="menu-item">
-                                <a href="#" class="nav-link">Discount Coupons</a>
+                                <a href="#" class="nav-link">Gizlik Politikası</a>
                             </li>
                             <li class="menu-item">
-                                <a href="#" class="nav-link">Stores</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Track Order</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Shop</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Info</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-2 col-sm-6">
-                    <div class="footer-menu">
-                        <h5 class="widget-title">Customer Service</h5>
-                        <ul class="menu-list list-unstyled">
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">FAQ</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Contact</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Privacy Policy</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Returns & Refunds</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Cookie Guidelines</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Delivery Information</a>
+                                <a href="#" class="nav-link">S.S.S</a>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer-menu">
-                        <h5 class="widget-title">Subscribe Us</h5>
-                        <p>Subscribe to our newsletter to get updates about our grand offers.</p>
+                        <h5 class="widget-title">Mail Bülteni</h5>
+                        <p>Kampanyalardan ilk siz haberdar olmak için mail bültenimize abone olun</p>
                         <form class="d-flex mt-3 gap-0" action="index.html">
-                            <input class="form-control rounded-start rounded-0 bg-light" type="email" placeholder="Email Address" aria-label="Email Address">
-                            <button class="btn btn-dark rounded-end rounded-0" type="submit">Subscribe</button>
+                            <input class="form-control rounded-start rounded-0 bg-light" type="email" placeholder="Email Address" aria-label="Mail Adresi">
+                            <button class="btn btn-dark rounded-end rounded-0" type="submit">Abone Ol</button>
                         </form>
                     </div>
                 </div>
@@ -479,10 +405,7 @@
         <div class="container-lg">
             <div class="row">
                 <div class="col-md-6 copyright">
-                    <p>© 2024 Organic. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 credit-link text-start text-md-end">
-                    <p>HTML Template by <a href="https://templatesjungle.com/">TemplatesJungle</a> Distributed By <a href="https://themewagon.com">ThemeWagon</a> </p>
+                    <p>© 2025 KayaTech tüm hakları saklıdır.</p>
                 </div>
             </div>
         </div>
@@ -492,5 +415,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
     <script src="~/organic-1.0.0/js/plugins.js"></script>
     <script src="~/organic-1.0.0/js/script.js"></script>
+
+
+        <script>
+        // 20 dakika = 20 * 60 * 1000 ms header refresh
+        setTimeout(() => {
+            location.reload();
+        }, 20 * 60 * 1000);
+    </script>
+
+
 </body>
 </html>

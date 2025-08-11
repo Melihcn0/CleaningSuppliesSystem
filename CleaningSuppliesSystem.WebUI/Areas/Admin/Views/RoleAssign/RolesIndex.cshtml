@@ -44,55 +44,58 @@
 
                                 var displayText = role == "Customer" ? "Müşteri"
                                 : role == "Admin" ? "Yetkili"
-                                : "Admin";
+                                : role;
 
                                 <span class="badge text-sm fw-semibold @badgeClass px-20 py-9 radius-4 text-white">@displayText</span>
                             }
                         </td>
                         <td>
-                            @{
-                                var currentRole = item.Role.FirstOrDefault();
-                                var otherRole = currentRole == "Admin" ? "Customer"
-                                : currentRole == "Customer" ? "Admin"
-                                : null;
-
-                                var switchBadgeClass = otherRole == "Customer" ? "bg-dark-dark-gradient"
-                                : otherRole == "Admin" ? "bg-dark-info-gradient"
-                                : "bg-dark-warning-gradient";
-
-                                var switchDisplayText = otherRole == "Customer" ? "Müşteri"
-                                : otherRole == "Admin" ? "Yetkili"
-                                : "Rol Yok";
-                            }
-
-                            <div class="dropdown">
-                                <button class="btn btn-outline-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="dropdown dropend">
+                                <button class="btn btn-outline-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon icon-right"
+                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Rol Ata
                                 </button>
                                 <ul class="dropdown-menu">
-                                    @if (!string.IsNullOrEmpty(otherRole))
+                                    @{
+                                        var availableRoles = new List<string> { "Admin", "Customer" };
+                                        var userRoles = item.Role ?? new List<string>();
+                                        var assignableRoles = availableRoles.Except(userRoles).ToList();
+                                    }
+
+                                    @if (assignableRoles.Any())
                                     {
-                                        <li>
-                                            <form asp-action="AssignRole" asp-controller="RoleAssign" asp-area="Admin" method="post">
-                                                <input type="hidden" name="userId" value="@item.Id" />
-                                                <input type="hidden" name="selectedRole" value="@otherRole" />
-                                                <button type="submit" class="dropdown-item text-white fw-semibold @switchBadgeClass px-16 py-8 rounded">
-                                                    @switchDisplayText
-                                                </button>
-                                            </form>
-                                        </li>
+                                        foreach (var assignableRole in assignableRoles)
+                                        {
+                                            var buttonText = assignableRole == "Admin" ? "Yetkili Yap" : "Müşteri Yap";
+                                            var badgeClass = assignableRole == "Admin"
+                                            ? "badge text-sm fw-semibold text-primary-600 bg-primary-100 px-20 py-9 radius-4"
+                                            : "badge text-sm fw-semibold text-dark bg-neutral-300 px-20 py-9 radius-4";
+
+                                            <li>
+                                                <form asp-action="AssignRole" asp-controller="RoleAssign" asp-area="Admin" method="post">
+                                                    <input type="hidden" name="userId" value="@item.Id" />
+                                                    <input type="hidden" name="assignRoleList[0].RoleName" value="@assignableRole" />
+                                                    <input type="hidden" name="assignRoleList[0].RoleExist" value="true" />
+                                                    <button type="submit" class="@badgeClass">
+                                                        @buttonText
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        }
                                     }
                                     else
                                     {
                                         <li>
-                                            <span class="dropdown-item text-muted">Uygun rol bulunamadı</span>
+                                            <span class="dropdown-item text-muted">Tüm roller atanmış</span>
                                         </li>
                                     }
+
                                 </ul>
                             </div>
                         </td>
                     </tr>
                 }
+
             </tbody>
         </table>
     </div>

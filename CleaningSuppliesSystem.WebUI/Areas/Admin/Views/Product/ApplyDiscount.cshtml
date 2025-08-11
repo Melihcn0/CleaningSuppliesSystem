@@ -1,4 +1,4 @@
-﻿@model UpdateProductDto
+﻿@model UpdateDiscountDto
 @{
     ViewData["Title"] = "İndirim Oranı Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
@@ -6,16 +6,50 @@
 
 <form method="post">
     <input type="hidden" asp-for="Id" />
+
     <label>Ürün Fiyatı</label>
-    <input type="text" asp-for="UnitPrice" value="@Model.UnitPrice" class="form-control" readonly />
-    <span asp-validation-for="UnitPrice" class="text-danger"></span>
+    <input type="text" asp-for="UnitPrice" class="form-control" readonly />
     <br />
-    <label>İndirim Oranı</label>
-    <input type="number" class="form-control" asp-for="DiscountRate" />
+    <label>İndirimli Fiyat</label>
+    <input type="text" id="discountedPrice" class="form-control" readonly />
+    <br />
+    <label>İndirim Oranı (Yüzde Formatında)</label>
+    <input type="text" id="discountRatePercent" class="form-control" readonly />
+    <br />
+    <label>İndirim Oranı (%)</label>
+    <input type="number" id="discountRateInput" class="form-control" asp-for="DiscountRate" min="0" max="100" />
     <small class="form-text text-muted">İndirim oranını % cinsinden tam sayı olarak giriniz.</small>
-    <br />
     <span asp-validation-for="DiscountRate" class="text-danger"></span>
     <br />
     <button class="btn btn-outline-primary-600">Kaydet</button>
 </form>
 
+@section Scripts {
+    <script>
+        function updateDiscountFields() {
+            const discountRateInput = document.getElementById('discountRateInput');
+            const discountRatePercent = document.getElementById('discountRatePercent');
+            const discountedPriceInput = document.getElementById('discountedPrice');
+            const unitPrice = parseFloat('@Model.UnitPrice');
+
+            let discountRate = parseFloat(discountRateInput.value);
+            if (isNaN(discountRate) || discountRate < 0) {
+                discountRate = 0;
+            }
+            if (discountRate > 100) {
+                discountRate = 100;
+                discountRateInput.value = 100;
+            }
+
+            discountRatePercent.value = '%' + discountRate.toFixed(0);
+
+            const discountedPrice = unitPrice * (1 - discountRate / 100);
+            discountedPriceInput.value = discountedPrice.toFixed(2);
+        }
+
+        document.getElementById('discountRateInput').addEventListener('input', updateDiscountFields);
+
+        // Sayfa yüklendiğinde ilk değerleri ayarlamak için:
+        updateDiscountFields();
+    </script>
+}

@@ -1,18 +1,29 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
-using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningSuppliesSystem.WebUI.ViewComponents.Home
 {
     public class _HomeCategoryComponent : ViewComponent
     {
-        private readonly HttpClient _client = HttpClientInstance.CreateClient();
+        private readonly HttpClient _client;
+
+        public _HomeCategoryComponent(IHttpClientFactory clientFactory)
+        {
+            _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        }
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var values = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories");
-            var activeCategories = values.Where(x => x.IsDeleted == false).ToList();
+            var allCategories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories");
+            var rnd = new Random();
 
-            return View(activeCategories);
+            var latestCategories = allCategories?
+                .Where(c => c.IsShown && !c.IsDeleted)
+                .OrderBy(_ => rnd.Next())
+                .Take(20)
+                .ToList() ?? new List<ResultCategoryDto>();
+
+            return View(latestCategories);
         }
     }
 }

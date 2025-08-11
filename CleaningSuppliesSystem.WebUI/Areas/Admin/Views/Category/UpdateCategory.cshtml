@@ -5,52 +5,130 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<form id="updateCategoryForm" method="post">
+<script src="https://unpkg.com/htmx.org@1.9.6"></script>
+
+<form id="updateCategoryForm" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
-    <label>Kategori Fotoğrafı</label>
-    <input type="text" asp-for="ImageUrl" class="form-control" />
-    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    <input type="hidden" asp-for="ImageUrl" />
+    <input type="hidden" name="existingImageUrl" value="@ViewBag.ExistingImageUrl" />
+
+
+
+    <!-- Üst Kategori -->
+    <div class="form-group">
+        <label for="TopCategoryId">Üst Kategori</label>
+        <select asp-for="TopCategoryId"
+                id="TopCategoryId"
+                asp-items="ViewBag.topCategories"
+                class="form-control"
+                hx-get="@Url.Action("GetSubCategoriesByTopCategory", "Category")"
+                hx-target="#SubCategoryId"
+                hx-trigger="change"
+                hx-include="#TopCategoryId">
+            <option value="" disabled>Üst Kategori Seçin</option>
+        </select>
+        <span asp-validation-for="TopCategoryId" class="text-danger"></span>
+    </div>
     <br />
-    <label>Kategori Adı</label>
-    <input type="text" asp-for="Name" class="form-control" />
-    <span asp-validation-for="Name" class="text-danger"></span>
+    <!-- Alt Kategori -->
+    <div class="form-group">
+        <label for="SubCategoryId">Alt Kategori</label>
+        <select id="SubCategoryId" asp-for="SubCategoryId" class="form-control" asp-items="ViewBag.subCategories">
+            <option value="" disabled>Alt kategori seçin</option>
+        </select>
+        <span asp-validation-for="SubCategoryId" class="text-danger"></span>
+    </div>
     <br />
-    <button type="button" onclick="updateCategory()" class="btn btn-outline-primary">Güncelle</button>
+    <!-- Görsel Karşılaştırma -->
+    @if (!string.IsNullOrEmpty(ViewBag.ExistingImageUrl))
+    {
+        <div class="form-group">
+            <label>Fotoğraf Değişikliği</label>
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="text-align: center;">
+                    <p>Mevcut</p>
+                    <img src="@ViewBag.ExistingImageUrl" alt="Mevcut Görsel" class="img-thumbnail" style="max-height: 150px;" />
+                </div>
+
+                <div style="font-size: 2rem;">➡</div>
+
+                <div style="text-align: center;" id="previewContainer" style="display: none;">
+                    <p>Yeni</p>
+                    <img id="imagePreview" src="#" alt="Yeni Görsel" class="img-thumbnail" style="max-height: 150px; display: none;" />
+                </div>
+            </div>
+        </div>
+    }
+    <br />
+
+    <!-- Yeni Görsel Yükleme + Önizleme -->
+    <div class="form-group">
+        <label for="ImageFile">Yeni Fotoğraf Yükle (isteğe bağlı)</label>
+        <input asp-for="ImageFile" type="file" class="form-control-file" accept="image/*" onchange="previewImage(event)" />
+        <span asp-validation-for="ImageFile" class="text-danger"></span>
+
+        <div id="previewContainer" style="display: none; margin-top: 10px;">
+            <label>Değiştirilecek Fotoğraf:</label><br />
+            <img id="imagePreview" src="#" alt="Yeni seçilen görsel" style="max-height: 150px;" class="img-thumbnail" />
+        </div>
+    </div>
+    <br />
+    <!-- Kategori Adı -->
+    <div class="form-group">
+        <label for="Name">Kategori Adı</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <br />
+    <button type="button" class="btn btn-outline-warning-600" onclick="updateCategory()">Güncelle</button>
 </form>
 
 @section Scripts {
-<script>
-    function updateCategory() {
-        const form = document.getElementById("updateCategoryForm");
-        const theme = document.documentElement.getAttribute("data-theme");
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
 
-        // Önce form validasyonunu kontrol et
-        if (!form.checkValidity()) {
-            form.reportValidity(); // Hataları göster
-            return; // Onay alerti gösterme
+                    document.getElementById('previewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
-        // Validasyon geçtiyse onay sor
-        Swal.fire({
-            title: "Değişiklikler kaydedilsin mi?",
-            text: "İşlemi onaylıyor musunuz?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Evet, kaydet!",
-            cancelButtonText: "İptal",
-            background: theme === "dark" ? "#1e1e2f" : "#fff",
-            color: theme === "dark" ? "#fff" : "#000",
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            allowEnterKey: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
-    }
 
-</script>
+        function updateCategory() {
+            const form = document.getElementById("updateCategoryForm");
+            const theme = document.documentElement.getAttribute("data-theme");
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            Swal.fire({
+                title: "Değişiklikler kaydedilsin mi?",
+                text: "İşlemi onaylıyor musunuz?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Evet, kaydet!",
+                cancelButtonText: "İptal",
+                background: theme === "dark" ? "#1e1e2f" : "#fff",
+                color: theme === "dark" ? "#fff" : "#000",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
 }

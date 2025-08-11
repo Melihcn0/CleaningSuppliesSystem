@@ -1,0 +1,24 @@
+﻿@model CreateBrandDto
+@{
+    ViewData["Title"] = "Marka Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    <div class="form-group">
+        <label for="CategoryId">Ürün Grubu / Kategori</label>
+        <select id="CategoryId" name="CategoryId" asp-items="ViewBag.categories" class="form-control">
+            <option value="" disabled selected>Ürün Grubu / Kategori Seçin</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="Name">Marka Adı</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary-600">Kaydet</button>
+    <br />
+</form>

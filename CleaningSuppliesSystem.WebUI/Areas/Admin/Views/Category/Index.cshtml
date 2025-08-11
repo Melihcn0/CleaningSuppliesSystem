@@ -1,11 +1,17 @@
-﻿@model List<ResultCategoryDto>
+﻿@model CategoryViewModel
+
 @{
     ViewData["Title"] = "Kategori Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["DeleteFunction"] = "deletedCategory";
+    ViewData["DeleteUrlPrefix"] = "/Admin/Category/SoftDeletedCategory/";
+
+    ViewData["MultiDeleteUrl"] = "/Admin/Category/DeleteMultiple";
+    ViewData["MultiDeleteConfirmTitle"] = "Seçilen tüm kategorileri silmek istediğinize emin misiniz?";
+
     int count = 0;
-
 }
-
 
 <div class="card basic-data-table">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
@@ -17,38 +23,68 @@
             <a asp-action="DeletedCategory" asp-controller="Category" asp-area="Admin" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
+            <button id="deleteSelectedBtn" class="btn btn-danger radius-8 d-inline-flex align-items-center me-2" disabled>
+                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            </button>
         </div>
     </div>
+
     <div class="card-body">
+        @Html.AntiForgeryToken()
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
-                    <th>#</th>
-                    <th>Kategori Fotoğrafı</th>
+                    <th>
+                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    </th>
+                    <th>Ürün Grubu / Kategori Fotoğrafı</th>
+                    <th>Üst Kategori Adı</th>
+                    <th>Alt Kategori Adı</th>
                     <th>Kategori Adı</th>
+                    <th>Oluşturulma Tarihi</th>
+                    <th>Son Güncelleme Tarihi</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.CategoryViewList)
                 {
                     count++;
                     <tr>
-                        <td>@count</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            <img src="@item.ImageUrl" alt="Kategori Fotoğrafı" style="width: 75px; height: 75px; object-fit: cover;" />
+                        <td>
+                            <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
+                                @count
+                            </label>
                         </td>
+                        <td>
+                            <img src="@Url.Content(item.ImageUrl)" style="width:100px; height:100px;" />
+                        </td>
+                        <td>@item.TopCategoryName</td>
+                        <td>@item.SubCategoryName</td>
                         <td>@item.Name</td>
                         <td>
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncelleme yapılmadı")
+                        </td>
+                        <td>
                             <a asp-action="UpdateCategory" asp-controller="Category" asp-area="Admin" asp-route-id="@item.Id"
-                               class="btn btn-outline-info-600 btn-sm d-inline-flex align-items-center me-2">
+                               class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
                                 <span class="material-symbols-outlined me-1">edit</span> Düzenle
                             </a>
-                            <button onclick="deletedCategory(@item.Id)"
-                                    class="btn btn-outline-danger-600 btn-sm d-inline-flex align-items-center">
+
+                            <button class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
+                                    data-id="@item.Id">
                                 <span class="material-symbols-outlined me-1">delete</span> Sil
                             </button>
+
                         </td>
+
                     </tr>
                 }
             </tbody>
@@ -58,73 +94,32 @@
 
 @section Scripts {
     <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
 
-            function deletedCategory(id) {
-            const theme = document.documentElement.getAttribute("data-theme");
-            Swal.fire({
-                title: "Silmek istediğinizden emin misiniz?",
-                text: "Bu işlemi geri alamazsınız!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Evet, sil!",
-                cancelButtonText: "İptal",
-                background: theme === "dark" ? "#1e1e2f" : "#fff",
-                color: theme === "dark" ? "#fff" : "#000",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/Admin/Category/SoftDeletedCategory/${id}`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ id: id })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-                        // JSON döndürülmediğinde hata vermemek için kontrol:
-                        const contentType = response.headers.get("content-type");
-                        if (contentType && contentType.includes("application/json")) {
-                            return response.json();
-                        } else {
-                            // JSON değilse response text olarak alabiliriz veya boş dönebilir
-                            return response.text();
-                        }
-                    })
-                    .then(() => {
-                        Swal.fire({
-                            title: "Silindi!",
-                            text: "Kategori başarıyla silindi.",
-                            icon: "success",
-                            confirmButtonText: "Tamam",
-                            confirmButtonColor: "#3085d6",
-                            background: theme === "dark" ? "#1e1e2f" : "#fff",
-                            color: theme === "dark" ? "#fff" : "#000",
-                            allowOutsideClick: false,
-                            allowEscapeKey: false
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    })
-                    .catch(error => {
-                        Swal.fire({
-                            title: "Hata!",
-                            text: error.message,
-                            icon: "error",
-                            confirmButtonText: "Tamam",
-                            background: theme === "dark" ? "#1e1e2f" : "#fff",
-                            color: theme === "dark" ? "#fff" : "#000",
-                        });
-                    });
-                }
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
             });
         }
 
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
 
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteBtn) deleteBtn.disabled = selectedCount === 0;
+
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
     </script>
 }

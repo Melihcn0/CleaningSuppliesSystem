@@ -1,35 +1,65 @@
 ﻿@model List<ResultCategoryDto>
+
 <section class="py-5 overflow-hidden">
     <div class="container-lg">
         <div class="row">
             <div class="col-md-12">
                 <div class="section-header d-flex flex-wrap justify-content-between mb-5">
                     <h2 class="section-title">Kategoriler</h2>
-                    <div class="d-flex align-items-center">
-                        <a href="#" class="btn btn-primary me-2">Tümünü Gör</a>
-                        <div class="swiper-buttons">
-                            <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
-                            <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
-                        </div>
-                    </div>
+                    <a href="#" class="btn btn-dark">Tümünü Gör</a>
                 </div>
             </div>
         </div>
-        <div class="row">
+
+        <div class="row overflow-hidden">
             <div class="col-md-12">
-                <div class="category-carousel swiper">
-                    <div class="swiper-wrapper">
-                        @foreach (var item in Model)
+                <div class="marquee-track">
+                    <div class="marquee-content">
+                        @foreach (var item in Model.Concat(Model))
                         {
-                            <a href="category.html" class="nav-link swiper-slide text-center">
-                                <img src="@Url.Content(item.ImageUrl)" width="161" height="160" class="rounded-circle" alt="Kategori Resmi">
-                                <h4 class="fs-6 mt-3 fw-normal category-title">@item.Name</h4>
-                            </a>
+                            <div class="category-box text-center">
+                                <a href="/category/@item.Id" class="nav-link d-block">
+                                    <img src="@Url.Content(item.ImageUrl)" width="161" height="160" class="rounded-circle mb-2" alt="@item.Name" />
+                                    <h4 class="fs-6 category-title">@item.Name</h4>
+                                </a>
+                            </div>
                         }
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </section>
+
+<style>
+    .marquee-track {
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .marquee-content {
+        display: flex;
+        gap: 1.25rem;
+        width: max-content;
+        animation: scroll-left 20s linear infinite;
+    }
+
+    .category-box {
+        flex: 0 0 auto;
+    }
+
+        .category-box img {
+            width: 161px;
+            height: 160px;
+            object-fit: cover;
+        }
+
+    .category-title {
+        white-space: nowrap;
+        font-size: 1rem;
+        text-align: center;
+    }
+
+
+</style>

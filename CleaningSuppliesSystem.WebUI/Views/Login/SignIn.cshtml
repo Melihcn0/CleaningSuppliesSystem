@@ -45,12 +45,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
 <body>
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+
     <section class="auth bg-base d-flex flex-wrap">
         <div class="auth-left d-lg-block d-none">
-            <!--<div class="d-flex align-items-center flex-column h-100 justify-content-center">
-                <img src="~/wowdash-admin/assets/images/auth/auth-img.png" alt="">
-            </div>-->
+            <div class="d-flex align-items-center flex-column h-100 justify-content-center">
+                <img src="~/images/ess_star_logo_dark.png" alt="login logo">
+            </div>
         </div>
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
             <!-- Ana Sayfa Butonu -->
@@ -59,15 +61,13 @@
                 <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <div class="max-w-464-px mx-auto w-100">
-                <div>
-                    <!-- <a href="index.html" class="mb-40 max-w-290-px">
-                        <img src="~/wowdash-admin/assets/images/logo.png" alt="">
-                    </a>-->
-                    <h4 class="mb-12">Giriş Yap</h4>
-                    <p class="mb-28 text-secondary-light text-lg">Sipariş vermek için giriş yapın.</p>
-                    <!--<p class="mb-32 text-secondary-light text-lg">Tekrardan Hoş Geldiniz</p>-->
-                </div>
-                <form asp-action="SignIn" method="post">
+                <form asp-action="SignIn" method="post" class="position-relative">
+
+                    <!-- Logo Ortada -->
+                    <div class="d-flex justify-content-center mb-40" style="user-select: none;">
+                        <img src="~/images/ess_star_yatay_logo_light1.png" alt="sub login logo" style="max-width: 200px;">
+                    </div>
+
                     <div class="mb-3">
                         <label for="Identifier" class="form-label">Email veya Kullanıcı Adı</label>
                         <div class="input-group">
@@ -102,14 +102,17 @@
                     <div class="mt-4 text-center text-sm">
                         <p class="mb-0">Hesabın yok mu? <a href="/Register/SignUp" class="text-primary-600 fw-semibold">Kayıt ol</a></p>
                     </div>
+
+                    @if (!string.IsNullOrEmpty(ViewBag.RemainingAttemptsMessage))
+                    {
+                        <div class="alert alert-warning mt-3">
+                            @ViewBag.RemainingAttemptsMessage
+                        </div>
+                    }
+
                 </form>
 
-                @if (ViewBag.RemainingAttempts != null)
-                {
-                    <div class="alert alert-warning mt-2 text-sm">
-                        @ViewBag.RemainingAttempts
-                    </div>
-                }
+
 
             </div>
         </div>
@@ -144,26 +147,23 @@
     <script src="~/wowdash-admin/assets/js/app.js"></script>
 
     <script>
-                    // Sadece bu sayfa için geçici olarak dark mod uygula ve değiştirilmesini engelle
             document.addEventListener("DOMContentLoaded", function () {
                 const html = document.documentElement;
                 if (html.getAttribute("data-theme") !== "dark") {
                     html.setAttribute("data-theme", "dark");
                 }
             });
-        // ================== Password Show Hide Js Start ==========
             function initializePasswordToggle(toggleSelector) {
             $(toggleSelector).on('click', function () {
-                var $icon = $(this).find('i'); // i öğesini seç
+                var $icon = $(this).find('i');
                 var input = $($(this).attr("data-toggle"));
 
-                // Şifreyi göster/gizle
                 if (input.attr("type") === "password") {
                     input.attr("type", "text");
-                    $icon.removeClass("ri-eye-line").addClass("ri-eye-off-line"); // ikonu değiştir
+                    $icon.removeClass("ri-eye-line").addClass("ri-eye-off-line");
                 } else {
                     input.attr("type", "password");
-                    $icon.removeClass("ri-eye-off-line").addClass("ri-eye-line"); // ikonu geri al
+                    $icon.removeClass("ri-eye-off-line").addClass("ri-eye-line");
                 }
             });
         }
@@ -172,40 +172,3 @@
 
 </body>
 </html>
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        const type = '@TempData["AlertType"]';
-        const msg = '@TempData["AlertMessage"]';
-        const remaining = '@ViewBag.RemainingAttempts';
-
-        // Ana alert gösterimi
-        if (type && msg) {
-            Swal.fire({
-                icon: type,
-                title: type === 'success' ? 'Başarılı' :
-                       type === 'error' ? 'Hata' :
-                       type === 'warning' ? 'Uyarı' : 'Bilgi',
-                text: msg,
-                confirmButtonText: 'Tamam',
-                showConfirmButton: true,
-                timer: type === 'success' ? 2000 : undefined
-            }).then(() => {
-                // Başarılı giriş sonrası yönlendirme
-                if (type === 'success') {
-                    window.location.href = '/Home/Index'; // ➕ role göre dinamikleştirilebilir
-                }
-            });
-        }
-
-        // 🔁 Kalan deneme hakkı varsa ayrı bilgilendirme
-        if (remaining && type !== 'error') {
-            Swal.fire({
-                icon: 'info',
-                title: 'Kalan Deneme Hakkınız',
-                text: remaining,
-                confirmButtonText: 'Tamam'
-            });
-        }
-    </script>
-}

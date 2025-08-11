@@ -1,0 +1,96 @@
+﻿@model StockOperationViewModel
+
+@{
+    ViewData["Title"] = "Stok Yönetimi Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Stok Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a asp-action="CreateStockOperation" asp-controller="Stock" asp-area="Admin" class="btn btn-outline-info-600 btn-sm d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1">add</span> Stok Yönetimi
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Ürün Fotoğrafı</th>
+                    <th>Üst Kategori Adı</th>
+                    <th>Alt Kategori Adı</th>
+                    <th>Ürün Grubu</th>
+                    <th>Marka Adı</th>
+                    <th>Ürün Adı</th>
+                    <th>Stok Sayısı</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.StockOperationViewList)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td class="text-center">
+                            <img src="@Url.Content(item.ImageUrl)" alt="Ürün görseli" style="width: 75px; height: 75px; object-fit: cover;" />
+                        </td>
+                        <td>@item.TopCategoryName</td>
+                        <td>@item.SubCategoryName</td>
+                        <td>@item.CategoryName</td>
+                        <td>@item.BrandName</td>
+                        <td>@item.ProductName</td>
+                        <td>
+                            @if (item.StockQuantity == 0)
+                            {
+                                <button type="button" class="badge text-sm fw-semibold bg-danger-600 px-16 py-9 radius-4 text-white d-flex align-items-center gap-2">
+                                    Stok kalmamıştır
+                                    <span class="badge bg-white text-danger-700 radius-5 text-xs">0</span>
+                                </button>
+                            }
+                            else if (item.StockQuantity <= 30)
+                            {
+                                <button type="button" class="badge text-sm fw-semibold bg-warning-600 px-16 py-9 radius-4 text-white d-flex align-items-center gap-2">
+                                    Tükenmek üzere
+                                    <span class="badge bg-white text-warning-800 radius-5 text-xs">@item.StockQuantity</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="badge text-sm fw-semibold bg-success-600 px-16 py-9 radius-4 text-white d-flex align-items-center gap-2">
+                                    Stok yeterli
+                                    <span class="badge bg-white text-success-800 radius-5 text-xs">@item.StockQuantity</span>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modalContent = document.getElementById("modalThemeBox");
+
+            document.getElementById("stockDetailModal").addEventListener("show.bs.modal", () => {
+                const theme = document.documentElement.getAttribute("data-theme");
+
+                if (theme === "dark") {
+                    modalContent.style.backgroundColor = "#1e1e2f";
+                    modalContent.style.color = "#fff";
+                } else {
+                    modalContent.style.backgroundColor = "#fff";
+                    modalContent.style.color = "#000";
+                }
+            });
+        });
+    </script>
+}

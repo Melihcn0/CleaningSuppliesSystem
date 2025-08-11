@@ -20,12 +20,30 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         }
         public async Task<List<OrderItem>> GetOrderItemWithProductandCategoriesAsync()
         {
-            return await _cleaningSuppliesContext.OrderItems.Include(oi => oi.Product).ThenInclude(oi => oi.Category).ToListAsync();
+            return await _cleaningSuppliesContext.OrderItems
+                .Include(oi => oi.Product)
+                    .ThenInclude(p => p.Brand)
+                        .ThenInclude(b => b.Category)
+                            .ThenInclude(c => c.SubCategory)
+                                .ThenInclude(sc => sc.TopCategory)
+                .ToListAsync();
         }
 
         public async Task<OrderItem> GetByIdAsyncWithProductandCategories(int id)
         {
-            return await _cleaningSuppliesContext.OrderItems.Include(oi => oi.Product).ThenInclude(oi => oi.Category).FirstOrDefaultAsync(oi => oi.Id == id);
+            return await _cleaningSuppliesContext.OrderItems
+                .Include(oi => oi.Product)
+                    .ThenInclude(p => p.Brand)
+                        .ThenInclude(b => b.Category)
+                            .ThenInclude(c => c.SubCategory)
+                                .ThenInclude(sc => sc.TopCategory)
+                .FirstOrDefaultAsync(oi => oi.Id == id);
         }
+        public async Task<List<OrderItem>> GetByOrderIdAsync(int orderId)
+        {
+            return await _cleaningSuppliesContext.OrderItems.Where(x => x.OrderId == orderId).ToListAsync();
+        }
+
     }
 }
+

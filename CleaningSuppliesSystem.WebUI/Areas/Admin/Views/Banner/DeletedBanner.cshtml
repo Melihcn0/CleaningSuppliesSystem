@@ -1,0 +1,130 @@
+﻿@model List<ResultBannerDto>
+@{
+    ViewData["Title"] = "Banner Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["PermanentDeleteUrl"] = "~/Admin/Banner/PermanentDeleteBanner";
+    ViewData["PermanentDeleteConfirmTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Silinen Banner Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+        </div>
+    </div>
+    <div class="card-body">
+        @Html.AntiForgeryToken()
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Banner Görseli</th>
+                    <th>Başlık</th>
+                    <th>İstatistikler</th>
+                    <th>Oluşturulma</th>
+                    <th>Güncelleme</th>
+                    <th>Silinme</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>
+                            <img src="@Url.Content(item.ImageUrl)" style="width:100px; height:100px;" />
+                        </td>
+                        <td>
+                            <b>@item.Title</b><br /><span>@item.Subtitle</span>
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.Statistic1Title))
+                            {
+                                <div><b>@item.Statistic1Title:</b> @item.Statistic1</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Statistic2Title))
+                            {
+                                <div><b>@item.Statistic2Title:</b> @item.Statistic2</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Statistic3Title))
+                            {
+                                <div><b>@item.Statistic3Title:</b> @item.Statistic3</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Statistic4Title))
+                            {
+                                <div><b>@item.Statistic4Title:</b> @item.Statistic4</div>
+                            }
+                        </td>
+                        <td>
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncellenmedi")
+                        </td>
+                        <td>
+                            @item.DeletedDate?.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.DeletedDate?.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            <form asp-action="UndoSoftDeleteBanner" asp-controller="Banner" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
+                                    <span class="material-symbols-outlined">undo</span> Geri al
+                                </button>
+                            </form>
+                            <button type="button"
+                                    class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn permanent-delete-btn"
+                                    data-id="@item.Id">
+                                <span class="material-symbols-outlined me-1">delete</span> Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+
+            const undoBtn = document.getElementById('undosoftdeleteSelectedBtn');
+            const permanentDeleteBtn = document.getElementById('permanentdeleteSelectedBtn');
+
+            if (undoBtn) undoBtn.disabled = selectedCount === 0;
+            if (permanentDeleteBtn) permanentDeleteBtn.disabled = selectedCount === 0;
+
+            // Tekli action butonları (satırdaki)
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
+    </script>
+}

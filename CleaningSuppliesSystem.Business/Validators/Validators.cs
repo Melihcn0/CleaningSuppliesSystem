@@ -1,8 +1,21 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
+using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ForgotPasswordDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.BannerDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
+using CleaningSuppliesSystem.DTO.DTOs.LoginDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
+using CleaningSuppliesSystem.DTO.DTOs.RegisterDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ResetPasswordDtos;
 using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
-using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.StockDtos;
+using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ToggleDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
 using FluentValidation;
 
@@ -18,69 +31,70 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .NotEmpty().WithMessage("Kategori adı boş bırakılamaz.")
                     .MaximumLength(50).WithMessage("Kategori adı en fazla 50 karakter olmalıdır.");
 
-                RuleFor(x => x.ImageUrl)
-                    .NotEmpty().WithMessage("Kategori resmi boş bırakılamaz.");
+                RuleFor(x => x.SubCategoryId)
+                    .NotNull().WithMessage("Alt kategori seçmelisiniz.");
+
+                RuleFor(x => x.TopCategoryId)
+                    .NotNull().WithMessage("Üst kategori seçmelisiniz.");
             }
         }
         public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryDto>
         {
             public UpdateCategoryValidator()
             {
+                RuleFor(x => x.Id)
+                    .GreaterThan(0).WithMessage("Kategori ID geçerli değil.");
+
                 RuleFor(x => x.Name)
                     .NotEmpty().WithMessage("Kategori adı boş bırakılamaz.")
                     .MaximumLength(50).WithMessage("Kategori adı en fazla 50 karakter olmalıdır.");
 
-                RuleFor(x => x.ImageUrl)
-                    .NotEmpty().WithMessage("Kategori resmi boş bırakılamaz.");
+                RuleFor(x => x.SubCategoryId)
+                    .NotNull().WithMessage("Alt kategori seçmelisiniz.");
+
+                RuleFor(x => x.TopCategoryId)
+                    .NotNull().WithMessage("Üst kategori seçmelisiniz.");
             }
         }
         public class CreateProductValidator : AbstractValidator<CreateProductDto>
         {
             public CreateProductValidator()
             {
-                RuleFor(x => x.ImageUrl)
-                    .NotEmpty().WithMessage("Kategori resmi boş bırakılamaz.");
-
-                RuleFor(x => x.CategoryId)
-                    .NotEmpty().WithMessage("ürün Kategori seçimi zorunludur.");
-
                 RuleFor(x => x.Name)
                     .NotEmpty().WithMessage("Ürün adı boş bırakılamaz.")
                     .MaximumLength(70).WithMessage("Ürün adı en fazla 70 karakter olmalıdır.");
 
+                RuleFor(x => x.BrandId)
+                    .GreaterThan(0).WithMessage("Marka seçimi zorunludur.");
+
                 RuleFor(x => x.UnitPrice)
-                    .NotEmpty().WithMessage("Ürün birim fiyatı boş bırakılamaz.")
-                    .GreaterThan(0).WithMessage("Ürün birim fiyatı sıfırdan büyük olmalıdır.")
-                    .LessThanOrEqualTo(1000).WithMessage("Ürün birim fiyatı 1000 TL'den fazla olamaz.");
+                    .GreaterThan(0).WithMessage("Ürün birim fiyatı 0'dan büyük olmalı.")
+                    .LessThanOrEqualTo(5000).WithMessage("Ürün birim fiyatı 5.000₺ geçemez.");
             }
         }
         public class UpdateProductValidator : AbstractValidator<UpdateProductDto>
         {
             public UpdateProductValidator()
             {
-                RuleFor(x => x.ImageUrl)
-                    .NotEmpty().WithMessage("Kategori resmi boş bırakılamaz.");
-
-                RuleFor(x => x.CategoryId)
-                    .NotEmpty().WithMessage("ürün Kategori seçimi zorunludur.");
 
                 RuleFor(x => x.Name)
                     .NotEmpty().WithMessage("Ürün adı boş bırakılamaz.")
                     .MaximumLength(70).WithMessage("Ürün adı en fazla 70 karakter olmalıdır.");
 
+                RuleFor(x => x.BrandId)
+                    .GreaterThan(0).WithMessage("Marka seçimi zorunludur.");
+
                 RuleFor(x => x.UnitPrice)
-                    .NotEmpty().WithMessage("Ürün birim fiyatı boş bırakılamaz.")
-                    .GreaterThan(0).WithMessage("Ürün birim fiyatı sıfırdan büyük olmalıdır.")
-                    .LessThanOrEqualTo(1000).WithMessage("Ürün birim fiyatı 1000 TL'den fazla olamaz.");
+                    .GreaterThan(0).WithMessage("Ürün birim fiyatı 0'dan büyük olmalı.")
+                    .LessThanOrEqualTo(5000).WithMessage("Ürün birim fiyatı 5.000₺ geçemez.");
             }
         }
-        public class DiscountValidator : AbstractValidator<UpdateProductDto>
+        public class UpdateDiscountValidator : AbstractValidator<UpdateDiscountDto>
         {
-            public DiscountValidator()
+            public UpdateDiscountValidator()
             {
                 RuleFor(x => x.DiscountRate)
-                    .NotEmpty().WithMessage("İndirim oranı boş bırakılamaz.")
-                    .GreaterThan(0).WithMessage("İndirim sıfırdan büyük olmalı.")
+                    .GreaterThanOrEqualTo(0).WithMessage("İndirim oranı 0 veya daha büyük olmalı.")
                     .LessThanOrEqualTo(100).WithMessage("İndirim %100’ü geçemez.");
             }
         }
@@ -116,38 +130,6 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .NotEmpty().WithMessage("Finans miktarı boş bırakılamaz.")
                     .GreaterThan(0).WithMessage("Finans miktarı sıfırdan büyük olmalıdır.")
                     .LessThanOrEqualTo(10000).WithMessage("Finans miktarı 10000 TL'den fazla olamaz.");
-            }
-        }
-        public class CreateStockEntryValidator : AbstractValidator<CreateStockEntryDto>
-        {
-            public CreateStockEntryValidator()
-            {
-                RuleFor(x => x.ProductId)
-                    .NotEmpty().WithMessage("Stok seçimi zorunludur.");
-
-                RuleFor(x => x.Quantity)
-                    .NotEmpty().WithMessage("Stok miktarı boş bırakılamaz.")
-                    .GreaterThan(0).WithMessage("Stok miktarı sıfırdan büyük olmalıdır.")
-                    .LessThanOrEqualTo(30000).WithMessage("Stok miktarı 30000 TL'den fazla olamaz.");
-
-                RuleFor(x => x.Description)
-                    .MaximumLength(100).WithMessage("Açıklama en fazla 100 karakter olmalıdır.");
-            }
-        }
-        public class UpdateStockEntryValidator : AbstractValidator<UpdateStockEntryDto>
-        {
-            public UpdateStockEntryValidator()
-            {
-                RuleFor(x => x.ProductId)
-                    .NotEmpty().WithMessage("Stok tipi seçimi zorunludur.");
-
-                RuleFor(x => x.Quantity)
-                    .NotEmpty().WithMessage("Stok miktarı boş bırakılamaz.")
-                    .GreaterThan(0).WithMessage("Stok miktarı sıfırdan büyük olmalıdır.")
-                    .LessThanOrEqualTo(10000).WithMessage("Stok miktarı 10000 TL'den fazla olamaz.");
-
-                RuleFor(x => x.Description)
-                    .MaximumLength(100).WithMessage("Açıklama en fazla 100 karakter olmalıdır.");
             }
         }
         public class UserRegisterValidator : AbstractValidator<UserRegisterDto>
@@ -202,7 +184,6 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
             }
         }
-
         public class CreateRoleValidator : AbstractValidator<CreateRoleDto>
         {
             public CreateRoleValidator()
@@ -211,7 +192,89 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .NotEmpty().WithMessage("Rol tipi seçimi zorunludur.");
             }
         }
+        public class UserForgotPasswordValidator : AbstractValidator<UserForgotPasswordDto>
+        {
+            public UserForgotPasswordValidator()
+            {
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("Email alanı boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.")
+                    .MaximumLength(50).WithMessage("Email en fazla 50 karakter olabilir.");
+            }
+        } // WebUI için forgotPassword
+        public class UserResetPasswordValidator : AbstractValidator<UserResetPasswordDto>
+        {
+            public UserResetPasswordValidator()
+            {
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("Email alanı boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.")
+                    .MaximumLength(50).WithMessage("Email en fazla 50 karakter olabilir.");
 
+                RuleFor(x => x.NewPassword)
+                    .NotEmpty().WithMessage("Şifre boş bırakılamaz.")
+                    .MinimumLength(8).WithMessage("Şifre en az 8 karakter olmalıdır.")
+                    .MaximumLength(30).WithMessage("Şifre en fazla 30 karakter olabilir.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+
+                RuleFor(x => x.ConfirmPassword)
+                    .NotEmpty().WithMessage("Şifre tekrar alanı boş bırakılamaz.")
+                    .Equal(x => x.NewPassword).WithMessage("Şifreler birbiriyle uyumlu değil.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+            }
+        } // WebUI için resetPassword
+        public class RegisterValidator : AbstractValidator<RegisterDto>
+        {
+            public RegisterValidator()
+            {
+                RuleFor(x => x.FirstName)
+                    .NotEmpty().WithMessage("Ad alanı boş bırakılamaz.")
+                    .MinimumLength(2).WithMessage("Ad en az 2 karakter olmalıdır.")
+                    .MaximumLength(30).WithMessage("Ad en fazla 30 karakter olabilir.");
+
+                RuleFor(x => x.LastName)
+                    .NotEmpty().WithMessage("Soyad alanı boş bırakılamaz.")
+                    .MinimumLength(2).WithMessage("Soyad en az 2 karakter olmalıdır.")
+                    .MaximumLength(30).WithMessage("Soyad en fazla 30 karakter olabilir.");
+
+                RuleFor(x => x.UserName)
+                    .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
+                    .MinimumLength(3).WithMessage("Kullanıcı adı en az 3 karakter olmalıdır.")
+                    .MaximumLength(20).WithMessage("Kullanıcı adı en fazla 20 karakter olabilir.");
+
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("Email alanı boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.")
+                    .MaximumLength(50).WithMessage("Email en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Password)
+                    .NotEmpty().WithMessage("Şifre boş bırakılamaz.")
+                    .MinimumLength(8).WithMessage("Şifre en az 8 karakter olmalıdır.")
+                    .MaximumLength(30).WithMessage("Şifre en fazla 30 karakter olabilir.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+
+                RuleFor(x => x.ConfirmPassword)
+                    .NotEmpty().WithMessage("Şifre tekrar alanı boş bırakılamaz.")
+                    .Equal(x => x.Password).WithMessage("Şifreler birbiriyle uyumlu değil.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+            }
+        } // API için registerValidator
+        public class LoginValidator : AbstractValidator<LoginDto>
+        {
+            public LoginValidator()
+            {
+                RuleFor(x => x.Identifier)
+                    .NotEmpty().WithMessage("Kullanıcı adı veya email boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Kullanıcı adı veya email en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Password)
+                    .NotEmpty().WithMessage("Şifre boş bırakılamaz")
+                    .Matches(@"[A-Z]").WithMessage("Şifre en az bir büyük harf içermelidir.")
+                    .Matches(@"[a-z]").WithMessage("Şifre en az bir küçük harf içermelidir.")
+                    .Matches(@"[0-9]").WithMessage("Şifre en az bir rakam içermelidir.")
+                    .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
+            }
+        } // API için loginValidator
         public class ForgotPasswordValidator : AbstractValidator<ForgotPasswordDto>
         {
             public ForgotPasswordValidator()
@@ -221,8 +284,7 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.")
                     .MaximumLength(50).WithMessage("Email en fazla 50 karakter olabilir.");
             }
-        }
-
+        } // API için forgotPasswordValidator
         public class ResetPasswordValidator : AbstractValidator<ResetPasswordDto>
         {
             public ResetPasswordValidator()
@@ -243,7 +305,359 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .Equal(x => x.NewPassword).WithMessage("Şifreler birbiriyle uyumlu değil.")
                     .Matches(@"[!@#$%^&*(),.?""{}|<>]").WithMessage("Şifre en az bir özel karakter içermelidir.");
             }
+        } // API için resetPasswordValidator
+        public class UserAssignRoleValidator : AbstractValidator<UserAssignRoleDto>
+        {
+            public UserAssignRoleValidator()
+            {
+                RuleFor(x => x.UserId)
+                    .GreaterThan(0).WithMessage("User ID geçersiz.");
+
+                RuleFor(x => x.Roles)
+                    .NotEmpty().WithMessage("En az bir rol atanmalı.")
+                    .Must(roles => roles.Any(r => r.RoleExist))
+                    .WithMessage("En az bir rol seçilmelidir.");
+            }
+        }
+        public class ToggleStatusValidator : AbstractValidator<ToggleStatusDto>
+        {
+            public ToggleStatusValidator()
+            {
+                RuleFor(x => x.UserId).GreaterThan(0).WithMessage("Geçersiz ID.");
+            }
+        }
+        public class CreateTopCategoryValidator : AbstractValidator<CreateTopCategoryDto>
+        {
+            public CreateTopCategoryValidator()
+            {
+                RuleFor(x => x.Name).NotEmpty().WithMessage("Üst kategori adı boş olamaz.")
+                    .MinimumLength(2).WithMessage("Üst kategori adı en az 2 karakter olmalıdır.")
+                    .MaximumLength(50).WithMessage("AÜstlt kategori adı en fazla 50 karakter olabilir.");
+            }
+        }
+        public class UpdateTopCategoryValidator : AbstractValidator<UpdateTopCategoryDto>
+        {
+            public UpdateTopCategoryValidator()
+            {
+                RuleFor(x => x.Name).NotEmpty().WithMessage("Üst kategori adı boş olamaz.")
+                    .MinimumLength(2).WithMessage("Üst kategori adı en az 2 karakter olmalıdır.")
+                    .MaximumLength(50).WithMessage("AÜstlt kategori adı en fazla 50 karakter olabilir.");
+            }
+        }
+        public class CreateSubCategoryValidator : AbstractValidator<CreateSubCategoryDto>
+        {
+            public CreateSubCategoryValidator()
+            {
+                RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Alt kategori adı boş olamaz.")
+                    .MinimumLength(2).WithMessage("Alt kategori adı en az 2 karakter olmalıdır.")
+                    .MaximumLength(50).WithMessage("Alt kategori adı en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.TopCategoryId).NotNull().WithMessage("Üst kategori seçmelisiniz.");
+            }
+        }
+        public class UpdateSubCategoryValidator : AbstractValidator<UpdateSubCategoryDto>
+        {
+            public UpdateSubCategoryValidator()
+            {
+                RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Alt kategori adı boş olamaz.")
+                    .MinimumLength(2).WithMessage("Alt kategori adı en az 2 karakter olmalıdır.")
+                    .MaximumLength(50).WithMessage("Alt kategori adı en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.TopCategoryId)
+                    .NotNull().WithMessage("Üst kategori seçmelisiniz.");
+            }
         }
 
+        public class CreateBrandValidator : AbstractValidator<CreateBrandDto>
+        {
+            public CreateBrandValidator()
+            {
+                RuleFor(x => x.CategoryId)
+                    .NotNull().WithMessage("Kategori seçmelisiniz.");
+
+                RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Marka adı boş olamaz.")
+                    .MinimumLength(2).WithMessage("Marka adı en az 2 karakter olmalıdır.")
+                    .MaximumLength(50).WithMessage("Marka adı en fazla 50 karakter olabilir.");
+            }
+        }
+        public class UpdateBrandValidator : AbstractValidator<UpdateBrandDto>
+        {
+            public UpdateBrandValidator()
+            {
+                RuleFor(x => x.CategoryId)
+                    .NotNull().WithMessage("Kategori seçmelisiniz.");
+
+                RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Marka adı boş olamaz.")
+                    .MinimumLength(2).WithMessage("Marka adı en az 2 karakter olmalıdır.")
+                    .MaximumLength(50).WithMessage("Marka adı en fazla 50 karakter olabilir.");
+            }
+        }
+        public class CreateStockOperationValidator : AbstractValidator<CreateStockOperationDto>
+        {
+            public CreateStockOperationValidator()
+            {
+                RuleFor(x => x.TopCategoryId)
+                    .GreaterThan(0).WithMessage("Üst kategori seçmelisiniz.");
+
+                RuleFor(x => x.SubCategoryId)
+                    .GreaterThan(0).WithMessage("Alt kategori seçmelisiniz.");
+
+                RuleFor(x => x.CategoryId)
+                    .GreaterThan(0).WithMessage("Kategori seçmelisiniz.");
+
+                RuleFor(x => x.BrandId)
+                    .GreaterThan(0).WithMessage("Marka seçmelisiniz.");
+
+                RuleFor(x => x.ProductId)
+                    .GreaterThan(0).WithMessage("Ürün seçmelisiniz.");
+
+                RuleFor(x => x.Quantity)
+                    .GreaterThan(0).WithMessage("Miktar 0'dan büyük olmalıdır.")
+                    .LessThanOrEqualTo(100).WithMessage("Miktar 100'e eşit veya 100'den küçük olmalıdır.");
+            }
+        }
+
+        public class CreateBannerValidator : AbstractValidator<CreateBannerDto>
+        {
+            public CreateBannerValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Banner başlığı boş olamaz.")
+                    .MaximumLength(100).WithMessage("Başlık en fazla 40 karakter olabilir.");
+
+                RuleFor(x => x.Subtitle)
+                    .NotEmpty().WithMessage("Alt başlık boş olamaz.")
+                    .MaximumLength(150).WithMessage("Alt başlık en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Statistic1Title)
+                    .NotEmpty().WithMessage("İstatistik 1 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 1 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic1)
+                    .NotEmpty().WithMessage("İstatistik 1 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 1 en fazla 7 karakter olabilir.");
+
+                RuleFor(x => x.Statistic2Title)
+                    .NotEmpty().WithMessage("İstatistik 2 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 2 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic2)
+                    .NotEmpty().WithMessage("İstatistik 2 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 2 en fazla 7 karakter olabilir.");
+
+                RuleFor(x => x.Statistic3Title)
+                    .NotEmpty().WithMessage("İstatistik 3 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 3 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic3)
+                    .NotEmpty().WithMessage("İstatistik 3 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 3 en fazla 7 karakter olabilir.");
+
+                RuleFor(x => x.Statistic4Title)
+                    .NotEmpty().WithMessage("İstatistik 4 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 4 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic4)
+                    .NotEmpty().WithMessage("İstatistik 4 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 4 en fazla 7 karakter olabilir.");
+            }
+
+        }
+
+        public class UpdateBannerValidator : AbstractValidator<UpdateBannerDto>
+        {
+            public UpdateBannerValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Banner başlığı boş olamaz.")
+                    .MaximumLength(100).WithMessage("Başlık en fazla 40 karakter olabilir.");
+
+                RuleFor(x => x.Subtitle)
+                    .NotEmpty().WithMessage("Alt başlık boş olamaz.")
+                    .MaximumLength(150).WithMessage("Alt başlık en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Statistic1Title)
+                    .NotEmpty().WithMessage("İstatistik 1 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 1 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic1)
+                    .NotEmpty().WithMessage("İstatistik 1 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 1 en fazla 7 karakter olabilir.");
+
+                RuleFor(x => x.Statistic2Title)
+                    .NotEmpty().WithMessage("İstatistik 2 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 2 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic2)
+                    .NotEmpty().WithMessage("İstatistik 2 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 2 en fazla 7 karakter olabilir.");
+
+                RuleFor(x => x.Statistic3Title)
+                    .NotEmpty().WithMessage("İstatistik 3 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 3 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic3)
+                    .NotEmpty().WithMessage("İstatistik 3 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 3 en fazla 7 karakter olabilir.");
+
+                RuleFor(x => x.Statistic4Title)
+                    .NotEmpty().WithMessage("İstatistik 4 adı boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 4 en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Statistic4)
+                    .NotEmpty().WithMessage("İstatistik 4 boş olamaz.")
+                    .MaximumLength(50).WithMessage("İstatistik 4 en fazla 7 karakter olabilir.");
+            }
+
+        }
+
+        public class CreateSecondaryBannerValidator : AbstractValidator<CreateSecondaryBannerDto>
+        {
+            public CreateSecondaryBannerValidator()
+            {
+                RuleFor(x => x.Title1)
+                    .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Title2)
+                    .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Title3)
+                    .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Description1)
+                    .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner açıklaması en fazla 25 karakter olabilir.");
+
+                RuleFor(x => x.Description2)
+                    .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner açıklaması en fazla 25 karakter olabilir.");
+
+                RuleFor(x => x.Description3)
+                    .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner açıklaması en fazla 25 karakter olabilir.");
+
+                RuleFor(x => x.ButtonTitle1)
+                    .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
+                    .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+
+                RuleFor(x => x.ButtonTitle2)
+                    .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
+                    .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+
+                RuleFor(x => x.ButtonTitle3)
+                    .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
+                    .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+            }
+        }
+
+        public class UpdateSecondaryBannerValidator : AbstractValidator<UpdateSecondaryBannerDto>
+        {
+            public UpdateSecondaryBannerValidator()
+            {
+                RuleFor(x => x.Title1)
+                    .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Title2)
+                    .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Title3)
+                    .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+
+                RuleFor(x => x.Description1)
+                    .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner açıklaması en fazla 25 karakter olabilir.");
+
+                RuleFor(x => x.Description2)
+                    .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner açıklaması en fazla 25 karakter olabilir.");
+
+                RuleFor(x => x.Description3)
+                    .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
+                    .MaximumLength(25).WithMessage("İkincil banner açıklaması en fazla 25 karakter olabilir.");
+
+                RuleFor(x => x.ButtonTitle1)
+                    .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
+                    .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+
+                RuleFor(x => x.ButtonTitle2)
+                    .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
+                    .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+
+                RuleFor(x => x.ButtonTitle3)
+                    .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
+                    .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+            }
+        }
+        public class CreateServiceIconValidator : AbstractValidator<CreateServiceIconDto>
+        {
+            public CreateServiceIconValidator()
+            {
+                RuleFor(x => x.IconName)
+                    .NotEmpty().WithMessage("Icon adı boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Icon adı en fazla 50 karakter olmalıdır.");
+
+                RuleFor(x => x.IconUrl)
+                    .NotNull().WithMessage("Icon Url boş bırakılamaz.")
+                    .MaximumLength(70).WithMessage("Icon Url en fazla 70 karakter olmalıdır.");
+
+            }
+        }
+        public class UpdateServiceIconValidator : AbstractValidator<UpdateServiceIconDto>
+        {
+            public UpdateServiceIconValidator()
+            {
+                RuleFor(x => x.IconName)
+                    .NotEmpty().WithMessage("Icon adı boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Icon adı en fazla 50 karakter olmalıdır.");
+
+                RuleFor(x => x.IconUrl)
+                    .NotNull().WithMessage("Icon Url boş bırakılamaz.")
+                    .MaximumLength(70).WithMessage("Icon Url en fazla 70 karakter olmalıdır.");
+            }
+        }
+
+        public class CreateServiceValidator : AbstractValidator<CreateServiceDto>
+        {
+            public CreateServiceValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Hizmet adı boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Hizmet adı en fazla 50 karakter olmalıdır.");
+
+                RuleFor(x => x.Description)
+                    .NotEmpty().WithMessage("Hizmet açıklaması boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Hizmet açıklaması en fazla 100 karakter olmalıdır.");
+
+                RuleFor(x => x.ServiceIconId)
+                    .NotNull().WithMessage("Hizmet iconu seçmelisiniz.");
+            }
+        }
+
+        public class UpdateServiceValidator : AbstractValidator<UpdateServiceDto>
+        {
+            public UpdateServiceValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Hizmet adı boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Hizmet adı en fazla 50 karakter olmalıdır.");
+
+                RuleFor(x => x.Description)
+                    .NotEmpty().WithMessage("Hizmet açıklaması boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Hizmet açıklaması en fazla 100 karakter olmalıdır.");
+
+                RuleFor(x => x.ServiceIconId)
+                    .NotNull().WithMessage("Hizmet iconu seçmelisiniz.");
+            }
+        }
     }
 }

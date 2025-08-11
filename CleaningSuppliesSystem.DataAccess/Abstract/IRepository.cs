@@ -13,7 +13,7 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
         Task<List<T>> GetFilteredListAsync(Expression<Func<T, bool>> predicate); // Şarta göre çoklu veri
         Task CreateAsync(T entity);  // Ekleme işlemi
         Task UpdateAsync(T entity);  // Güncelleme
-        Task DeleteAsync(int id);  // Silme
+        Task DeleteAsync(int id);  // Kalıcı silme
         Task<int> CountAsync();  // Tüm veri sayısı
         Task<int> FilteredCountAsync(Expression<Func<T, bool>> predicate); // Şartlı sayım
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate); // Veri var mı kontrolü

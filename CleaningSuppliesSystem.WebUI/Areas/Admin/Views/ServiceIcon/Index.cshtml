@@ -1,0 +1,72 @@
+﻿@model List<ResultServiceIconDto>
+@{
+    ViewData["Title"] = "Hizmetlerimiz İkonları Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["DeleteFunction"] = "deletedServiceIcon";
+    ViewData["DeleteUrlPrefix"] = "/Admin/ServiceIcon/SoftDeleteServiceIcon/";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <a asp-action="Index" asp-controller="Service" asp-area="Admin" class="btn btn-outline-secondary btn-sm d-flex align-items-center me-3">
+            <span class="material-symbols-outlined">arrow_left</span>
+        </a>
+        <h5 class="card-title mb-0">Hizmetlerimiz ikonları Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a asp-action="CreateServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Icon Ekle
+            </a>
+            <a asp-action="DeletedServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @Html.AntiForgeryToken()
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Icon Adı</th>
+                    <th>Icon Url</th>
+                    <th>Eklenme</th>
+                    <th>Düzenleme</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>@item.IconName</td>
+                        <td>@item.IconUrl</td>
+                        <td>
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncelleme yapılmadı")
+                        </td>
+                        <td>
+                            <a asp-action="UpdateServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" asp-route-id="@item.Id"
+                               class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
+                                <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                            </a>
+                            <button class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
+                                    data-id="@item.Id">
+                                <span class="material-symbols-outlined me-1">delete</span> Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

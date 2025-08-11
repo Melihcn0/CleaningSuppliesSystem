@@ -1,10 +1,9 @@
-﻿@model List<UserViewModel>
+﻿@model List<UserListDto>
 @{
     ViewData["Title"] = "Kullanıcı Listesi Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     int count = 0;
 }
-
 
 <div class="card basic-data-table">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
@@ -58,32 +57,38 @@
                                 <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Pasif</span>
                             }
                         </td>
-
+                                                
                         <td>
-                            <div class="dropdown">
-                                <button class="btn btn-outline-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon" type="button" data-bs-toggle="dropdown">
+                            <div class="dropdown dropend">
+                                <button class="btn btn-outline-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon icon-right" type="button" data-bs-toggle="dropdown">
                                     Hesap Durumu
                                 </button>
                                 <ul class="dropdown-menu">
                                     @if (!item.IsActive)
                                     {
-                                    <li>
-                                        <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
-                                            <input type="hidden" name="userId" value="@item.Id" />
-                                            <input type="hidden" name="newStatus" value="true" />
-                                            <button type="submit" class="btn rounded-pill btn-success-100 text-success-600 radius-8 btn-sm text-sm">Aktif Yap</button>
-                                        </form>
-                                    </li>
+                                        <li>
+                                            <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
+                                                <input type="hidden" name="userId" value="@item.Id" />
+                                                <input type="hidden" name="newStatus" value="true" />
+
+                                                <button type="submit" class="btn rounded-pill btn-success-100 text-success-600 radius-8 btn-sm text-sm">
+                                                    Aktif Yap
+                                                </button>
+                                            </form>
+                                        </li>
                                     }
                                     else
                                     {
-                                    <li>
-                                        <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
-                                            <input type="hidden" name="userId" value="@item.Id" />
-                                            <input type="hidden" name="newStatus" value="false" />
-                                            <button type="submit" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 btn-sm text-sm">Pasif Yap</button>
-                                        </form>
-                                    </li>
+                                        <li>
+                                            <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
+                                                <input type="hidden" name="userId" value="@item.Id" />
+                                                <input type="hidden" name="newStatus" value="false" />
+
+                                                <button type="submit" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 btn-sm text-sm">
+                                                    Pasif Yap
+                                                </button>
+                                            </form>
+                                        </li>
                                     }
                                 </ul>
                             </div>

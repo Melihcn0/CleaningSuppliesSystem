@@ -1,15 +1,20 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
-using CleaningSuppliesSystem.Entity.Entities;
-using CleaningSuppliesSystem.WebUI.Services.EmailServices;
-using CleaningSuppliesSystem.WebUI.Services.UserServices;
-using Microsoft.AspNetCore.Identity;
+﻿using CleaningSuppliesSystem.DTO.DTOs.RegisterDtos;
+using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.LoginValidatorDto;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.RegisterValidatorDto;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using static CleaningSuppliesSystem.Business.Validators.Validators;
 
 namespace CleaningSuppliesSystem.WebUI.Controllers
 {
-    public class RegisterController(IUserService _userService, UserManager<AppUser> _userManager, IEmailService _emailService, IConfiguration _config) : Controller
+    public class RegisterController : Controller
     {
+        private readonly HttpClient _client;
+        public RegisterController(IHttpClientFactory clientFactory)
+        {
+            _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        }
+
         public IActionResult SignUp()
         {
             return View();
@@ -17,80 +22,36 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp(UserRegisterDto userRegisterDto)
         {
-            var validator = new UserRegisterValidator();
-            var result = await validator.ValidateAsync(userRegisterDto);
+            var validator = new RegisterValidator();
+            var validationResult = await validator.ValidateAsync(userRegisterDto);
 
-            if (!result.IsValid)
+            if (!validationResult.IsValid)
             {
-                foreach (var x in result.Errors)
+                foreach (var error in validationResult.Errors)
                 {
-                    ModelState.Remove(x.PropertyName);
-                    ModelState.AddModelError(x.PropertyName, x.ErrorMessage);
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
                 return View(userRegisterDto);
-            }
-
-            // 👤 AppUser oluşturuluyor
-            var user = new AppUser
+            }           
+            var result = await _client.PostAsJsonAsync("Users/register", userRegisterDto);
+            if (!result.IsSuccessStatusCode)
             {
-                UserName = userRegisterDto.UserName,
-                Email = userRegisterDto.Email,
-                FirstName = userRegisterDto.FirstName,
-                LastName = userRegisterDto.LastName,
-                IsActive = false,
-                LockoutEnabled = true
-            };
-
-            // ✏️ Şifre uyuşmazlığı kontrolü
-            if (userRegisterDto.Password != userRegisterDto.ConfirmPassword)
-            {
-                ModelState.AddModelError("ConfirmPassword", "Şifre ve tekrar şifresi uyuşmuyor.");
-                return View(userRegisterDto);
-            }
-
-            // 📌 Kullanıcı oluşturuluyor
-            var identityResult = await _userManager.CreateAsync(user, userRegisterDto.Password);
-
-            if (!identityResult.Succeeded)
-            {
-                foreach (var x in identityResult.Errors)
+                var errors = await result.Content.ReadFromJsonAsync<List<RegisterResponseDto>>();
+                if (errors != null && errors.Any())
                 {
-                    switch (x.Code)
+                    foreach (var error in errors)
                     {
-                        case "DuplicateUserName":
-                            ModelState.AddModelError("UserName", x.Description);
-                            break;
-                        case "DuplicateEmail":
-                            ModelState.AddModelError("Email", x.Description);
-                            break;
-                        case "PasswordMismatch":
-                            ModelState.AddModelError("ConfirmPassword", x.Description);
-                            break;
-                        default:
-                            ModelState.AddModelError("", x.Description);
-                            break;
+                        ModelState.AddModelError(error.Code ?? "", error.Description);
                     }
                 }
-                return View(userRegisterDto);
-            }
-
-            // 🏷️ Kullanıcı rolü atanıyor
-            var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
-
-            if (!roleResult.Succeeded)
-            {
-                foreach (var error in roleResult.Errors)
+                else
                 {
-                    ModelState.AddModelError("", $"Rol ataması başarısız: {error.Description}");
+                    ModelState.AddModelError("", "Bilinmeyen bir hata oluştu.");
                 }
+
                 return View(userRegisterDto);
             }
-
-            // 📬 E-posta servisinden çağrım
-            await _emailService.NewUserMailAsync(user.UserName, user.Email);
-            await _emailService.SendUserWelcomeMailAsync(user.UserName, user.Email);
-
-            // 🔄 Login sayfasına yönlendirme
             return RedirectToAction("SignIn", "Login");
         }
     }

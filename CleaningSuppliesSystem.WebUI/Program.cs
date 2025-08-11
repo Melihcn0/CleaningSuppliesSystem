@@ -1,79 +1,69 @@
-using CleaningSuppliesSystem.Business.Abstract;
-using CleaningSuppliesSystem.Business.Concrete;
-using CleaningSuppliesSystem.DataAccess.Abstract;
-using CleaningSuppliesSystem.DataAccess.Concrete;
-using CleaningSuppliesSystem.DataAccess.Repositories;
-using CleaningSuppliesSystem.Entity.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Reflection;
-using System;
-using CleaningSuppliesSystem.DataAccess.Context;
-using CleaningSuppliesSystem.WebUI.Services.UserServices;
-using CleaningSuppliesSystem.WebUI.Services.RoleServices;
-using Microsoft.AspNetCore.Builder;
-using CleaningSuppliesSystem.WebUI.Services.EmailServices;
 using FluentValidation;
-using static CleaningSuppliesSystem.Business.Validators.Validators;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using CleaningSuppliesSystem.WebUI.Services.TokenServices;
+using CleaningSuppliesSystem.WebUI.Handlers;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DbContext'i Identity'den �nce ekle
-builder.Services.AddDbContext<CleaningSuppliesSystemContext>(opt =>
-{
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
-});
-
-
-builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<CleaningSuppliesSystemContext>().AddDefaultTokenProviders();
-builder.Services.AddHttpClient();
+// AutoMapper
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
-builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericManager<>));
-builder.Services.AddScoped<IProductService, ProductManager>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryManager>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IFinanceService, FinanceManager>();
-builder.Services.AddScoped<IFinanceRepository, FinanceRepository>();
-builder.Services.AddScoped<IStockEntryService, StockEntryManager>();
-builder.Services.AddScoped<IStockEntryRepository, StockEntryRepository>();
-builder.Services.AddScoped<IMailService, MailManager>();
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+// HttpContext
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddValidatorsFromAssemblyContaining<ForgotPasswordValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<ResetPasswordValidator>();
+// TokenService ve DelegatingHandler
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddTransient<TokenHandler>();
 
-
-builder.Services.ConfigureApplicationCookie(cfg =>
+// HttpClient + TokenHandler (JWT ile API'ye gidecek client)
+builder.Services.AddHttpClient("CleaningSuppliesSystemClient", client =>
 {
-    cfg.LoginPath = "/Login/SignIn";
-    cfg.LogoutPath = "/Login/Logout";
-    cfg.AccessDeniedPath = "/ErrorPage/AccessDenied";
-    //cfg.Cookie.Name = "CleaningSuppliesSystemCookie";
-    //cfg.ExpireTimeSpan = TimeSpan.FromDays(30);
-});
+    client.BaseAddress = new Uri("https://localhost:7200/api/");
+}).AddHttpMessageHandler<TokenHandler>();
 
+// Cookie Authentication (Web arayüzü için)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, opt =>
+    {
+        opt.LoginPath = "/Login/SignIn";
+        opt.LogoutPath = "/Login/Logout";
+        opt.AccessDeniedPath = "/ErrorPage/AccessDenied";
+        opt.Cookie.SameSite = SameSiteMode.Strict;
+        opt.Cookie.HttpOnly = true;
+        opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        opt.Cookie.Name = "CleaningSuppliesSystemCookie";
+    });
+
+// Opsiyonel: Identity ayarları
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30); // kilit s�resi
-    options.Lockout.MaxFailedAccessAttempts = 10; // maksimum deneme
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+    options.Lockout.MaxFailedAccessAttempts = 15;
     options.Lockout.AllowedForNewUsers = true;
 });
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromMinutes(15); // 15 dakikal�k ge�erlilik
+    options.TokenLifespan = TimeSpan.FromMinutes(15);
 });
 
+// Session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20); // 20 dk işlem yapılmazsa session sona erer
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // GDPR için gerekli
+});
 
+// MVC
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -84,7 +74,33 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession(); // Session middleware aktif edildi
+
+// Session timeout kontrol middleware'i
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var userName = context.Session.GetString("Identifier");
+        var userRole = context.Session.GetString("UserRole");
+
+        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userRole))
+        {
+            // Session boşalmışsa, kullanıcıyı oturumdan at
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Önemli: Oturumdan atıldıktan sonra kullanıcıyı hemen giriş sayfasına yönlendir.
+            // Bu, menüdeki yanlış linkin görülmesini engeller.
+            context.Response.Redirect("/Login/SignIn");
+            return;
+        }
+    }
+    await next();
+});
+
+
 app.UseStatusCodePagesWithReExecute("/ErrorPage/NotFound404/");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

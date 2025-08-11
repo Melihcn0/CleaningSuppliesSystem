@@ -1,0 +1,21 @@
+﻿@model object? // Modelin null olabileceğini belirtiyoruz
+
+<div class="modal-header">
+    <h5 class="modal-title text-danger">Hata!</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+</div>
+<div class="modal-body">
+    <div class="alert alert-danger" role="alert">
+        @if (Model is string errorMessage)
+        {
+            @errorMessage
+        }
+        else
+        {
+            <p>Beklenmedik bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</p>
+        }
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+</div>

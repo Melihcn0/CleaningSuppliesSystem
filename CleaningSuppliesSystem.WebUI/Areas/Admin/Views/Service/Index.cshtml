@@ -1,0 +1,119 @@
+﻿@model List<ResultServiceDto>
+@{
+    ViewData["Title"] = "Hizmetlerimiz Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["DeleteFunction"] = "deletedService";
+    ViewData["DeleteUrlPrefix"] = "/Admin/Service/SoftDeleteService/";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Hizmetlerimiz Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a asp-action="Index" asp-controller="ServiceIcon" asp-area="Admin" class="btn btn-outline-lilac-600 radius-8 d-inline-flex align-items-center me-2">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">emoji_symbols</span> Hizmet İkonları
+            </a>
+            <a asp-action="CreateService" asp-controller="Service" asp-area="Admin" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Hizmet Ekle
+            </a>
+            <a asp-action="DeletedService" asp-controller="Service" asp-area="Admin" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @Html.AntiForgeryToken()
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Icon Adı</th>
+                    <th>Icon Url</th>
+                    <th>Hizmet Adı</th>
+                    <th>Hizmet Açıklaması</th>
+                    <th>Eklenme</th>
+                    <th>Düzenleme</th>
+                    <th>Ana Sayfada</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>@item.IconName</td>
+                        <td>@item.IconUrl</td>
+                        <td>@item.Title</td>
+                        <td>@item.Description</td>
+                        <td>
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncelleme yapılmadı")
+                        </td>
+                        <td>
+                            @if (item.IsShown)
+                            {
+                                <span class="badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white">Gösteriliyor</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Gösterilmiyor</span>
+                            }
+                        </td>
+                        <td class="text-center align-middle">
+                            <form method="post" asp-action="ToggleStatus" asp-controller="Service" id="toggleForm-@item.Id" class="d-inline-block">
+                                <input type="hidden" name="serviceId" value="@item.Id" />
+                                <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
+
+                                <div class="form-switch">
+                                    <input class="form-check-input @(item.IsShown ? "bg-success" : "bg-warning")"
+                                           type="checkbox"
+                                           role="switch"
+                                           id="isShownSwitch-@item.Id"
+                                           name="isShown"
+                                    @(item.IsShown ? "checked" : "")
+                                           onchange="onToggleChange(@item.Id)" />
+                                </div>
+
+                            </form>
+                        </td>
+                        <td>
+                            <a asp-action="UpdateService" asp-controller="Service" asp-area="Admin" asp-route-id="@item.Id"
+                               class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
+                                <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                            </a>
+                            <button class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
+                                    data-id="@item.Id">
+                                <span class="material-symbols-outlined me-1">delete</span> Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        function onToggleChange(id) {
+            const checkbox = document.getElementById(`isShownSwitch-${id}`);
+            const newStatusInput = document.getElementById(`newStatus-${id}`);
+
+            newStatusInput.value = checkbox.checked.toString();
+
+            document.getElementById(`toggleForm-${id}`).submit();
+        }
+    </script>
+}

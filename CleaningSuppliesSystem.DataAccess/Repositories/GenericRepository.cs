@@ -1,5 +1,6 @@
 ﻿using CleaningSuppliesSystem.DataAccess.Abstract;
 using CleaningSuppliesSystem.DataAccess.Context;
+using CleaningSuppliesSystem.Entity.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -66,5 +67,6 @@ namespace CleaningSuppliesSystem.DataAccess.Repositories
         {
             return await Table.AnyAsync(predicate);
         }
+
     }
 }

@@ -11,5 +11,14 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
     {
         Task<List<Order>> GetOrderItemWithAppUserandOrderItemsandInvoiceAsync();
         Task<Order> GetByIdAsyncWithAppUserandOrderItemsandInvoice(int id);
+        Task<Order?> GetPendingOrderByUserIdAsync(int userId);
+        Task AddToPendingOrderAsync(int userId, int productId, int quantity);
+        Task<List<Order>> GetOrdersWithItemsAsync();
+        Task<List<Order>> GetOrdersWithItemsByUserIdAsync(int userId);
+        Task<List<Order>> GetCompletedAndCancelledOrdersAsync();
+        Task<Order> UpdateStatusAsync(int orderId, string status);
+
+
+
     }
 }

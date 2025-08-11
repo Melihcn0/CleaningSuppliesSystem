@@ -13,6 +13,7 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public string LastName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = false;
+        public bool WantsNewsletter { get; set; } = false;
         public ICollection<Order> Orders { get; set; }
     }
 }

@@ -10,18 +10,29 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         {
         }
 
-        // 👉 DbSet tanımları
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Finance> Finances { get; set; }
-        public DbSet<StockEntry> StockEntries { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<TopCategory> TopCategories { get; set; }
+        public DbSet<SubCategory> SubCategories { get; set; }
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<Banner> Banners { get; set; }
+        public DbSet<SecondaryBanner> SecondaryBanners { get; set; }
+        public DbSet<Service> Services { get; set; }
+        public DbSet<ServiceIcon> ServiceIcons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Brand>()
+                .HasOne(b => b.Category)
+                .WithMany(c => c.Brands)
+                .HasForeignKey(b => b.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.OrderItems)

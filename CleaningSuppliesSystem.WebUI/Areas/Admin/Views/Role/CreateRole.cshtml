@@ -8,16 +8,18 @@
     <label>Rol Seçimi</label>
     <select asp-for="Name" class="form-control">
         <option value="" disabled selected>-- Rol Seçiniz --</option>
-        @foreach (var role in ViewBag.SelectableRoles as List<string>)
+        @if (ViewBag.SelectableRoles != null)
         {
-            string displayText = role switch
+            foreach (var role in (List<string>)ViewBag.SelectableRoles)
             {
-                "Admin" => "Admin",
-                "Customer" => "Müşteri",
-                _ => role
-            };
-
-            <option value="@role">@displayText</option>
+                var displayText = role switch
+                {
+                    "Admin" => "Admin",
+                    "Customer" => "Müşteri",
+                    _ => role
+                };
+                <option value="@role">@displayText</option>
+            }
         }
     </select>
     <span asp-validation-for="Name" class="text-danger"></span>

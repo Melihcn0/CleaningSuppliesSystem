@@ -1,0 +1,111 @@
+﻿@model List<ResultTopCategoryDto>
+@{
+    ViewData["Title"] = "Üst Kategori Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["DeleteFunction"] = "deletedTopCategory";
+    ViewData["DeleteUrlPrefix"] = "/Admin/TopCategory/SoftDeletedTopCategory/";
+
+    ViewData["MultiDeleteUrl"] = "/Admin/TopCategory/DeleteMultiple";
+    ViewData["MultiDeleteConfirmTitle"] = "Seçilen tüm kategorileri silmek istediğinize emin misiniz?";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Üst Kategori Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <a asp-action="CreateTopCategory" asp-controller="TopCategory" asp-area="Admin" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Üst Kategori Ekle
+            </a>
+            <a asp-action="DeletedTopCategory" asp-controller="TopCategory" asp-area="Admin" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            </a>
+            <button id="deleteSelectedBtn" class="btn btn-danger radius-8 d-inline-flex align-items-center me-2" disabled>
+                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        @Html.AntiForgeryToken()
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>
+                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    </th>
+                    <th>Üst Kategori Adı</th>
+                    <th>Oluşturulma Tarihi</th>
+                    <th>Son Güncelleme Tarihi</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    count++;
+                    <tr>
+                        <td>
+                            <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
+                                @count
+                            </label>
+                        </td>
+                        <td>@item.Name</td>
+                        <td>
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncelleme yapılmadı")
+                        </td>
+                        <td>
+                            <a asp-action="UpdateTopCategory" asp-controller="TopCategory" asp-area="Admin" asp-route-id="@item.Id"
+                               class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
+                                <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                            </a>
+                            <button class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
+                                    data-id="@item.Id">
+                                <span class="material-symbols-outlined me-1">delete</span> Sil
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteBtn) deleteBtn.disabled = selectedCount === 0;
+
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
+    </script>
+}

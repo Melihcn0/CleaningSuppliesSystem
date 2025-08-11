@@ -1,0 +1,23 @@
+﻿@model CreateSubCategoryDto
+@{
+    ViewData["Title"] = "Alt Kategori Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    <div class="form-group">
+        <label for="TopCategoryId">Üst Kategori</label>
+        <select id="TopCategoryId" name="TopCategoryId" asp-items="ViewBag.TopCategories" class="form-control">
+            <option value="" disabled selected>Üst Kategori Seçin</option>
+        </select>
+        <span asp-validation-for="TopCategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Name">Alt Kategori Adı</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>

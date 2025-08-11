@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.Entity.Entities;
+﻿using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +9,10 @@ namespace CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos
 {
     public class CreateInvoiceDto
     {
-        public DateTime GeneratedAt { get; set; }
-        public string FileName { get; set; }
-        public byte[] FileContent { get; set; }
         public int OrderId { get; set; }
+        public DateTime GeneratedAt { get; set; }
+
+        // Eğer Order’dan bazı bilgileri göstermek istersen ekle:
+        public ResultOrderDto? Order { get; set; }
     }
 }

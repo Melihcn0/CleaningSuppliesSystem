@@ -5,9 +5,9 @@ using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
-using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
+using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -25,18 +25,12 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<ResultProductDto, Product>().ReverseMap();
             CreateMap<UpdateProductDto, Product>().ReverseMap();
 
-            // StockEntry
-            CreateMap<CreateStockEntryDto, StockEntry>().ReverseMap();
-            CreateMap<UpdateStockEntryDto, StockEntry>().ReverseMap();
-            CreateMap<ResultStockEntryDto, StockEntry>().ReverseMap();
-
             // Finance
             CreateMap<CreateFinanceDto, Finance>().ReverseMap();
             CreateMap<UpdateFinanceDto, Finance>().ReverseMap();
 
             // Invoice
-            CreateMap<CreateInvoiceDto, Invoice>().ReverseMap();
-            CreateMap<ResultInvoiceDto, Invoice>().ReverseMap();
+            CreateMap<InvoiceDto, Invoice>().ReverseMap();
 
             // Order
             CreateMap<CreateOrderDto, Order>().ReverseMap();
@@ -53,6 +47,8 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.ConcurrencyStamp, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
                 .ForMember(dest => dest.NormalizedName, opt => opt.MapFrom(src => src.Name.ToUpper()));
             CreateMap<ResultRoleDto, AppRole>().ReverseMap();
+
+            CreateMap<UpdateDiscountDto, Order>().ReverseMap();
 
 
         }

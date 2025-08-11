@@ -1,0 +1,145 @@
+﻿@model List<ResultOrderDto>
+
+@{
+    ViewData["Title"] = "Siparişlerim";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="card basic-data-table">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Sipariş Listesi</h5>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Sipariş No</th>
+                        <th>Sipariş Tarihi</th>
+                        <th>Sipariş Durumu</th>
+                        <th>Detay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var order = Model[i];
+                        var statusClass = order.Status switch
+                        {
+                            "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
+                            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+                            "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
+                            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-info-gradient px-20 py-9 radius-4 text-white",
+                            "Onay Bekliyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                            "Onaylandı" => "badge text-sm fw-semibold bg-dark-lilac-gradient px-20 py-9 radius-4 text-white",
+                            _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
+                        };
+
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td><strong>#@order.OrderNumber</strong></td>
+                            <td>
+                                @order.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                                @order.CreatedDate.ToString("dd MMMM yyyy dddd")
+                            </td>
+                            <td>
+                                <span class="@statusClass">@order.Status</span>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 js-show-order-detail" data-order-id="@order.Id">
+                                    <span class="material-symbols-outlined">read_more</span> Detay
+                                </a>
+                                @if (order.Status != "Onay Bekleniyor" && order.Status != "Onaylandı")
+                                {
+                                    <a href="@Url.Action("DownloadInvoice", "Order", new { orderId = order.Id })" class="btn btn-primary">
+                                        Faturayı İndir
+                                    </a>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content" id="orderDetailModalContent">
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-shopping-cart fa-3x mb-3 opacity-25"></i>
+                    <h5>Hiç sipariş bulunamadı</h5>
+                    <p>Henüz bir siparişiniz bulunmamaktadır.</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.js-show-order-detail').on('click', function (e) {
+                e.preventDefault();
+
+                var orderId = $(this).data('order-id');
+                var modal = $('#orderDetailModal');
+                var modalContent = $('#orderDetailModalContent');
+
+                modalContent.html(`
+                    <div class="modal-header">
+                        <h5 class="modal-title">Yükleniyor...</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    </div>
+                    <div class="modal-body text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    </div>
+                `);
+
+                modal.modal('show');
+
+                $.ajax({
+                    url: '/Customer/Order/Details/' + orderId,
+                    type: 'GET',
+                    success: function (data) {
+                        modalContent.html(data);
+                    },
+                    error: function (xhr) {
+                        var errorMessage = "Sipariş detayı yüklenirken bir sorun oluştu.";
+                        if (xhr.status === 403) {
+                            errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
+                        } else if (xhr.status === 404) {
+                            errorMessage = "Belirtilen sipariş bulunamadı.";
+                        }
+
+                        modalContent.html(`
+                            <div class="modal-header">
+                                <h5 class="modal-title text-danger">Hata</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger">${errorMessage}</div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        `);
+                    }
+                });
+            });
+        });
+    </script>
+}

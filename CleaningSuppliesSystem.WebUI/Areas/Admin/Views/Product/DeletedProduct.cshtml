@@ -1,50 +1,99 @@
-﻿@model List<ResultProductDto>
+﻿@model ProductViewModel
 @{
     ViewData["Title"] = "Silinen Ürünler Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+   
+    ViewData["PermanentDeleteUrl"] = "~/Admin/Product/PermanentDeleteProduct";
+    ViewData["PermanentDeleteConfirmTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+
+    ViewData["UndoSoftDeleteUrl"] = "~/Admin/Product/UndoSoftDeleteMultiple";
+    ViewData["UndoSoftDeleteConfirmTitle"] = "Seçilen ürünleri geri almak istediğinize emin misiniz?";
+
+    ViewData["PermanentDeleteMultipleUrl"] = "~/Admin/Product/PermanentDeleteMultiple";
+    ViewData["PermanentDeleteConfirmMultipleTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+
     int count = 0;
 }
 
 <div class="card basic-data-table">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Stok Listesi</h5>
+        <h5 class="card-title mb-0">Silinen Ürünler Listesi</h5>
         <div class="d-flex align-items-center gap-2 ms-auto">
+            <button id="undosoftdeleteSelectedBtn" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2" disabled>
+                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Geri Al
+            </button>
+            <button id="permanentdeleteSelectedBtn" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2" disabled>
+                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            </button>
         </div>
     </div>
     <div class="card-body">
+        @Html.AntiForgeryToken()
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
-                    <th>#</th>
+                    <th>
+                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    </th>
                     <th>Ürün Fotoğrafı</th>
+                    <th>Üst Kategori Adı</th>
+                    <th>Alt Kategori Adı</th>
+                    <th>Kategori Adı</th>
+                    <th>Marka Adı</th>
                     <th>Ürün Adı</th>
                     <th>Birim Fiyat</th>
-                    <th>Kategori</th>
-                    <th>Eklenme Tarihi</th>
+                    <th>İndirim Oranı</th>
+                    <th>İndirimli Fiyat</th>
+                    <th>Oluşturulma Tarihi</th>
+                    <th>Son Güncelleme Tarihi</th>
+                    <th>Silinme Tarihi</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.ProductViewList)
                 {
                     count++;
                     <tr>
-                        <td>@count</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            <img src="@item.ImageUrl" alt="Ürün görseli" style="width: 75px; height: 75px; object-fit: cover;" />
-                        </td>
-                        <td>@item.Name</td>
-                        <td>@item.UnitPrice</td>
-                        <td>@item.Category.Name</td>
-                        <td>@item.CreatedAt.ToShortDateString() @item.CreatedAt.ToShortTimeString() <br /> @item.CreatedAt.ToLongDateString()</td>
                         <td>
-                            <form asp-action="UndoDeletedProduct" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2">
+                            <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
+                                @count
+                            </label>
+                        </td>
+                        <td>
+                            <img src="@Url.Content(item.ImageUrl)" style="width:75px; height:75px;" />
+                        </td>
+                        <td>@item.TopCategoryName</td>
+                        <td>@item.SubCategoryName</td>
+                        <td>@item.CategoryName</td>
+                        <td>@item.BrandName</td>
+                        <td>@item.Name</td>
+                        <td>@item.UnitPrice ₺</td>
+                        <td>@item.DiscountRate.ToString("F0") %</td>
+                        <td>@((item.UnitPrice * (1 - item.DiscountRate / 100)).ToString("N2")) ₺</td>
+                        <td>
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncelleme yapılmadı")
+                        </td>
+                        <td>
+                            @item.DeletedDate?.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.DeletedDate?.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            <form asp-action="UndoSoftDeletedProduct" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
                                     <span class="material-symbols-outlined">undo</span> Geri al
                                 </button>
                             </form>
-                            <button onclick="deleteProduct(@item.Id)"
-                                    class="btn btn-outline-danger-600 btn-sm d-inline-flex align-items-center">
+                            <button type="button"
+                                    class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn permanent-delete-btn"
+                                    data-id="@item.Id">
                                 <span class="material-symbols-outlined me-1">delete</span> Sil
                             </button>
                         </td>
@@ -56,39 +105,36 @@
 </div>
 @section Scripts {
     <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
 
-        function deleteProduct(id) {
-            const theme = document.documentElement.getAttribute("data-theme");
-            Swal.fire({
-                title: "Silmek istediğinizden emin misiniz?",
-                text: "Bu işlemi geri alamazsınız!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Evet, sil!",
-                cancelButtonText: "İptal",
-                background: theme === "dark" ? "#1e1e2f" : "#fff",
-                color: theme === "dark" ? "#fff" : "#000",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: "Silindi!",
-                        text: "Ürün başarıyla silindi.",
-                        icon: "success",
-                        confirmButtonText: "Tamam",
-                        confirmButtonColor: "#3085d6",
-                        background: theme === "dark" ? "#1e1e2f" : "#fff",
-                        color: theme === "dark" ? "#fff" : "#000",
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    }).then(() => {
-                        window.location.href = `/Admin/Product/DeleteProduct/${id}`;
-                    });
-                }
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+
+            const undoBtn = document.getElementById('undosoftdeleteSelectedBtn');
+            const permanentDeleteBtn = document.getElementById('permanentdeleteSelectedBtn');
+
+            if (undoBtn) undoBtn.disabled = selectedCount === 0;
+            if (permanentDeleteBtn) permanentDeleteBtn.disabled = selectedCount === 0;
+
+            // Tekli action butonları (satırdaki)
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
             });
         }
     </script>

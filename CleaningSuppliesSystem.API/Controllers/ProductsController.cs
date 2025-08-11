@@ -1,52 +1,253 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
+using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.Entity.Entities;
-using Microsoft.AspNetCore.Http;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningSuppliesSystem.API.Controllers
 {
+    [ApiExplorerSettings(GroupName = "Products")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IProductService _productService, IMapper _mapper) : ControllerBase
+    public class ProductsController : ControllerBase
     {
+        private readonly IProductService _productService;
+        private readonly IMapper _mapper;
+        private readonly IValidator<CreateProductDto> _createProductValidator;
+        private readonly IValidator<UpdateProductDto> _updateProductValidator;
+        private readonly IValidator<UpdateDiscountDto> _updateDiscountValidator;
+        private readonly IWebHostEnvironment _env;
+
+        public ProductsController(IProductService productService, IMapper mapper, 
+            IValidator<CreateProductDto> createProductValidator, 
+            IValidator<UpdateProductDto> updateProductValidator, 
+            IValidator<UpdateDiscountDto> updateDiscountValidator, IWebHostEnvironment env)
+        {
+            _productService = productService;
+            _mapper = mapper;
+            _createProductValidator = createProductValidator;
+            _updateProductValidator = updateProductValidator;
+            _updateDiscountValidator = updateDiscountValidator;
+            _env = env;
+        }
+
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
-            var values = await _productService.TGetProductsWithCategoriesAsync();
-            var products = _mapper.Map<List<ResultProductDto>>(values);
-            return Ok(products);
+            var products = await _productService.TGetListAsync();
+            var result = _mapper.Map<List<ResultProductDto>>(products);
+            return Ok(result);
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveProducts()
+        {
+            var result = await _productService.TGetActiveProductsAsync();
+            return Ok(result);
+        }
+        [HttpGet("deleted")]
+        public async Task<IActionResult> GetDeletedCategories()
+        {
+            var result = await _productService.TGetDeletedProductsAsync();
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var value = await _productService.TGetByIdAsyncWithCategory(id);
-            var result = _mapper.Map<ResultProductDto>(value);
-            return Ok(result);
+            var product = await _productService.TGetByIdAsync(id);
+            if (product == null)
+                return NotFound("Ürün bulunamadı.");
+
+            var productDto = _mapper.Map<ResultProductDto>(product);
+            return Ok(productDto);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _productService.TDeleteAsync(id);
-            return Ok("Ürün Silindi");
-        }
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto createProductDto)
+        public async Task<IActionResult> Create([FromForm] CreateProductDto createProductDto)
         {
-            var newValue = _mapper.Map<Product>(createProductDto);
-            await _productService.TCreateAsync(newValue);
-            return Ok("Yeni Ürün Oluşturuldu");
+            var (isSuccess, message, createdId) = await _productService.TCreateProductAsync(createProductDto);
+
+            if (!isSuccess)
+            {
+                return BadRequest(new { message });
+            }
+
+            return Ok(new { message = "Ürün başarıyla oluşturuldu.", id = createdId });
         }
+
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateProductDto updateProductDto)
+        public async Task<IActionResult> Update([FromForm] UpdateProductDto updateProductDto)
         {
-            var value = _mapper.Map<Product>(updateProductDto);
-            await _productService.TUpdateAsync(value);
-            return Ok("Ürün güncellendi");
+            var (isSuccess, message, updatedId) = await _productService.TUpdateProductAsync(updateProductDto);
+
+            if (!isSuccess)
+            {
+                return BadRequest(new { message });
+            }
+
+            return Ok(new { message = "Ürün başarıyla güncellendi.", id = updatedId });
+        }
+
+
+        // Soft Delete
+        [HttpPost("softdelete/{id}")]
+        public async Task<IActionResult> SoftDelete(int id)
+        {
+            var (IsSuccess, Message, _) = await _productService.TSoftDeleteProductAsync(id);
+            if (!IsSuccess)
+                return BadRequest(Message);
+            return Ok(Message);
+        }
+
+        // Undo Soft Delete
+        [HttpPost("undosoftdelete/{id}")]
+        public async Task<IActionResult> UndoSoftDelete(int id)
+        {
+            var product = await _productService.TGetByIdAsync(id);
+            var (IsSuccess, Message, UndoSoftDeleteId) = await _productService.TUndoSoftDeleteProductAsync(id);
+            if (!IsSuccess)
+                return BadRequest(Message);
+            return Ok(Message);
+        }
+
+        [HttpDelete("permanent/{id}")]
+        public async Task<IActionResult> PermanentDelete(int id)
+        {
+            var product = await _productService.TGetByIdAsync(id);
+            if (product == null)
+                return NotFound("Ürün bulunamadı.");
+
+            if (!product.IsDeleted)
+                return BadRequest("Ürün soft silinmiş değil. Önce soft silmeniz gerekir.");
+
+            // Kalıcı silme işlemini yap
+            var (isSuccess, message) = await _productService.TPermanentDeleteProductAsync(id);
+
+            if (!isSuccess)
+            {
+                return BadRequest(message);
+            }
+
+            // Görsel varsa sil (yol formatını düzeltiyoruz)
+            if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+            {
+                // URL'den ~, / gibi karakterleri temizle, işletim sistemine uygun yol oluştur
+                var relativePath = product.ImageUrl.TrimStart('~').TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                var imagePath = Path.Combine(_env.WebRootPath, relativePath);
+
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+            }
+
+            return Ok(message);
+        }
+
+
+        [HttpGet("discountproduct/{id}")]
+        public async Task<IActionResult> GetDiscountProduct(int id)
+        {
+            var product = await _productService.TGetByIdAsync(id);
+            if (product == null)
+                return NotFound();
+
+            var dto = new UpdateDiscountDto
+            {
+                Id = product.Id,
+                UnitPrice = product.UnitPrice,
+                DiscountRate = product.DiscountRate
+            };
+
+            return Ok(dto);
+        }
+
+        [HttpPost("applydiscount")]
+        public async Task<IActionResult> ApplyDiscount([FromBody] UpdateDiscountDto dto)
+        {
+            var validationResult = await _updateDiscountValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+
+            var (isSuccess, errors) = await _productService.TApplyDiscountAsync(dto);
+            if (!isSuccess)
+            {
+                return BadRequest(errors);
+            }
+
+            return Ok(new { message = "İndirim başarıyla uygulandı." });
+        }
+
+
+        [HttpPut("set-home-display/{id}")]
+        public async Task<IActionResult> SetProductDisplayOnHome(int id, [FromBody] bool isShown)
+        {
+            var result = await _productService.TSetProductDisplayOnHomeAsync(id, isShown);
+            if (!result.IsSuccess)
+                return NotFound(new { Message = result.Message });
+
+            return Ok(new { Message = result.Message });
+        }
+
+        [HttpGet("GetProducts/{brandId}")]
+        public async Task<IActionResult> GetByBrand(int brandId)
+        {
+            var brands = await _productService.TGetActiveByBrandIdAsync(brandId);
+            return Ok(brands);
+        }
+        [HttpPost("DeleteMultiple")]
+        public async Task<IActionResult> SoftDeleteMultipleAsync([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Silinecek kategori bulunamadı.");
+
+            var results = await _productService.TSoftDeleteRangeProductAsync(ids);
+
+            var failed = results.Where(r => !r.IsSuccess).ToList();
+            if (failed.Any())
+            {
+                var messages = string.Join("\n", failed.Select(f => f.Message));
+                return BadRequest(messages);
+            }
+
+            return Ok("Tüm kategoriler başarıyla silindi.");
+        }
+
+        [HttpPost("UndoSoftDeleteMultiple")]
+        public async Task<IActionResult> UndoSoftDeleteMultipleAsync([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Geri alınacak kategori bulunamadı.");
+
+            var results = await _productService.TUndoSoftDeleteRangeProductAsync(ids);
+
+            var failed = results.Where(r => !r.IsSuccess).ToList();
+            if (failed.Any())
+            {
+                var messages = string.Join("\n", failed.Select(f => f.Message));
+                return BadRequest(messages);
+            }
+
+            return Ok("Tüm kategoriler başarıyla geri alındı.");
+        }
+        [HttpPost("PermanentDeleteMultiple")]
+        public async Task<IActionResult> PermanentDeleteMultipleAsync([FromBody] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("Silinecek kategoriler bulunamadı.");
+
+            await _productService.TPermanentDeleteRangeProductAsync(ids);
+            return Ok("Kategoriler başarıyla silindi.");
         }
     }
 }

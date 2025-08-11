@@ -10,7 +10,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.OrderDtos
     public class UpdateOrderDto
     {
         public int Id { get; set; }
-        public DateTime CreatedDate { get; set; }
         public string Status { get; set; }
         public int AppUserId { get; set; }
 

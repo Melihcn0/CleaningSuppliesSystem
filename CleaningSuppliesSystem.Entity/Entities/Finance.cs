@@ -13,6 +13,8 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public string Type { get; set; }        // "Income" veya "Expense"
         public decimal Amount { get; set; }      // Net para tutarı (her zaman pozitif yazılır)
         public bool IsDeleted { get; set; }
-        public DateTime Date { get; set; }      // Tarih
+        public DateTime CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
     }
 }

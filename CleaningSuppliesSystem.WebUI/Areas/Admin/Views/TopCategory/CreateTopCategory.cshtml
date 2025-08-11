@@ -1,0 +1,14 @@
+﻿@model CreateTopCategoryDto
+@{
+    ViewData["Title"] = "Üst Kategori Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    <label>Üst Kategori Adı</label>
+    <input type="text" asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+    <br />
+    <button class="btn btn-outline-primary-600">Kaydet</button>
+</form>
+

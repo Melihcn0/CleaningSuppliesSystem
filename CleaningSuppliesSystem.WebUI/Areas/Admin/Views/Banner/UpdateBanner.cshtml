@@ -1,0 +1,158 @@
+﻿@model UpdateBannerDto
+
+@{
+    ViewData["Title"] = "Banner Güncelleme Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form id="updateBannerForm" method="post" asp-action="UpdateBanner" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ImageUrl" />
+    <input type="hidden" name="existingImageUrl" value="@ViewBag.ExistingImageUrl" />
+
+    <!-- Başlık -->
+    <div class="form-group">
+        <label asp-for="Title">Başlık</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <br />
+
+    <!-- Alt Başlık -->
+    <div class="form-group">
+        <label asp-for="Subtitle">Alt Başlık</label>
+        <input asp-for="Subtitle" class="form-control" />
+        <span asp-validation-for="Subtitle" class="text-danger"></span>
+    </div>
+    <br />
+
+    <!-- Görsel Karşılaştırma -->
+    @if (!string.IsNullOrEmpty(ViewBag.ExistingImageUrl))
+    {
+        <div class="form-group">
+            <label>Fotoğraf Değişikliği</label>
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="text-align: center;">
+                    <p>Mevcut</p>
+                    <img src="@ViewBag.ExistingImageUrl" alt="Mevcut Görsel" class="img-thumbnail" style="max-height: 150px;" />
+                </div>
+                <div style="font-size: 2rem;">➡</div>
+                <div style="text-align: center;" id="previewContainer" style="display: none;">
+                    <p>Yeni</p>
+                    <img id="imagePreview" src="#" alt="Yeni Görsel" class="img-thumbnail" style="max-height: 150px; display: none;" />
+                </div>
+            </div>
+        </div>
+    }
+    <br />
+
+    <!-- Yeni Görsel -->
+    <div class="form-group">
+        <label asp-for="ImageFile">Yeni Banner Görseli</label>
+        <input asp-for="ImageFile" type="file" accept="image/*" class="form-control-file" onchange="previewImage(event)" />
+        <span asp-validation-for="ImageFile" class="text-danger"></span>
+
+        <div id="previewContainer" style="display: none; margin-top: 10px;">
+            <label>Değiştirilecek Görsel:</label><br />
+            <img id="imagePreview" src="#" alt="Yeni seçilen görsel" style="max-height: 150px;" class="img-thumbnail" />
+        </div>
+    </div>
+    <br />
+
+    <!-- İstatistikler -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic1Title">İstatistik 1 Başlığı</label>
+            <input asp-for="Statistic1Title" class="form-control" />
+            <span asp-validation-for="Statistic1Title" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic1">İstatistik 1 Değeri</label>
+            <input asp-for="Statistic1" class="form-control" />
+            <span asp-validation-for="Statistic1" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic2Title">İstatistik 2 Başlığı</label>
+            <input asp-for="Statistic2Title" class="form-control" />
+            <span asp-validation-for="Statistic2Title" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic2">İstatistik 2 Değeri</label>
+            <input asp-for="Statistic2" class="form-control" />
+            <span asp-validation-for="Statistic2" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic3Title">İstatistik 3 Başlığı</label>
+            <input asp-for="Statistic3Title" class="form-control" />
+            <span asp-validation-for="Statistic3Title" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic3">İstatistik 3 Değeri</label>
+            <input asp-for="Statistic3" class="form-control" />
+            <span asp-validation-for="Statistic3" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic4Title">İstatistik 4 Başlığı</label>
+            <input asp-for="Statistic4Title" class="form-control" />
+            <span asp-validation-for="Statistic4Title" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Statistic4">İstatistik 4 Değeri</label>
+            <input asp-for="Statistic4" class="form-control" />
+            <span asp-validation-for="Statistic4" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-outline-warning-600" onclick="updateBanner()">Güncelle</button>
+</form>
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('previewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateBanner() {
+            const form = document.getElementById("updateBannerForm");
+            const theme = document.documentElement.getAttribute("data-theme");
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            Swal.fire({
+                title: "Banner güncellensin mi?",
+                text: "Değişiklikleri onaylıyor musunuz?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Evet, güncelle!",
+                cancelButtonText: "İptal",
+                background: theme === "dark" ? "#1e1e2f" : "#fff",
+                color: theme === "dark" ? "#fff" : "#000",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
+}

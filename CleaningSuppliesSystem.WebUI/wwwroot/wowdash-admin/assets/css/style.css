@@ -15387,7 +15387,7 @@ html[data-theme="dark"] table#dataTable thead th {
     color: white;
     border-bottom: 2px solid #333;
     padding: 1rem 0.75rem 0.75rem 0.75rem; /* Üst padding biraz artýrýldý */
-    text-align: left;
+    text-align: center;
     user-select: none;
 }
 
@@ -15458,5 +15458,23 @@ html[data-theme="dark"] .btn-outline-danger {
 /* Sað tarafa özel alan yerleþtirilebilir */
 .datatable-toolbar-end {
     float: right;
+}
+
+
+.select-disabled {
+    pointer-events: none;
+    opacity: 0.6;
+    background-color: #2c2c2c; /* Dark tema için uygun */
+    color: #aaa;
+}
+
+.swal-dark {
+    background-color: #2c2c2c !important;
+    color: white !important;
+}
+
+.swal-light {
+    background-color: white !important;
+    color: black !important;
 }
 

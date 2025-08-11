@@ -1,44 +1,97 @@
-﻿using AutoMapper;
-using CleaningSuppliesSystem.DataAccess.Context;
-using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
-using CleaningSuppliesSystem.Entity.Entities;
-using CleaningSuppliesSystem.WebUI.Helpers;
-using CleaningSuppliesSystem.WebUI.Services.RoleServices;
+﻿using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.RoleValidatorDto;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
     [Authorize(Roles = "Admin")]
     [Area("Admin")]
-    public class RoleController(IRoleService _roleService) : Controller
+    public class RoleController : Controller
     {
-        private readonly HttpClient _client = HttpClientInstance.CreateClient();
+        private readonly HttpClient _client;
+
+        public RoleController(IHttpClientFactory clientFactory)
+        {
+            _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        }
+
         public async Task<IActionResult> Index()
         {
-            var values = await _roleService.GetAllRolesAsync();
-            var showButton = await _roleService.ShouldShowCreateRoleButtonAsync();
+            var roles = await _client.GetFromJsonAsync<List<ResultRoleDto>>("roles");
+            var showButton = await _client.GetFromJsonAsync<bool>("roles/show-create-button");
+
             ViewBag.ShowCreateRoleButton = showButton;
-            return View(values);
+            return View(roles);
         }
         public async Task<IActionResult> CreateRole()
         {
-            var rolesToShow = await _roleService.GetMissingRolesAsync();
-            ViewBag.SelectableRoles = rolesToShow;
+            var existingRoles = await _client.GetFromJsonAsync<List<ResultRoleDto>>("roles");
+            var allRoles = new List<string> { "Admin", "Customer" };
+            var existingRoleNames = existingRoles.Select(r => r.Name).ToList();
+
+            // Sadece olmayan rolleri al
+            var missingRoles = allRoles.Except(existingRoleNames).ToList();
+
+            ViewBag.SelectableRoles = missingRoles;
             ViewBag.ShowBackButton = true;
             return View();
         }
+
+
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRole(CreateRoleDto createRoleDto)
         {
-            await _roleService.CreateRoleAsync(createRoleDto);
-            return RedirectToAction("Index");
+            var validator = new CreateRoleValidator();
+            var validationResult = await validator.ValidateAsync(createRoleDto);
+
+            if (!validationResult.IsValid)
+            {
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.Remove(error.PropertyName);
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                ViewBag.SelectableRoles = new List<string>();
+                ViewBag.ShowBackButton = true;
+
+                return View(createRoleDto);
+            }
+
+            var response = await _client.PostAsJsonAsync("roles", createRoleDto);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError(string.Empty, "API Hatası: " + errorMsg);
+
+                ViewBag.SelectableRoles = new List<string>();
+                ViewBag.ShowBackButton = true;
+
+                return View(createRoleDto);
+            }
+
+            TempData["SuccessMessage"] = "Rol başarıyla oluşturuldu.";
+            return RedirectToAction(nameof(Index));
         }
-        public async Task<IActionResult> DeleteRole(int id)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteRole(string id)
         {
-            await _roleService.DeleteRoleAsync(id);
+            var response = await _client.DeleteAsync($"roles/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Rol silinemedi: " + await response.Content.ReadAsStringAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
             TempData["SuccessMessage"] = "Rol başarıyla silindi.";
             return RedirectToAction(nameof(Index));
         }

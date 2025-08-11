@@ -10,6 +10,12 @@ namespace CleaningSuppliesSystem.Business.Abstract
     public interface IInvoiceService : IGenericService<Invoice>
     {
         Task<List<Invoice>> TGetInvoiceWithOrderAsync();
-        Task<Invoice> TGetByIdAsyncWithOrder(int id);
+        Task<Invoice> TGetByIdAsyncWithOrder(int orderId);
+        Task<byte[]> TGenerateInvoicePdfAsync(int orderId);
+        Task<Invoice> TGetInvoiceByOrderIdAsync(int orderId);
+        Task TCreateInvoiceAsync(int orderId);
+        Task<List<Invoice>> TGetInvoicesByUserIdAsync(int userId);
+
+
     }
 }

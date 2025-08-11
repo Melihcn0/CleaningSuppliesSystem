@@ -8,10 +8,20 @@ namespace CleaningSuppliesSystem.Entity.Entities
 {
     public class Category
     {
-        public int Id { get; set; } // Kategori kimliği
-        public string ImageUrl { get; set; } // Kategori Fotoğrafı
-        public string Name { get; set; } // Kategori adı (ör: "Temizlik")
-        public bool IsDeleted { get; set; } // Kategori silinmiş mi?
-        public ICollection<Product> Products { get; set; } // Bu kategoriye bağlı ürünler
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string? ImageUrl { get; set; }
+        public int? TopCategoryId { get; set; }
+        public TopCategory TopCategory { get; set; }
+        public int? SubCategoryId { get; set; }
+        public SubCategory SubCategory { get; set; }
+        public ICollection<Brand> Brands { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool IsShown { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
     }
+
+
 }

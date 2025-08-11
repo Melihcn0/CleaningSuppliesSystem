@@ -8,15 +8,20 @@ namespace CleaningSuppliesSystem.Entity.Entities
 {
     public class Product
     {
-        public int Id { get; set; } // Ürün kimliği
-        public string ImageUrl { get; set; } // Ürün Fotoğrafı
-        public string Name { get; set; } // Ürün adı
-        public decimal UnitPrice { get; set; } // Satış fiyatı
-        public decimal DiscountRate { get; set; }  // indirim
-        public DateTime CreatedAt { get; set; } // tarih
-        public bool IsDeleted { get; set; }
-        public int CategoryId { get; set; } // Bağlı olduğu kategori kimliği
-        public Category Category { get; set; } // Navigation property
-        public ICollection<StockEntry> StockEntries { get; set; } // Ürünün stok girişleri
-    }
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string? ImageUrl { get; set; }
+            public decimal UnitPrice { get; set; }
+            public decimal DiscountRate { get; set; }
+            public decimal DiscountedPrice { get; set; }
+            public int? StockQuantity { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public DateTime? DeletedDate { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsShown { get; set; }
+            public int BrandId { get; set; }
+            public Brand Brand { get; set; }
+
+        }
 }

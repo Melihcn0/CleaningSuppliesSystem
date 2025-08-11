@@ -62,9 +62,41 @@
             <ul class="sidebar-menu" id="sidebar-menu">
                 <li class="sidebar-menu-group-title">Araçlar</li>
                 <li>
-                    <a asp-area="Admin" asp-controller="Category" asp-action="Index">
-                        <span class="material-symbols-outlined menu-icon">category</span>
-                        <span>Kategoriler</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">arrow_menu_close</span>
+                        <span>Ana Sayfaya Dön</span>
+                    </a>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <span class="material-symbols-outlined menu-icon">splitscreen_portrait</span>
+                        <span>Kategori İşlemleri</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="TopCategory" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">split_scene_up</span>
+                                <span>Üst Kategoriler</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="SubCategory" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">split_scene_down</span>
+                                <span>Alt Kategoriler</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Category" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">splitscreen</span>
+                                <span>Ürün Grubu / Kategori</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a asp-area="Admin" asp-controller="Brand" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">fiber_new</span>
+                        <span>Markalar</span>
                     </a>
                 </li>
                 <li>
@@ -80,14 +112,14 @@
                     </a>
                 </li>
                 <li>
-                    <a asp-area="Admin" asp-controller="StockEntry" asp-action="Index">
+                    <a asp-area="Admin" asp-controller="Stock" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">shelves</span>
                         <span>Stok</span>
                     </a>
                 </li>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
-                        <iconify-icon icon="mingcute:storage-line" class="menu-icon"></iconify-icon>
+                        <span class="material-symbols-outlined menu-icon">settings_account_box</span>
                         <span>Kullanıcı İşlemleri</span>
                     </a>
                     <ul class="sidebar-submenu">
@@ -103,14 +135,6 @@
                                 <span>Rol Atama</span>
                             </a>
                         </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <span class="material-symbols-outlined menu-icon">settings</span>
-                        <span>Sistem Ayarları</span>
-                    </a>
-                    <ul class="sidebar-submenu">
                         <li>
                             <a asp-area="Admin" asp-controller="Role" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">assignment_ind</span>
@@ -119,17 +143,57 @@
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a asp-area="Admin" asp-controller="StockEntry" asp-action="#">
-                        <span class="material-symbols-outlined menu-icon">shelves</span>
-                        <span>Siparişler</span>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <span class="material-symbols-outlined menu-icon">person_celebrate</span>
+                        <span>Ana Sayfa Ayarları</span>
                     </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Banner" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
+                                <span>Banner Alanı</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="SecondaryBanner" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
+                                <span>İkincil Banner Alanı</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Service" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">linked_services</span>
+                                <span>Hizmetler Alanı</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li>
-                    <a asp-area="Admin" asp-controller="StockEntry" asp-action="#">
-                        <span class="material-symbols-outlined menu-icon">shelves</span>
-                        <span>Ürün Sorgula</span>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <span class="material-symbols-outlined menu-icon">orders</span>
+                        <span>Sipariş İşlemleri</span>
                     </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Order" asp-action="Index"> <!-- Siparişin durumunu değiştirebilelim o ayarı ekle radio button tarzı durum seçip ilgili alana o durumu atasın -->
+                                <span class="material-symbols-outlined menu-icon">order_play</span>
+                                <span>Gelen Siparişler</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Order" asp-action="CompletedAndCancelledOrders">
+                                <span class="material-symbols-outlined menu-icon">order_approve</span>
+                                <span>Teslim / İptal Siparişler</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Order" asp-action="Index"><!--  Sipariş sorgulama ekranı olcak ad soyad sipariş nosuna göre veya fatura nosuna göre olcak-->
+                                <span class="material-symbols-outlined menu-icon">receipt</span>
+                                <span>Sipariş Sorgula</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -156,99 +220,6 @@
                 <div class="col-auto">
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <button type="button" data-theme-toggle class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
-                        <div class="dropdown d-none d-sm-inline-block">
-                            <button class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center" type="button" data-bs-toggle="dropdown">
-                                <img src="~/wowdash-admin/assets/images/lang-flag.png" alt="image" class="w-24 h-24 object-fit-cover rounded-circle">
-                            </button>
-                            <div class="dropdown-menu to-top dropdown-menu-sm">
-                                <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
-                                    <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Bir dil seçin</h6>
-                                    </div>
-                                </div>
-
-                                <div class="max-h-400-px overflow-y-auto scroll-sm pe-8">
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="english">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag1.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">English</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="english">
-                                    </div>
-
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="japan">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag2.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">Japan</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="japan">
-                                    </div>
-
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="france">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag3.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">France</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="france">
-                                    </div>
-
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="germany">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag4.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">Germany</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="germany">
-                                    </div>
-
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="korea">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag5.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">South Korea</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="korea">
-                                    </div>
-
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="bangladesh">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag6.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">Bangladesh</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="bangladesh">
-                                    </div>
-
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between mb-16">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="india">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag7.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">India</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="india">
-                                    </div>
-                                    <div class="form-check style-check d-flex align-items-center justify-content-between">
-                                        <label class="form-check-label line-height-1 fw-medium text-secondary-light" for="canada">
-                                            <span class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                                <img src="~/wowdash-admin/assets/images/flags/flag8.png" alt="" class="w-36-px h-36-px bg-success-subtle text-success-main rounded-circle flex-shrink-0">
-                                                <span class="text-md fw-semibold mb-0">Canada</span>
-                                            </span>
-                                        </label>
-                                        <input class="form-check-input" type="radio" name="crypto" id="canada">
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- Language dropdown end -->
 
                         <div class="dropdown">
                             <button class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center" type="button" data-bs-toggle="dropdown">
@@ -257,7 +228,7 @@
                             <div class="dropdown-menu to-top dropdown-menu-lg p-0">
                                 <div class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                                     <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Message</h6>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Mesajlar</h6>
                                     </div>
                                     <span class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
                                 </div>
@@ -363,7 +334,7 @@
                             <div class="dropdown-menu to-top dropdown-menu-lg p-0">
                                 <div class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                                     <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Bildirimler</h6>
                                     </div>
                                     <span class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
                                 </div>
@@ -449,37 +420,27 @@
                             <div class="dropdown-menu to-top dropdown-menu-sm">
                                 <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                                     <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-2">Shaidul Islam</h6>
-                                        <span class="text-secondary-light fw-medium text-sm">Admin</span>
-                                    </div>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-2">@User.Identity.Name</h6>
+                                        <span class="text-secondary-light fw-medium text-sm">@(User.IsInRole("Admin") ? "Yetkili" : "Yetkisiz Erişim!") </span>
+                                    </div>@* 
                                     <button type="button" class="hover-text-danger">
                                         <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
-                                    </button>
+                                    </button> *@
                                 </div>
                                 <ul class="to-top-list">
                                     <li>
                                         <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="view-profile.html">
-                                            <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon>  My Profile
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="email.html">
-                                            <iconify-icon icon="tabler:message-check" class="icon text-xl"></iconify-icon>  Inbox
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="company.html">
-                                            <iconify-icon icon="icon-park-outline:setting-two" class="icon text-xl"></iconify-icon>  Setting
+                                            <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon>  Profilim
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="/Login/Logout">
-                                            <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>  Log Out
+                                            <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>  Çıkış Yap
                                         </a>
                                     </li>
                                 </ul>
                             </div>
-                        </div><!-- Profile dropdown end -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -540,35 +501,139 @@
     <script src="~/wowdash-admin/assets/js/lib/file-upload.js"></script>
     <!-- audioplayer -->
     <script src="~/wowdash-admin/assets/js/lib/audioplayer.js"></script>
-
     <!-- main js -->
     <script src="~/wowdash-admin/assets/js/app.js"></script>
 
     <script src="~/wowdash-admin/assets/js/homeOneChart.js"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Genel config scriptleri -->
+    <script>
+        window.appConfig = window.appConfig || {};
+        window.appConfig.deleteFunctionName = @Html.Raw(Json.Serialize(ViewData["DeleteFunction"] ?? ""));
+        window.appConfig.deleteUrlPrefix = @Html.Raw(Json.Serialize(ViewData["DeleteUrlPrefix"] ?? ""));
+
+        window.multiDeleteConfig = {
+            deleteUrl: @Html.Raw(Json.Serialize(ViewData["MultiDeleteUrl"] ?? "")),
+            confirmTitle: @Html.Raw(Json.Serialize(ViewData["MultiDeleteConfirmTitle"] ?? ""))
+        };
+
+        window.permanentDeleteConfig = {
+            url: '@Url.Content(ViewData["PermanentDeleteUrl"]?.ToString() ?? "")',
+            confirmTitle: '@ViewData["PermanentDeleteConfirmTitle"]'
+        };
+
+         window.undoSoftDeleteConfig = {
+            url: '@Url.Content(ViewData["UndoSoftDeleteUrl"]?.ToString() ?? "")',
+            confirmTitle: '@ViewData["UndoSoftDeleteConfirmTitle"]'
+        };
+
+        window.permanentDeleteMultipleConfig = {
+            url: '@Url.Content(ViewData["PermanentDeleteMultipleUrl"]?.ToString() ?? "")',
+            confirmTitle: '@ViewData["PermanentDeleteConfirmMultipleTitle"]'
+        };
+
+
+
+    </script>
+
+    <!-- JS dosyaları: config’lerden sonra çağır -->
+    <script src="~/wowdash-admin/assets/js/global-action.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-DeleteMultiple.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-Single-SoftDelete.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-UndoSoftDeleteMultiple.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-PermanentDeleteMultiple.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-PermanentDelete.js"></script>
+
+
+
     @RenderSection("Scripts", required: false)
 
 </body>
 </html>
-@if (TempData["SuccessMessage"] != null)
+@section Scripts {
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteBtn) deleteBtn.disabled = selectedCount === 0;
+
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
+    </script>
+}
+
+
+@{
+    var successMsg = TempData["SuccessMessage"]?.ToString();
+    var errorMsg = TempData["ErrorMessage"]?.ToString();
+    var isSuccess = !string.IsNullOrEmpty(successMsg);
+    var toastId = isSuccess ? "successToast" : "errorToast";
+    var toastMessage = isSuccess ? successMsg : errorMsg;
+    var bgColor = isSuccess ? "bg-success-100" : "bg-danger-100";
+    var textColor = isSuccess ? "text-success-700" : "text-danger-700";
+    var borderColor = isSuccess ? "border-success-600" : "border-danger-600";
+    var iconHtml = isSuccess
+        ? "<iconify-icon icon='akar-icons:double-check' class='icon text-xl'></iconify-icon>"
+        : "<iconify-icon icon='mingcute:delete-2-line' class='icon text-xl'></iconify-icon>";
+}
+
+@if (toastMessage != null)
 {
-    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    @TempData["SuccessMessage"]
+    <div aria-live="polite" aria-atomic="true"
+         class="position-fixed top-0 end-0 p-3"
+         style="z-index:1080; margin-top:20px;">
+        <div id="@toastId"
+             class="alert @bgColor @textColor @borderColor border-start-width-4-px border-top-0 border-end-0 border-bottom-0 px-24 py-13 mb-0 fw-semibold text-lg radius-4 d-flex align-items-center justify-content-between shadow-lg fade show"
+             role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <div class="toast-body d-flex align-items-center">
+                    @Html.Raw(iconHtml)
+                    @toastMessage
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="remove-button @textColor text-xxl line-height-1" onclick="closeCustomToast('@toastId')">
+                    <iconify-icon icon="iconamoon:sign-times-light" class="icon"></iconify-icon>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
+        function closeCustomToast(id) {
+            const toast = document.getElementById(id);
+            if (toast) {
+                toast.style.transition = "opacity 0.3s ease";
+                toast.style.opacity = "0";
+                toast.style.pointerEvents = "none";
+                setTimeout(() => toast.remove(), 300);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
-            var toastEl = document.getElementById('successToast');
-            var toast = new bootstrap.Toast(toastEl, { delay: 5000 });
-            toast.show();
+            setTimeout(() => closeCustomToast('@toastId'), 4000);
         });
     </script>
 }
@@ -576,23 +641,28 @@
     $(document).ready(function () {
         $('#dataTable').DataTable({
             language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/tr.json'
-            }
+                url: '/wowdash-admin/assets/js/dataTable-tr.json'
+            },
+            columnDefs: [
+                { targets: 0, orderable: false, searchable: false }
+            ]
         });
     });
 </script>
 
+
+@* Tema (dark/light) değişimini yönet *@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const updateThemeElements = () => {
             const theme = document.documentElement.getAttribute("data-theme") || "light";
 
-            // Tüm tablolarda dark mode class'ını yönet
+            // Tüm tablolar için dark mode sınıfı ekle/kaldır
             document.querySelectorAll("table").forEach(table => {
                 table.classList.toggle("table-dark", theme === "dark");
             });
 
-            // Logo güncellemesi
+            // Logo değişimi
             const logo = document.getElementById("theme-logo");
             if (logo) {
                 logo.src = theme === "dark"
@@ -601,14 +671,20 @@
             }
         };
 
-        // İlk yüklemede temayı uygula
+        // Sayfa ilk yüklemede uygula
         updateThemeElements();
 
-        // Tema değişikliği olduğunda otomatik güncelle
+        // Tema değişikliği dinle
         const observer = new MutationObserver(() => updateThemeElements());
         observer.observe(document.documentElement, {
             attributes: true,
             attributeFilter: ["data-theme"]
         });
     });
+
+        window.getSwalClass = function() {
+        const theme = document.documentElement.getAttribute("data-theme") || "light";
+        return theme === "dark" ? "swal-dark" : "swal-light";
+    };
+
 </script>

@@ -2,22 +2,45 @@
 @{
     ViewData["Title"] = "Finans Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
+    ViewData["PermanentDeleteUrl"] = "~/Admin/Finance/PermanentDeleteFinance";
+    ViewData["PermanentDeleteConfirmTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+    
+    ViewData["UndoSoftDeleteUrl"] = "~/Admin/Finance/UndoSoftDeleteMultiple";
+    ViewData["UndoSoftDeleteConfirmTitle"] = "Seçilen finans kayıtlarını geri almak istediğinize emin misiniz?";
+
+    ViewData["PermanentDeleteMultipleUrl"] = "~/Admin/Finance/PermanentDeleteMultiple";
+    ViewData["PermanentDeleteConfirmMultipleTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+    
     int count = 0;
 }
 
 <div class="card basic-data-table">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Silinen Finans Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            <button id="undosoftdeleteSelectedBtn" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2" disabled>
+                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Geri Al
+            </button>
+            <button id="permanentdeleteSelectedBtn" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2" disabled>
+                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            </button>
+        </div>
     </div>
     <div class="card-body">
+        @Html.AntiForgeryToken()
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
-                    <th>#</th>
+                    <th>
+                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    </th>
                     <th>Finans Adı</th>
                     <th>Finans Tipi</th>
                     <th>Miktar</th>
-                    <th>Tarih</th>
+                    <th>Eklenme Tarihi</th>
+                    <th>Son Güncelleme Tarihi</th>
+                    <th>Silinme Tarihi</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -26,19 +49,37 @@
                 {
                     count++;
                     <tr>
-                        <td>@count</td>
+                        <td>
+                            <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
+                                @count
+                            </label>
+                        </td>
                         <td>@item.Title</td>
                         <td>@(item.Type == "Income" ? "Gelir" : item.Type == "Expense" ? "Gider" : "Bilinmiyor")</td>
                         <td>@item.Amount</td>
-                        <td>@item.Date.ToShortDateString() @item.Date.ToShortTimeString() <br /> @item.Date.ToLongDateString()</td>
                         <td>
-                            <form asp-action="UndoDeletedFinance" asp-controller="Finance" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2">
+                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            @(item.UpdatedDate.HasValue
+                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
+                                : "Henüz güncelleme yapılmadı")
+                        </td>
+                        <td>
+                            @item.DeletedDate?.ToString("dd.MM.yyyy HH:mm") <br />
+                            @item.DeletedDate?.ToString("dd MMMM yyyy dddd")
+                        </td>
+                        <td>
+                            <form asp-action="UndoSoftDeletedFinance" asp-controller="Finance" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
                                     <span class="material-symbols-outlined">undo</span> Geri al
                                 </button>
                             </form>
-                            <button onclick="deleteFinance(@item.Id)"
-                                    class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+                            <button type="button"
+                                    class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn permanent-delete-btn"
+                                    data-id="@item.Id">
                                 <span class="material-symbols-outlined me-1">delete</span> Sil
                             </button>
                         </td>
@@ -48,42 +89,40 @@
         </table>
     </div>
 </div>
+
 @section Scripts {
     <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
 
-        function deleteFinance(id) {
-             const theme = document.documentElement.getAttribute("data-theme");
-             Swal.fire({
-                 title: "Silmek istediğinizden emin misiniz?",
-                 text: "Bu işlemi geri alamazsınız!",
-                 icon: "warning",
-                 showCancelButton: true,
-                 confirmButtonColor: "#3085d6",
-                 cancelButtonColor: "#d33",
-                 confirmButtonText: "Evet, sil!",
-                 cancelButtonText: "İptal",
-                 background: theme === "dark" ? "#1e1e2f" : "#fff",
-                 color: theme === "dark" ? "#fff" : "#000",
-                 allowOutsideClick: false,
-                 allowEscapeKey: false,
-                 allowEnterKey: false
-             }).then((result) => {
-                 if (result.isConfirmed) {
-                     Swal.fire({
-                         title: "Silindi!",
-                         text: "Kategori başarıyla silindi.",
-                         icon: "success",
-                         confirmButtonText: "Tamam",
-                         confirmButtonColor: "#3085d6",
-                         background: theme === "dark" ? "#1e1e2f" : "#fff",
-                         color: theme === "dark" ? "#fff" : "#000",
-                         allowOutsideClick: false,
-                         allowEscapeKey: false
-                     }).then(() => {
-                         window.location.href = `/Admin/Finance/DeleteFinance/${id}`;
-                     });
-                 }
-             });
-         }
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+
+            const undoBtn = document.getElementById('undosoftdeleteSelectedBtn');
+            const permanentDeleteBtn = document.getElementById('permanentdeleteSelectedBtn');
+
+            if (undoBtn) undoBtn.disabled = selectedCount === 0;
+            if (permanentDeleteBtn) permanentDeleteBtn.disabled = selectedCount === 0;
+
+            // Tekli action butonları (satırdaki)
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
     </script>
 }

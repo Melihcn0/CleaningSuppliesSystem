@@ -4,11 +4,14 @@ using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
 using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningSuppliesSystem.API.Controllers
 {
+    [ApiExplorerSettings(GroupName = "Order")]
+    [Authorize(Roles = "Admin,Customer")]
     [Route("api/[controller]")]
     [ApiController]
     public class OrderItemsController(IOrderItemService _orderItemService, IMapper _mapper) : ControllerBase

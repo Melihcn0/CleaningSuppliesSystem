@@ -30,7 +30,6 @@ namespace CleaningSuppliesSystem.WebUI.Services.EmailServices
 
             await smtpClient.SendMailAsync(mailMessage);
         }
-
         public async Task NewUserMailAsync(string username, string email)
         {
             var adminMail = _config["Mail:AdminReceiver"];
@@ -47,7 +46,6 @@ namespace CleaningSuppliesSystem.WebUI.Services.EmailServices
 
             await SendEmailAsync(adminMail, subject, htmlBody);
         }
-
         public async Task SendUserWelcomeMailAsync(string username, string email)
         {
             var subject = "ESS Star Tedarik'e Hoş Geldiniz!";
@@ -80,7 +78,6 @@ namespace CleaningSuppliesSystem.WebUI.Services.EmailServices
 
             await SendEmailAsync(email, subject, htmlBody);
         }
-
         public async Task SendTwoFactorCodeMailAsync(string username, string email, string token)
         {
             var subject = "🔐 ESS Star Tedarik 2FA Giriş Kodunuz";
@@ -168,7 +165,6 @@ namespace CleaningSuppliesSystem.WebUI.Services.EmailServices
 
             await SendEmailAsync(email, subject, htmlBody);
         }
-
         public async Task SendPasswordResetMailLinkAsync(string username, string email, string token)
         {
             var subject = "🔑 Şifre Sıfırlama Bağlantınız";
@@ -190,7 +186,6 @@ namespace CleaningSuppliesSystem.WebUI.Services.EmailServices
 
             await SendEmailAsync(email, subject, htmlBody);
         }
-
 
     }
 }

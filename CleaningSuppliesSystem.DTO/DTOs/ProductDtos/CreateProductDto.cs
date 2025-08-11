@@ -1,5 +1,6 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,11 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
 {
     public class CreateProductDto
     {
-        public string ImageUrl { get; set; }
+        public IFormFile? ImageFile { get; set; }
+        public string? ImageUrl { get; set; }
         public string Name { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal DiscountRate { get; set; } = 0;
-        public bool IsDeleted { get; set; } = false;
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public int CategoryId { get; set; }
+        public int BrandId { get; set; }
+
     }
 }

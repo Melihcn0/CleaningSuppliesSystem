@@ -10,6 +10,8 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
     public interface IInvoiceRepository : IRepository<Invoice>
     {
         Task<List<Invoice>> GetInvoiceWithOrderAsync();
-        Task<Invoice> GetByIdAsyncWithOrder(int id);
+        Task<Invoice?> GetByIdAsyncWithOrder(int id);
+        Task<Invoice?> GetInvoiceByOrderIdAsync(int orderId);
+        Task<List<Invoice>> GetInvoicesByUserIdAsync(int userId);
     }
 }

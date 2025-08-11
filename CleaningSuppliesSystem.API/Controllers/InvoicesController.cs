@@ -1,38 +1,128 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
-using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
-using CleaningSuppliesSystem.Entity.Entities;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.API.Controllers
+[ApiExplorerSettings(GroupName = "Invoices")]
+[Route("api/[controller]")]
+[ApiController]
+public class InvoicesController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class InvoicesController(IInvoiceService _ınvoiceService, IMapper _mapper) : ControllerBase
-    {
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            var values = await _ınvoiceService.TGetInvoiceWithOrderAsync();
-            var ınvoices = _mapper.Map<List<ResultInvoiceDto>>(values);
-            return Ok(ınvoices);
-        }
+    private readonly IInvoiceService _invoiceService;
+    private readonly IMapper _mapper;
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+    public InvoicesController(IInvoiceService invoiceService, IMapper mapper)
+    {
+        _invoiceService = invoiceService;
+        _mapper = mapper;
+    }
+
+    // Admin: Tüm faturaları görür, Customer: sadece kendi faturalarını görür
+    [HttpGet]
+    [Authorize(Roles = "Admin,Customer")]
+    public async Task<IActionResult> Get()
+    {
+        if (User.IsInRole("Admin"))
         {
-            var value = await _ınvoiceService.TGetByIdAsyncWithOrder(id);
-            var result = _mapper.Map<ResultInvoiceDto>(value);
-            return Ok(result);
+            var invoices = await _invoiceService.TGetInvoiceWithOrderAsync();
+            var invoicesDto = _mapper.Map<List<InvoiceDto>>(invoices);
+            return Ok(invoicesDto);
         }
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateInvoiceDto createInvoiceDto)
+        else
         {
-            var newValue = _mapper.Map<Invoice>(createInvoiceDto);
-            await _ınvoiceService.TCreateAsync(newValue);
-            return Ok($"Yeni Fatura Oluşturuldu Fatura ID={newValue.Id}");
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out int userId))
+                return Unauthorized();
+
+            var invoices = await _invoiceService.TGetInvoicesByUserIdAsync(userId); // Bu metodu servise eklemelisin
+            var invoicesDto = _mapper.Map<List<InvoiceDto>>(invoices);
+            return Ok(invoicesDto);
         }
     }
+
+    // ID'ye göre fatura detayını getirir, müşteri sadece kendi faturasını görebilir
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Customer")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var invoice = await _invoiceService.TGetByIdAsyncWithOrder(id);
+        if (invoice == null)
+            return NotFound($"Fatura id={id} bulunamadı.");
+
+        if (User.IsInRole("Customer"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out int userId))
+                return Unauthorized();
+
+            if (invoice.Order == null || invoice.Order.AppUserId != userId)
+                return Forbid("Bu faturayı görmeye yetkiniz yok.");
+        }
+
+        var invoiceDto = _mapper.Map<InvoiceDto>(invoice);
+        return Ok(invoiceDto);
+    }
+
+    // Sadece Admin fatura oluşturabilir
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Create([FromBody] CreateInvoiceDto createInvoiceDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        await _invoiceService.TCreateInvoiceAsync(createInvoiceDto.OrderId);
+        return Ok($"Yeni Fatura Oluşturuldu. Sipariş ID={createInvoiceDto.OrderId}");
+    }
+
+    [HttpGet("{id}/pdf")]
+    [Authorize(Roles = "Admin,Customer")]
+    public async Task<IActionResult> DownloadPdf(int id)
+    {
+        var invoice = await _invoiceService.TGetByIdAsyncWithOrder(id);
+
+        if (User.IsInRole("Customer"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out int userId))
+                return Unauthorized();
+
+            if (invoice.Order == null || invoice.Order.AppUserId != userId)
+                return Forbid("Bu faturayı indirme yetkiniz yok.");
+        }
+
+        var pdfBytes = await _invoiceService.TGenerateInvoicePdfAsync(invoice.OrderId);
+        return File(pdfBytes, "application/pdf", $"Invoice_{invoice.Id}.pdf");
+    }
+
+    [HttpGet("byorder/{orderId}")]
+    [Authorize(Roles = "Admin,Customer")]
+    public async Task<IActionResult> GetPdfByOrderId(int orderId)
+    {
+        var invoice = await _invoiceService.TGetInvoiceByOrderIdAsync(orderId);
+
+        if (invoice == null)
+            return NotFound();
+
+        if (User.IsInRole("Customer"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
+                return Unauthorized();
+
+            if (invoice.Order == null || invoice.Order.AppUserId.ToString() != userIdString)
+                return Forbid("Bu faturayı indirme yetkiniz yok.");
+        }
+
+        var pdfBytes = await _invoiceService.TGenerateInvoicePdfAsync(invoice.OrderId);
+        return File(pdfBytes, "application/pdf", $"Invoice_{invoice.Id}.pdf");
+    }
+
+
+
+
 }

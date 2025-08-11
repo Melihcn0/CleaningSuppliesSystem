@@ -1,0 +1,48 @@
+﻿@model ResultBannerDto
+
+@{
+    var backgroundImage = !string.IsNullOrEmpty(Model?.ImageUrl)
+        ? $"background-image: url('{Model.ImageUrl}');"
+        : "background-color: #ccc;";
+}
+
+<section style="@backgroundImage background-repeat: no-repeat; background-size: cover; height: 800px;">
+    <div class="container-lg h-100">
+        <div class="row h-100">
+            <div class="col-lg-6 d-flex flex-column justify-content-center">
+                @if (Model != null)
+                {
+                    <h2 class="display-1 ls-1">@Model.Title</h2>
+                    <p class="fs-4">@Model.Subtitle</p>
+
+                    <div class="d-flex gap-3">
+                        <a href="#" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Şimdi Sipariş Ver</a>
+                    </div>
+
+                    <div class="row my-5 text-center text-dark align-items-center">
+                        <div class="col-3 d-flex flex-column align-items-center">
+                            <p class="fs-1 fw-bold lh-sm mb-0">@Model.Statistic1</p>
+                            <p class="text-uppercase lh-sm fw-normal mb-0" style="margin-top:2px;">@Model.Statistic1Title</p>
+                        </div>
+                        <div class="col-3 d-flex flex-column align-items-center">
+                            <p class="fs-1 fw-bold lh-sm mb-0">@Model.Statistic2</p>
+                            <p class="text-uppercase lh-sm fw-normal mb-0" style="margin-top:2px;">@Model.Statistic2Title</p>
+                        </div>
+                        <div class="col-3 d-flex flex-column align-items-center">
+                            <p class="fs-1 fw-bold lh-sm mb-0">@Model.Statistic3</p>
+                            <p class="text-uppercase lh-sm fw-normal mb-0" style="margin-top:2px;">@Model.Statistic3Title</p>
+                        </div>
+                        <div class="col-3 d-flex flex-column align-items-center">
+                            <p class="fs-1 fw-bold lh-sm mb-0">@Model.Statistic4</p>
+                            <p class="text-uppercase lh-sm fw-normal mb-0" style="margin-top:2px;">@Model.Statistic4Title</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h2>Banner bulunmamaktadır.</h2>
+                }
+            </div>
+        </div>
+    </div>
+</section>

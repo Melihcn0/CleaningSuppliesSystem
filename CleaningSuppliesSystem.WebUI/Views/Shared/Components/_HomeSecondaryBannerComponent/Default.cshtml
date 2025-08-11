@@ -1,0 +1,60 @@
+﻿@model ResultSecondaryBannerDto
+
+@if (Model == null)
+{
+    <section class="py-3">
+        <div class="container-lg text-center">
+            <h4 class="text-danger">Banner bulunmamaktadır.</h4>
+        </div>
+    </section>
+}
+else
+{
+    <section class="py-3">
+        <div class="container-lg">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="banner-blocks">
+
+                        <!-- Banner 1 -->
+                        <div class="rounded-3 banner-ad d-flex large bg-info block-1"
+                             style="background: url('@(string.IsNullOrEmpty(Model.ImageUrl1) ? "/images/resim_yok.png" : Model.ImageUrl1)') no-repeat center center; background-size: cover; position: relative;">
+                            <div class="banner-content p-5">
+                                <div class="content-wrapper text-light position-absolute" style="top: 20px; left: 20px;">
+                                    <h3 class="banner-title text-light">@(string.IsNullOrWhiteSpace(Model.Title1) ? "YOK" : Model.Title1)</h3>
+                                    <p>@(string.IsNullOrWhiteSpace(Model.Description1) ? "YOK" : Model.Description1)</p>
+                                    <a href="#" class="btn-link text-white">@(string.IsNullOrWhiteSpace(Model.ButtonTitle1) ? "YOK" : Model.ButtonTitle1)</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banner 2 -->
+                        <div class="rounded-3 banner-ad d-flex large bg-success-subtle block-2"
+                             style="background: url('@(string.IsNullOrEmpty(Model.ImageUrl2) ? "/images/resim_yok.png" : Model.ImageUrl2)') no-repeat center center; background-size: cover;">
+                            <div class="banner-content p-5 position-relative">
+                                <div class="content-wrapper text-light position-absolute" style="top: 20px; left: 20px;">
+                                    <h3 class="banner-title text-light">@(string.IsNullOrWhiteSpace(Model.Title2) ? "YOK" : Model.Title2)</h3>
+                                    <p>@(string.IsNullOrWhiteSpace(Model.Description2) ? "YOK" : Model.Description2)</p>
+                                    <a href="#" class="btn-link text-white">@(string.IsNullOrWhiteSpace(Model.ButtonTitle2) ? "YOK" : Model.ButtonTitle2)</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banner 3 -->
+                        <div class="rounded-3 banner-ad bg-danger block-3"
+                             style="background: url('@(string.IsNullOrEmpty(Model.ImageUrl3) ? "/images/resim_yok.png" : Model.ImageUrl3)') no-repeat center center; background-size: cover;">
+                            <div class="banner-content align-items-center p-5">
+                                <div class="content-wrapper text-light">
+                                    <h3 class="banner-title text-light">@(string.IsNullOrWhiteSpace(Model.Title3) ? "YOK" : Model.Title3)</h3>
+                                    <p>@(string.IsNullOrWhiteSpace(Model.Description3) ? "YOK" : Model.Description3)</p>
+                                    <a href="#" class="btn-link text-white">@(string.IsNullOrWhiteSpace(Model.ButtonTitle3) ? "YOK" : Model.ButtonTitle3)</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

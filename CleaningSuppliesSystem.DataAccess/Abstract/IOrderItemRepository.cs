@@ -11,5 +11,6 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
     {
         Task<List<OrderItem>> GetOrderItemWithProductandCategoriesAsync();
         Task<OrderItem> GetByIdAsyncWithProductandCategories(int id);
+        Task<List<OrderItem>> GetByOrderIdAsync(int orderId);
     }
 }

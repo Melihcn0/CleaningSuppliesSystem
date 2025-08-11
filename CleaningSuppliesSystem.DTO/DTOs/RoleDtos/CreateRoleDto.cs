@@ -8,7 +8,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.RoleDtos
 {
     public class CreateRoleDto
     {
-        public string Name { get; set; }
-        
+        public string Name { get; set; }        
     }
 }

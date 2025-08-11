@@ -1,14 +1,4 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
-using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
-using CleaningSuppliesSystem.DTO.DTOs.StockEntryDtos;
-using CleaningSuppliesSystem.Entity.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
+﻿namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
 {
     public class ResultProductDto
     {
@@ -17,9 +7,20 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
         public string Name { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal DiscountRate { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public bool IsDeleted { get; set; }
+        public decimal DiscountedPrice { get; set; }
+        public int? StockQuantity { get; set; }
+        public int BrandId { get; set; }
+        public string BrandName { get; set; }
         public int CategoryId { get; set; }
-        public ResultCategoryDto Category { get; set; }
+        public string CategoryName { get; set; }
+        public int SubCategoryId { get; set; }
+        public string SubCategoryName { get; set; }
+        public int TopCategoryId { get; set; }
+        public string TopCategoryName { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool IsShown { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public DateTime? DeletedDate { get; set; }
     }
 }

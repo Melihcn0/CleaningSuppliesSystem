@@ -11,7 +11,5 @@ namespace CleaningSuppliesSystem.DTO.DTOs.FinanceDtos
         public string Title { get; set; }
         public string Type { get; set; }
         public decimal Amount { get; set; }
-        public DateTime Date { get; set; } = DateTime.Now;
-        public bool IsDeleted { get; set; } = false;
     }
 }

@@ -1,18 +1,30 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
-using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleaningSuppliesSystem.WebUI.ViewComponents.Home
 {
     public class _HomeProductComponent : ViewComponent
     {
-        private readonly HttpClient _client = HttpClientInstance.CreateClient();
+        private readonly HttpClient _client;
+
+        public _HomeProductComponent(IHttpClientFactory clientFactory)
+        {
+            _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var allProducts = await _client.GetFromJsonAsync<List<ResultProductDto>>("products");
-            var lastFive = allProducts.Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreatedAt).Take(5).ToList();
-            return View(lastFive);
+
+            var rnd = new Random();
+            var products = allProducts?
+                .Where(p => p.IsShown && !p.IsDeleted)
+                .OrderBy(x => rnd.Next())
+                .Take(10)                
+                .ToList()
+                ?? new List<ResultProductDto>();
+
+            return View(products);
         }
     }
 }

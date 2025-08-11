@@ -14,5 +14,10 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
         Task UpdateAsync(Finance finance);
         Task SoftDeleteAsync(Finance finance);
         Task UndoSoftDeleteAsync(Finance finance);
+        Task<List<Finance>> GetActiveFinancesAsync();
+        Task<List<Finance>> GetDeletedFinancesAsync();
+        Task SoftDeleteRangeAsync(List<int> ids);
+        Task UndoSoftDeleteRangeAsync(List<int> ids);
+        Task PermanentDeleteRangeAsync(List<int> ids);
     }
 }

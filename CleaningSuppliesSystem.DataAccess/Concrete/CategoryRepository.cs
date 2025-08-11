@@ -34,15 +34,83 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         }
         public async Task SoftDeleteAsync(Category category)
         {
-            category.IsDeleted = true;
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
         }
         public async Task UndoSoftDeleteAsync(Category category)
         {
-            category.IsDeleted = false;
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<Category>> GetActiveCategoriesAsync()
+        {
+            return await _context.Categories
+                .Include(c => c.TopCategory)
+                .Include(c => c.SubCategory)
+                .Where(c => !c.IsDeleted)
+                .ToListAsync();
+        }
+        public async Task<List<Category>> GetDeletedCategoriesAsync()
+        {
+            return await _context.Categories
+                .Include(c => c.TopCategory)
+                .Include(c => c.SubCategory)
+                .Where(c => c.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<List<Category>> GetActiveBySubCategoryIdAsync(int subCategoryId)
+        {
+            return await _context.Categories
+                .Where(sc => sc.SubCategoryId == subCategoryId && !sc.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task SoftDeleteRangeAsync(List<int> ids)
+        {
+            var categories = await _context.Categories
+                .Where(c => ids.Contains(c.Id) && !c.IsDeleted)
+                .ToListAsync();
+
+            foreach (var category in categories)
+            {
+                category.IsDeleted = true;
+            }
+
+            _context.Categories.UpdateRange(categories);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UndoSoftDeleteRangeAsync(List<int> ids)
+        {
+            var categories = await _context.Categories
+                .Where(c => ids.Contains(c.Id) && c.IsDeleted)
+                .ToListAsync();
+
+            foreach (var category in categories)
+            {
+                category.IsDeleted = false;
+            }
+
+            _context.Categories.UpdateRange(categories);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task PermanentDeleteRangeAsync(List<int> ids)
+        {
+            var categories = await _context.Categories
+                .Where(c => ids.Contains(c.Id))
+                .ToListAsync();
+
+            _context.Categories.RemoveRange(categories);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<List<Category>> GetByIdsAsync(List<int> ids)
+        {
+            return await _context.Categories.Where(c => ids.Contains(c.Id)).ToListAsync();
+        }
+
+
+
     }
 }
