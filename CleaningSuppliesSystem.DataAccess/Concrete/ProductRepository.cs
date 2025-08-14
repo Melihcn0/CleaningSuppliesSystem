@@ -26,7 +26,7 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
 
     public async Task UpdateAsync(Product product)
     {
-        product.UpdatedDate = DateTime.UtcNow;
+        product.UpdatedDate = DateTime.Now;
         _context.Products.Update(product);
         await _context.SaveChangesAsync();
     }
@@ -34,7 +34,7 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
     public async Task SoftDeleteAsync(Product product)
     {
         product.IsDeleted = true;
-        product.DeletedDate = DateTime.UtcNow;
+        product.DeletedDate = DateTime.Now;
         _context.Products.Update(product);
         await _context.SaveChangesAsync();
     }

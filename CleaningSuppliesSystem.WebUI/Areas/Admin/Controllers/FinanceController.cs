@@ -26,6 +26,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedFinance(int id)
         {
             var response = await _client.PostAsync($"Finances/softdelete/{id}", null);
@@ -38,6 +39,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedFinance(int id)
         {
             var response = await _client.PostAsync($"Finances/undosoftdelete/{id}", null);
@@ -45,7 +47,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return RedirectToAction(nameof(DeletedFinance));
         }
 
-        // Soft silinmiş kayıtlar
         public async Task<IActionResult> DeletedFinance()
         {
             ViewBag.ShowBackButton = true;
@@ -53,14 +54,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return View(values);
         }
 
-        // Yeni finans oluşturma sayfası
         public IActionResult CreateFinance()
         {
             ViewBag.ShowBackButton = true;
             return View();
         }
 
-        // Güncelleme sayfası
         public async Task<IActionResult> UpdateFinance(int id)
         {
             var value = await _client.GetFromJsonAsync<UpdateFinanceDto>($"finances/{id}");
@@ -70,6 +69,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFinance(CreateFinanceDto createFinanceDto)
         {
             var validator = new CreateFinanceValidator();
@@ -96,6 +96,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateFinance(UpdateFinanceDto updateFinanceDto)
         {
             var validator = new UpdateFinanceValidator();
@@ -121,7 +122,9 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             TempData["SuccessMessage"] = "Finans kaydı başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteFinance(int id)
         {
             var response = await _client.DeleteAsync($"finances/permanent/{id}");
@@ -131,6 +134,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -148,6 +152,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -165,6 +170,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())

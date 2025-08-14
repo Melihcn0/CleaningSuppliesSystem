@@ -29,10 +29,22 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
             return View(new List<ResultOrderDto>());
         }
-        // Teslim edilen ve iptal edilen siparişleri listele
-        public async Task<IActionResult> CompletedAndCancelledOrders()
+        public async Task<IActionResult> CompletedOrders()
         {
-            var response = await _client.GetAsync("orders/completed-cancelled");
+            var response = await _client.GetAsync("orders/completed");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
+                return View(new List<ResultOrderDto>());
+            }
+
+            var orders = await response.Content.ReadFromJsonAsync<List<ResultOrderDto>>() ?? new List<ResultOrderDto>();
+            return View(orders);
+        }
+        public async Task<IActionResult> CancelledOrders()
+        {
+            var response = await _client.GetAsync("orders/cancelled");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -106,17 +118,33 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatus([FromBody] OrderStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Geçersiz veri.");
 
-            var updatedOrder = await _client.PostAsJsonAsync("orders/UpdateStatus", dto)
-                                            .Result.Content.ReadFromJsonAsync<OrderStatusUpdateDto>();
+            var response = await _client.PostAsJsonAsync("orders/UpdateStatus", dto);
+            var updatedOrder = await response.Content.ReadFromJsonAsync<OrderStatusUpdateDto>();
+
 
             return Json(updatedOrder);
         }
+        public async Task<IActionResult> DownloadInvoice(int orderId)
+        {
+            var pdfResponse = await _client.GetAsync($"invoices/byorder/{orderId}");
+            if (!pdfResponse.IsSuccessStatusCode)
+                return RedirectToAction("Index");
 
+            var pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync();
+
+            var contentDisposition = pdfResponse.Content.Headers.ContentDisposition;
+            string fileName = contentDisposition?.FileNameStar ?? contentDisposition?.FileName;
+
+            fileName = fileName?.Trim('"');
+
+            return File(pdfBytes, "application/pdf", fileName);
+        }
 
 
 

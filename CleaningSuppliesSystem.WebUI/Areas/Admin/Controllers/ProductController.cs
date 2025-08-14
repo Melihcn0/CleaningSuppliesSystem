@@ -137,6 +137,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             form.Add(new StringContent(dto.Name ?? ""), "Name");
             form.Add(new StringContent(dto.BrandId.ToString()), "BrandId");
             form.Add(new StringContent(dto.UnitPrice.ToString()), "UnitPrice");
+            form.Add(new StringContent(dto.VatRate.ToString()), "VatRate");
             form.Add(new StringContent(dto.ImageUrl ?? ""), "ImageUrl");
 
             var response = await _client.PostAsync("products", form);
@@ -224,12 +225,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             // ✅ API'ye gönderim
             var form = new MultipartFormDataContent
-    {
-        { new StringContent(dto.Id.ToString()), "Id" },
-        { new StringContent(dto.Name ?? ""), "Name" },
-        { new StringContent(dto.BrandId.ToString()), "BrandId" },
-        { new StringContent(dto.UnitPrice.ToString()), "UnitPrice" },
-    };
+            {
+                { new StringContent(dto.Id.ToString()), "Id" },
+                { new StringContent(dto.Name ?? ""), "Name" },
+                { new StringContent(dto.BrandId.ToString()), "BrandId" },
+                { new StringContent(dto.UnitPrice.ToString()), "UnitPrice" },
+                { new StringContent(dto.VatRate.ToString()), "VatRate" },
+            };
 
             if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
                 form.Add(new StringContent(dto.ImageUrl), "ImageUrl");
@@ -249,10 +251,8 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return View(dto);
         }
 
-
-
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedProduct(int id)
         {
             var response = await _client.PostAsync($"Products/softdelete/{id}", null);
@@ -265,6 +265,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedProduct(int id)
         {
             var response = await _client.PostAsync($"Products/undosoftdelete/{id}", null);
@@ -273,6 +274,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteProduct(int id)
         {
             var response = await _client.DeleteAsync($"products/permanent/{id}");
@@ -322,6 +324,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -339,6 +342,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -356,6 +360,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())

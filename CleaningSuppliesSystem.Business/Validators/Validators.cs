@@ -70,6 +70,10 @@ namespace CleaningSuppliesSystem.Business.Validators
                 RuleFor(x => x.UnitPrice)
                     .GreaterThan(0).WithMessage("Ürün birim fiyatı 0'dan büyük olmalı.")
                     .LessThanOrEqualTo(5000).WithMessage("Ürün birim fiyatı 5.000₺ geçemez.");
+
+                RuleFor(x => x.VatRate)
+                    .GreaterThanOrEqualTo(0).WithMessage("KDV oranı 0 veya daha büyük olmalı.")
+                    .LessThanOrEqualTo(100).WithMessage("KDV 100’ü geçemez.");
             }
         }
         public class UpdateProductValidator : AbstractValidator<UpdateProductDto>
@@ -87,6 +91,10 @@ namespace CleaningSuppliesSystem.Business.Validators
                 RuleFor(x => x.UnitPrice)
                     .GreaterThan(0).WithMessage("Ürün birim fiyatı 0'dan büyük olmalı.")
                     .LessThanOrEqualTo(5000).WithMessage("Ürün birim fiyatı 5.000₺ geçemez.");
+
+                RuleFor(x => x.VatRate)
+                    .GreaterThanOrEqualTo(0).WithMessage("KDV oranı 0 veya daha büyük olmalı.")
+                    .LessThanOrEqualTo(100).WithMessage("KDV 100’ü geçemez.");
             }
         }
         public class UpdateDiscountValidator : AbstractValidator<UpdateDiscountDto>

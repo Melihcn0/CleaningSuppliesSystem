@@ -5,6 +5,7 @@
 }
 
 <form id="updateSubCategoryForm" method="post">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <label>Üst Kategori Seçin</label>
     <select asp-items="@ViewBag.topCategories" asp-for="TopCategoryId" class="form-control">
@@ -16,7 +17,7 @@
     <input type="text" asp-for="Name" class="form-control" />
     <span asp-validation-for="Name" class="text-danger"></span>
     <br />
-    <button type="button" onclick="updateSubCategory()" class="btn btn-outline-warning-600">Güncelle</button>
+    <button type="button" onclick="updateSubCategory()" class="btn btn-warning-600">Güncelle</button>
 </form>
 
 @section Scripts {

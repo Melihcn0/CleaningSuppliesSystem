@@ -59,6 +59,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBrand(CreateBrandDto dto)
         {
             var validator = new CreateBrandValidator();
@@ -105,6 +106,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBrand(UpdateBrandDto dto)
         {
             var validator = new UpdateBrandValidator();
@@ -134,6 +136,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedBrand(int id)
         {
             var response = await _client.PostAsync($"brands/softdelete/{id}", null);
@@ -146,6 +149,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedBrand(int id)
         {
             var response = await _client.PostAsync($"brands/undosoftdelete/{id}", null);
@@ -158,6 +162,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteBrand(int id)
         {
             var response = await _client.DeleteAsync($"brands/permanent/{id}");
@@ -170,6 +175,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -187,6 +193,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -204,6 +211,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())

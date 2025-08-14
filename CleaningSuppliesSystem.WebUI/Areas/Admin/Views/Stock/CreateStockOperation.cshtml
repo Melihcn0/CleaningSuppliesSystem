@@ -37,7 +37,7 @@
 }
 
 <form asp-action="CreateStockOperation" method="post">
-
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label asp-for="TopCategoryId">Üst Kategori</label>
         <select asp-for="TopCategoryId" class="form-control" asp-items="@(topCategories)"></select>
@@ -94,7 +94,7 @@
     </div>
     <br />
 
-    <button type="submit" class="btn btn-outline-primary-600">Kaydet</button>
+    <button type="submit" class="btn btn-primary-600">Kaydet</button>
 </form>
 
 @section Scripts {

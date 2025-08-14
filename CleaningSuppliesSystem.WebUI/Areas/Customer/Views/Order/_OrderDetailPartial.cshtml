@@ -1,63 +1,67 @@
 ﻿@model ResultOrderDto
 @using System.Globalization
 
-<div class="modal-header">
-    <h5 class="modal-title" id="orderDetailModalLabel">Sipariş Detayı</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-</div>
-<div class="modal-body">
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <p><strong>Sipariş No:</strong> #@Model.OrderNumber</p>
-            <p><strong>Sipariş Tarihi:</strong> @Model.CreatedDate.ToString("dd MMMM yyyy HH:mm", new CultureInfo("tr-TR"))</p>
-        </div>
-        <div class="col-md-6">
-            <p><strong>Toplam Tutar:</strong> @Model.OrderItems?.Sum(x => x.UnitPrice * x.Quantity).ToString("C")</p>
-            <div class="d-flex align-items-center gap-2">
-                <strong>Durum:</strong>
-                <span class="@(GetStatusClass(Model.Status))">
-                    @Model.Status
-                </span>
+@{
+    var showPending = (ViewData["ShowPendingPaymentMessage"] ?? false).ToString().ToLower();
+}
+
+<div data-show-pending="@showPending">
+    <div class="modal-header">
+        <h5 class="modal-title">Sipariş Detayı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+    </div>
+    <div class="modal-body">
+        <div id="orderDetailContent" style="display:none;">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Sipariş Numarası:</strong> #@Model.OrderNumber</p>
+                    <p><strong>Sipariş Tarihi:</strong> @Model.CreatedDate.ToString("dd MMMM yyyy HH:mm", new CultureInfo("tr-TR"))</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Toplam Tutar:</strong> @(Model.OrderItems?.Sum(x => x.UnitPrice * x.Quantity).ToString("C"))</p>
+                    <div class="d-flex align-items-center gap-2">
+                        <strong>Durum:</strong>
+                        <span class="@(GetStatusClass(Model.Status))">@Model.Status</span>
+                    </div>
+                </div>
             </div>
 
-
+            <h6 class="fw-bold mt-4 mb-3">Sipariş Edilen Ürünler</h6>
+            @if (Model.OrderItems != null && Model.OrderItems.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ürün Adı</th>
+                                <th>Adet</th>
+                                <th>Birim Fiyat</th>
+                                <th>Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>@item.Product?.Name</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.UnitPrice.ToString("C")</td>
+                                    <td>@((item.UnitPrice * item.Quantity).ToString("C"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">Bu siparişte ürün bulunmamaktadır.</div>
+            }
         </div>
     </div>
-
-    <h6 class="fw-bold mt-4 mb-3">Sipariş Edilen Ürünler</h6>
-    @if (Model.OrderItems != null && Model.OrderItems.Any())
-    {
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Ürün Adı</th>
-                        <th>Adet</th>
-                        <th>Birim Fiyat</th>
-                        <th>Toplam</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.OrderItems)
-                    {
-                        <tr>
-                            <td>@item.Product?.Name</td>
-                            <td>@item.Quantity</td>
-                            <td>@item.UnitPrice.ToString("C")</td>
-                            <td>@((item.UnitPrice * item.Quantity).ToString("C"))</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info">Bu siparişte ürün bulunmamaktadır.</div>
-    }
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-neutral-600" data-bs-dismiss="modal">Kapat</button>
+    </div>
 </div>
 
 @functions {
@@ -66,13 +70,46 @@
         return status switch
         {
             "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
-            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
             "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
-            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-info-gradient px-20 py-9 radius-4 text-white",
-            "Onay Bekliyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-            "Onaylandı" => "badge text-sm fw-semibold bg-dark-lilac-gradient px-20 py-9 radius-4 text-white",
+            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+            "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+            "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
             _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
         };
     }
 }
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    (function() {
+        const showPending = $('div[data-show-pending]').data('show-pending');
+        const orderNumber = '@Model.OrderNumber';
+        const iban = 'TR12 3456 7890 1234 5678 9012 34';
+
+        if (showPending === true || showPending === "true") {
+            // Önce içerik gizle
+            $('#orderDetailContent').hide();
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Ödeme Bekleniyor',
+                html: `
+                    Siparişinizin onaylanması için ödeme bekleniyor. Lütfen aşağıdaki IBAN numarasına toplam tutarı havale edin:<br/>
+                    <strong>${iban}</strong><br/><br/>
+                    Açıklama kısmına sipariş numaranızı yazmayı unutmayın: <strong>#${orderNumber}</strong>
+                `,
+                confirmButtonText: 'Tamam',
+                confirmButtonColor: '#dc3545',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(() => {
+                $('#orderDetailContent').fadeIn();
+            });
+        } else {
+            $('#orderDetailContent').show();
+        }
+    })();
+
+</script>

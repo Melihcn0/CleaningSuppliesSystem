@@ -33,19 +33,19 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var userRoles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.UserName),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim("fullName", user.FirstName + " " + user.LastName),
-        new Claim(ClaimTypes.Role, userRoles.FirstOrDefault() ?? "")
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("fullName", user.FirstName + " " + user.LastName),
+                new Claim(ClaimTypes.Role, userRoles.FirstOrDefault() ?? "")
+            };
 
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _jwtTokenOptions.Issuer,
                 audience: _jwtTokenOptions.Audience,
                 claims: claims,
-                notBefore: DateTime.UtcNow,
+                notBefore: DateTime.UtcNow, // kontrol edilecek
                 expires: DateTime.UtcNow.AddMinutes(_jwtTokenOptions.ExpireInMinutes),
                 signingCredentials: new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256)
             );

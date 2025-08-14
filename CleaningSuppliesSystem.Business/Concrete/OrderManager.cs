@@ -35,9 +35,13 @@ namespace CleaningSuppliesSystem.Business.Concrete
         {
             return _orderRepository.GetByIdAsyncWithAppUserandOrderItemsandInvoice(id);
         }
-        public Task<List<Order>> TGetCompletedAndCancelledOrdersAsync()
+        public Task<List<Order>> TGetCompletedOrdersAsync()
         {
-            return _orderRepository.GetCompletedAndCancelledOrdersAsync();
+            return _orderRepository.GetCompletedOrdersAsync();
+        }
+        public Task<List<Order>> TGetCancelledOrdersAsync()
+        {
+            return _orderRepository.GetCancelledOrdersAsync();
         }
 
 

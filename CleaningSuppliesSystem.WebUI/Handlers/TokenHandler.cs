@@ -1,20 +1,20 @@
-﻿using CleaningSuppliesSystem.WebUI.Services.TokenServices;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 
 namespace CleaningSuppliesSystem.WebUI.Handlers
 {
     public class TokenHandler : DelegatingHandler
     {
-        private readonly ITokenService _tokenService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TokenHandler(ITokenService tokenService)
+        public TokenHandler(IHttpContextAccessor httpContextAccessor)
         {
-            _tokenService = tokenService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = _tokenService.GetUserToken;
+            var token = _httpContextAccessor.HttpContext?.Request?.Cookies["AccessToken"];
+
             if (!string.IsNullOrEmpty(token))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

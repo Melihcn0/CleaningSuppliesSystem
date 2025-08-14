@@ -5,8 +5,8 @@
 }
 
 <form method="post">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-
     <label>Ürün Fiyatı</label>
     <input type="text" asp-for="UnitPrice" class="form-control" readonly />
     <br />

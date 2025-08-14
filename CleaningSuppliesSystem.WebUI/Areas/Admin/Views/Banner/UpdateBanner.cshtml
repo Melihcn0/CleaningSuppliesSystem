@@ -6,6 +6,7 @@
 }
 
 <form id="updateBannerForm" method="post" asp-action="UpdateBanner" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="ImageUrl" />
     <input type="hidden" name="existingImageUrl" value="@ViewBag.ExistingImageUrl" />

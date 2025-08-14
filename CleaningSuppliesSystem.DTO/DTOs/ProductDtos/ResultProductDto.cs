@@ -19,6 +19,7 @@
         public string TopCategoryName { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsShown { get; set; }
+        public decimal VatRate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }

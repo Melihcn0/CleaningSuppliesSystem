@@ -6,60 +6,81 @@
     int count = 0;
 }
 
+<div class="p-16 bg-transparent radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3">
+    <h6 class="mb-2" style="font-size: 1rem;">Sipariş Yönetimi Notları</h6>
+    <ul class="mb-2 ps-3" style="list-style-type: disc; font-size: 0.9rem;">
+        <li>Siparişin ödemesi geldiğinde, durumunu 'Onaylandı' olarak güncelleyiniz.</li>
+        <li>Sipariş durumu 'Hazırlanıyor' olduğunda, fatura otomatik olarak oluşturulacaktır.</li>
+        <li>Sipariş hazırlandığında, durumunu 'Kargoya Verildi' olarak değiştiriniz.</li>
+    </ul>
+    <strong>
+        <small class="d-block mt-2">
+            Not: Fatura oluşturulduktan sonra sipariş numarasını kontrol etmeyi unutmayın.
+        </small>
+    </strong>
+</div>
 <div class="card basic-data-table">
+    @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Gelen Siparişler</h5>
     </div>
     <div class="card-body">
-        @Html.AntiForgeryToken()
-        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Sipariş No</th>
-                    <th>Sipariş Veren</th>
-                    <th>Sipariş Tarihi</th>
-                    <th>Durum</th>
-                    <th>Fatura No</th>
-                    <th>İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    count++;
-
-                    var statusClass = item.Status switch
-                    {
-                        "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
-                        "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
-                        "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
-                        "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-info-gradient px-20 py-9 radius-4 text-white",
-                        "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-                        "Onaylandı" => "badge text-sm fw-semibold bg-dark-lilac-gradient px-20 py-9 radius-4 text-white",
-                        _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
-                    };
-
+        <div class="table-responsive" style="overflow-y: hidden;">
+            <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                <thead class="table-light">
                     <tr>
-                        <td>@count</td>
-                        <td>@item.OrderNumber</td>
-                        <td>@($"{item.FirstName} {item.LastName}")</td>
-                        <td>@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td><span class="@statusClass">@item.Status</span></td>
-                        <td>fatura no</td>
-                        <td>
-                            <a href="#" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 js-show-order-detail" data-order-id="@item.Id">
-                                <span class="material-symbols-outlined me-1">read_more</span> Detay
-                            </a>
-                            <a href="#" class="btn btn-outline-warning-600 radius-8 d-inline-flex align-items-center me-2 js-show-update-status" data-order-id="@item.Id">
-                                <span class="material-symbols-outlined me-1">app_badging</span> S.D Güncelle
-                            </a>
-                        </td>
+                        <th>#</th>
+                        <th>Sipariş No</th>
+                        <th>Sipariş Veren</th>
+                        <th>Sipariş Tarihi</th>
+                        <th>Durum</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        count++;
+
+                        var statusClass = item.Status switch
+                        {
+                            "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
+                            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                            "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
+                            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+                            "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                            "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                            _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
+                        };
+
+                        <tr>
+                            <td>@count</td>
+                            <td><strong>@item.OrderNumber</strong></td>
+                            <td>@($"{item.FirstName} {item.LastName}")</td>
+                            <td>@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td><span class="@statusClass">@item.Status</span></td>
+                            <td>
+                                <div class="d-flex flex-nowrap gap-2">
+                                    <a href="#" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center btn-sm js-show-order-detail" data-order-id="@item.Id" title="Detay">
+                                        <span class="material-symbols-outlined menu-icon">read_more</span> Daha Fazla...
+                                    </a>
+                                    <a href="#" class="btn rounded-pill btn-warning-100 text-warning-600 radius-8 d-inline-flex align-items-center btn-sm js-show-update-status" data-order-id="@item.Id" title="Sipariş Durumu Güncelle">
+                                        <span class="material-symbols-outlined menu-icon">app_badging</span> Sipariş Durum Güncelle
+                                    </a>
+                                    @if (item.Status != "Onay Bekleniyor" && item.Status != "Onaylandı")
+                                    {
+                                        <a href="@Url.Action("DownloadInvoice", "Order", new { orderId = item.Id })" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
+                                            <span class="material-symbols-outlined menu-icon">download</span> Faturayı İndir
+                                        </a>
+                                    }
+                                </div>
+                            </td>
                     </tr>
                 }
 
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 
@@ -79,6 +100,7 @@
 
 @section Scripts {
     <script>
+
         function showLoadingModal(modal, modalContent) {
             modalContent.html(`
                 <div class="modal-header">
@@ -110,7 +132,6 @@
             // Sipariş detayını göster
             $('.js-show-order-detail').on('click', function (e) {
                 e.preventDefault();
-
                 var orderId = $(this).data('order-id');
                 var modal = $('#orderDetailModal');
                 var modalContent = $('#orderDetailModalContent');
@@ -125,11 +146,8 @@
                     },
                     error: function (xhr) {
                         var errorMessage = "Sipariş detayı yüklenirken bir sorun oluştu.";
-                        if (xhr.status === 403) {
-                            errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
-                        } else if (xhr.status === 404) {
-                            errorMessage = "Belirtilen sipariş bulunamadı.";
-                        }
+                        if (xhr.status === 403) errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
+                        else if (xhr.status === 404) errorMessage = "Belirtilen sipariş bulunamadı.";
                         showErrorModal(modalContent, errorMessage);
                     }
                 });
@@ -138,7 +156,6 @@
             // Sipariş durumu güncelleme
             $('.js-show-update-status').on('click', function (e) {
                 e.preventDefault();
-
                 var orderId = $(this).data('order-id');
                 var modal = $('#orderUpdateStatusModal');
                 var modalContent = $('#orderUpdateStatusModalContent');
@@ -153,11 +170,8 @@
                     },
                     error: function (xhr) {
                         var errorMessage = "Sipariş durumu yüklenirken bir sorun oluştu.";
-                        if (xhr.status === 403) {
-                            errorMessage = "Bu sipariş durumunu güncelleme yetkiniz yok.";
-                        } else if (xhr.status === 404) {
-                            errorMessage = "Belirtilen sipariş bulunamadı.";
-                        }
+                        if (xhr.status === 403) errorMessage = "Bu sipariş durumunu güncelleme yetkiniz yok.";
+                        else if (xhr.status === 404) errorMessage = "Belirtilen sipariş bulunamadı.";
                         showErrorModal(modalContent, errorMessage);
                     }
                 });
@@ -165,5 +179,6 @@
         });
     </script>
 }
+
 
 

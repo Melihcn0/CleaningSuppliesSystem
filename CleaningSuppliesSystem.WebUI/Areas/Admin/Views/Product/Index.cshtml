@@ -12,22 +12,23 @@
 }
 
 <div class="card basic-data-table">
+    @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Ürünlerim Listesi</h5>
-        <div class="d-flex align-items-center gap-2 ms-auto">
-            <a asp-action="CreateProduct" asp-controller="Product" asp-area="Admin" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center">
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
+            <a asp-action="CreateProduct" asp-controller="Product" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Ürün Ekle
             </a>
-            <a asp-action="DeletedProduct" asp-controller="Product" asp-area="Admin" class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2">
+            <a asp-action="DeletedProduct" asp-controller="Product" asp-area="Admin" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
-            <button id="deleteSelectedBtn" class="btn btn-danger radius-8 d-inline-flex align-items-center me-2" disabled>
+            <button id="deleteSelectedBtn" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center" disabled>
                 <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
             </button>
         </div>
     </div>
     <div class="card-body">
-        @Html.AntiForgeryToken()
+        <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
@@ -43,6 +44,7 @@
                     <th>Birim Fiyat</th>
                     <th>İndirim Oranı</th>
                     <th>İndirimli Fiyat</th>
+                    <th>KDV Oranı</th>
                     <th>Oluşturulma Tarihi</th>
                     <th>Son Güncelleme Tarihi</th>
                     <th>İşlem</th>
@@ -69,7 +71,8 @@
                         <td>@item.Name</td>
                         <td>@item.UnitPrice ₺</td>
                         <td>@item.DiscountRate.ToString("F0") %</td>
-                        <td>@((item.UnitPrice * (1 - item.DiscountRate / 100)).ToString("N2")) ₺</td>
+                        <td>@item.DiscountedPrice ₺</td>
+                        <td>@item.VatRate.ToString("F0") %</td>
                         <td>
                             @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
                             @item.CreatedDate.ToString("dd MMMM yyyy dddd")
@@ -79,25 +82,27 @@
                                 ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
                                 : "Henüz güncelleme yapılmadı")
                         </td>
-                        <td>
-                            <a asp-action="ApplyDiscount" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id"
-                               class="btn btn-outline-success-600 btn-sm d-inline-flex align-items-center me-2 action-btn">
-                                <span class="material-symbols-outlined">sell</span>
-                            </a>
-
-                            <a asp-action="UpdateProduct" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id"
-                               class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
-                                <span class="material-symbols-outlined me-1">edit</span> Düzenle
-                            </a>
-                            <button class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
-                                    data-id="@item.Id">
-                                <span class="material-symbols-outlined me-1">delete</span> Sil
-                            </button>
-                        </td>
+                            <td>
+                                <div class="d-flex flex-nowrap gap-2">
+                                    <a asp-action="ApplyDiscount" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id"
+                                       class="btn rounded-pill btn-success-100 text-success-600 btn-sm d-inline-flex align-items-center action-btn" title="İndirim Uygula">
+                                        <span class="material-symbols-outlined me-1">sell</span> İndirim Uygula
+                                    </a>
+                                    <a asp-action="UpdateProduct" asp-controller="Product" asp-area="Admin" asp-route-id="@item.Id"
+                                       class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center btn-sm action-btn" title="Düzenle">
+                                        <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                                    </a>
+                                    <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
+                                            data-id="@item.Id" title="Sil">
+                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                    </button>
+                                </div>
+                            </td>
                     </tr>
                 }
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 @section Scripts {

@@ -4,18 +4,18 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<div class="p-16 bg-transparent radius-8 border border-start-width-3-px border-cyan mb-24">
+    <h6 class="text-primary-light text-md mb-8">Nasıl Kullanılır?</h6>
+    <ul class="mb-0 ps-16">
+        <li><a href="https://fonts.google.com/icons" target="_blank">Google Material Icons</a> sitesine git.</li>
+        <li>1. Arama kutusuna örnek bir kelime yaz (örnek: home, email, security).</li>
+        <li>2. Beğendiğin ikonun adını "Icon Url" alanına yaz.</li>
+        <li>3. Kaydet butonuna bas.</li>
+    </ul>
+    <small class="text-neutral-600 d-block mt-8">Not: Sadece ikon adı girildiğinde sistem otomatik gösterir. URL zorunlu değildir.</small>
+</div>
 <form method="post">
-    <div class="p-16 bg-transparent radius-8 border border-start-width-3-px border-cyan mb-24">
-        <h6 class="text-primary-light text-md mb-8">Nasıl Kullanılır?</h6>
-        <ul class="mb-0 ps-16">
-            <li><a href="https://fonts.google.com/icons" target="_blank">Google Material Icons</a> sitesine git.</li>
-            <li>1. Arama kutusuna örnek bir kelime yaz (örnek: home, email, security).</li>
-            <li>2. Beğendiğin ikonun adını "Icon Url" alanına yaz.</li>
-            <li>3. Kaydet butonuna bas.</li>
-        </ul>
-        <small class="text-neutral-600 d-block mt-8">Not: Sadece ikon adı girildiğinde sistem otomatik gösterir. URL zorunlu değildir.</small>
-    </div>
-
+    @Html.AntiForgeryToken()
     <label>Icon Adı</label>
     <input type="text" asp-for="IconName" class="form-control" />
     <span asp-validation-for="IconName" class="text-danger"></span>
@@ -26,5 +26,5 @@
     <span asp-validation-for="IconUrl" class="text-danger"></span>
     <br />
 
-    <button class="btn btn-outline-primary-600">Kaydet</button>
+    <button class="btn btn-primary-600">Kaydet</button>
 </form>

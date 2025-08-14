@@ -1,0 +1,147 @@
+﻿@model List<ResultOrderDto>
+
+@{
+    ViewData["Title"] = "Teslim Edilen Siparişler";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    @Html.AntiForgeryToken()
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Teslim edilen siparişler listesi</h5>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any(item => item.Status == "Teslim Edildi"))
+        {
+            <div class="table-responsive" style="overflow-y: hidden;">
+                <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Sipariş Numarası</th>
+                            <th>Sipariş Veren</th>
+                            <th>Sipariş Tarihi</th>
+                            <th>Durum</th>
+                            <th>Teslim Tarihi</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            count++;
+
+                            var statusClass = "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white";
+
+                            <tr>
+                                <td>@count</td>
+                                <td><strong>#@item.OrderNumber</strong></td>
+                                <td>@($"{item.FirstName} {item.LastName}")</td>
+                                <td>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                                    @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                                </td>
+                                <td><span class="@statusClass">@item.Status</span></td>
+                                <td>
+                                    @if (item.DeliveredDate != null)
+                                    {
+                                        <text>@item.DeliveredDate.Value.ToString("dd.MM.yyyy HH:mm")<br /></text>
+                                        <text>@item.DeliveredDate.Value.ToString("dd MMMM yyyy dddd")</text>
+                                    }
+                                    else
+                                    {
+                                        <text>-</text>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-area="Admin" asp-controller="Order" asp-action="Details" asp-route-id="@item.Id"
+                                       class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center me-2 js-show-order-detail" data-order-id="@item.Id">
+                                        Daha Fazla...
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content" id="orderDetailModalContent">
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="text-muted">
+                    <i class="fas fa-shopping-cart fa-3x mb-3 opacity-25"></i>
+                    <h5>Hiç sipariş bulunamadı</h5>
+                    <p>Henüz teslim edilen bir sipariş yok.</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.js-show-order-detail').on('click', function (e) {
+                e.preventDefault();
+
+                var orderId = $(this).data('order-id');
+                var modal = $('#orderDetailModal');
+                var modalContent = $('#orderDetailModalContent');
+
+                modalContent.html(`
+                    <div class="modal-header">
+                        <h5 class="modal-title">Yükleniyor...</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    </div>
+                    <div class="modal-body text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    </div>
+                `);
+
+                modal.modal('show');
+
+                $.ajax({
+                    url: '/Admin/Order/Details/' + orderId,
+                    type: 'GET',
+                    success: function (data) {
+                        modalContent.html(data);
+                    },
+                    error: function (xhr) {
+                        var errorMessage = "Sipariş detayı yüklenirken bir sorun oluştu.";
+                        if (xhr.status === 403) {
+                            errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
+                        } else if (xhr.status === 404) {
+                            errorMessage = "Belirtilen sipariş bulunamadı.";
+                        }
+
+                        modalContent.html(`
+                            <div class="modal-header">
+                                <h5 class="modal-title text-danger">Hata</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger">${errorMessage}</div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        `);
+                    }
+                });
+            });
+        });
+    </script>
+}

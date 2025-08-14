@@ -5,6 +5,7 @@
 }
 
 <form id="updateServiceIconForm" method="post">
+    @Html.AntiForgeryToken();
     <input type="hidden" asp-for="Id" />
     <label>Icon Adı</label>
     <input type="text" asp-for="IconName" class="form-control" />

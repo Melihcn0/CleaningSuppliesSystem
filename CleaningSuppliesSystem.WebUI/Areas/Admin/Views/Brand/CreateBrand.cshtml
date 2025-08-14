@@ -5,6 +5,7 @@
 }
 
 <form method="post">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label for="CategoryId">Ürün Grubu / Kategori</label>
         <select id="CategoryId" name="CategoryId" asp-items="ViewBag.categories" class="form-control">

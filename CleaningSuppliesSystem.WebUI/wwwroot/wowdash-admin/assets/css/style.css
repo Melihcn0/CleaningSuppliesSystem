@@ -1,4 +1,4 @@
-/** ================================= Table Of Contents =================================== /
+ï»¿/** ================================= Table Of Contents =================================== /
 1. Abstract Css 
     1.1 Function Css 
     1.2 Variables Css 
@@ -12373,6 +12373,7 @@ div.dt-container .dt-paging .dt-paging-button:hover:hover, div.dt-container .dt-
   cursor: pointer;
 }
 
+
 .form-check .form-check-input:checked[type=radio] {
   background-image: none;
   border-color: var(--primary-600);
@@ -14979,8 +14980,8 @@ td.fc-header-center {
 }
 .sidebar-close-btn {
   position: absolute;
-  top: 0.625rem;
-  inset-inline-end: 0.625rem;
+  top: 0.5rem;
+  inset-inline-end: 0.3rem;
   width: 1.75rem;
   height: 1.75rem;
   border: 1px solid var(--input-form-light);
@@ -15066,9 +15067,27 @@ td.fc-header-center {
   display: inline-block;
 }
 
-.sidebar.active .sidebar-menu li a span {
-  display: none;
+/* KapalÄ±yken yazÄ±larÄ± gizle */
+.sidebar.active .sidebar-menu li a span.menu-text {
+    display: none;
 }
+
+
+/* Hover olduÄŸunda yazÄ±larÄ± gÃ¶ster */
+.sidebar.active:hover .sidebar-menu li a span.menu-text {
+    display: inline-block;
+}
+
+/* Sidebar daralmÄ±ÅŸ haldeyken, aktif sayfa linkinin iÃ§eriÄŸini ortala */
+.sidebar.active .sidebar-menu li > a.active-page {
+    justify-content: center;
+}
+
+/* Sidebar daralmÄ±ÅŸ haldeyken Ã¼zerine gelindiÄŸinde (hover), link iÃ§eriÄŸini sola yasla */
+.sidebar.active:hover .sidebar-menu li > a.active-page {
+    justify-content: flex-start;
+}
+
 
 .sidebar.active .sidebar-menu li a .menu-icon {
   margin-inline-end: 0;
@@ -15328,8 +15347,8 @@ td.fc-header-center {
 /* === footer css end === */
 
 /* Custom CSS */
-/* Light tema için */
-/* Genel tablo renkleri tema bazında */
+/* Light tema iÃ§in */
+/* Genel tablo renkleri tema bazÄ±nda */
 html[data-theme="light"] table#dataTable {
     background-color: white;
     color: black;
@@ -15348,7 +15367,7 @@ html[data-theme="dark"] table#dataTable {
     font-size: 0.95rem;
 }
 
-/* Tablonun gövdesindeki satırlar */
+/* Tablonun gÃ¶vdesindeki satÄ±rlar */
 html[data-theme="light"] table#dataTable tbody tr {
     background-color: white;
     color: black;
@@ -15361,7 +15380,7 @@ html[data-theme="dark"] table#dataTable tbody tr {
     transition: background-color 0.3s ease;
 }
 
-/* Satır hover efektleri */
+/* SatÄ±r hover efektleri */
 html[data-theme="light"] table#dataTable tbody tr:hover {
     background-color: #f0f0f0;
     cursor: pointer;
@@ -15372,12 +15391,12 @@ html[data-theme="dark"] table#dataTable tbody tr:hover {
     cursor: pointer;
 }
 
-/* Başlık hücreleri */
+/* BaÅŸlÄ±k hÃ¼creleri */
 html[data-theme="light"] table#dataTable thead th {
     background-color: #f8f9fa; /* Bootstrap'in light header rengi gibi */
     color: black;
     border-bottom: 2px solid #dee2e6;
-    padding: 1rem 0.75rem 0.75rem 0.75rem; /* Üst padding biraz artırıldı */
+    padding: 1rem 0.75rem 0.75rem 0.75rem; /* Ãœst padding biraz artÄ±rÄ±ldÄ± */
     text-align: left;
     user-select: none;
 }
@@ -15386,12 +15405,12 @@ html[data-theme="dark"] table#dataTable thead th {
     background-color: #1e1e2f;
     color: white;
     border-bottom: 2px solid #333;
-    padding: 1rem 0.75rem 0.75rem 0.75rem; /* Üst padding biraz artırıldı */
+    padding: 1rem 0.75rem 0.75rem 0.75rem; /* Ãœst padding biraz artÄ±rÄ±ldÄ± */
     text-align: center;
     user-select: none;
 }
 
-/* Tablo hücre kenarlıkları */
+/* Tablo hÃ¼cre kenarlÄ±klarÄ± */
 html[data-theme="light"] table#dataTable th,
 html[data-theme="light"] table#dataTable td {
     border: 1px solid #dee2e6;
@@ -15400,13 +15419,13 @@ html[data-theme="light"] table#dataTable td {
 
 html[data-theme="dark"] table#dataTable th,
 html[data-theme="dark"] table#dataTable td {
-    border: 1px solid #444; /* biraz daha yumuşak 333 yerine 444 */
+    border: 1px solid #444; /* biraz daha yumuÅŸak 333 yerine 444 */
     vertical-align: middle;
 }
 
-/* Butonlar, iconlar veya diğer elementlerin rengi tema bazlı değilse onlara da ayrı renk verilebilir */
+/* Butonlar, iconlar veya diÄŸer elementlerin rengi tema bazlÄ± deÄŸilse onlara da ayrÄ± renk verilebilir */
 
-/* Örnek: */
+/* Ã–rnek: */
 html[data-theme="light"] .btn-outline-info {
     color: #0d6efd;
     border-color: #0d6efd;
@@ -15435,7 +15454,7 @@ html[data-theme="dark"] .btn-outline-danger {
     color: #ccc !important;
 }
 
-/* Parent container’ı flex yap */
+/* Parent containerâ€™Ä± flex yap */
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter {
     display: flex;
@@ -15449,13 +15468,13 @@ html[data-theme="dark"] .btn-outline-danger {
     width: 100%;
 }
 
-/* Sayfa uzunluğu dropdown'unu da sola al */
+/* Sayfa uzunluÄŸu dropdown'unu da sola al */
 .dataTables_wrapper .dataTables_length {
     justify-content: flex-start;
     margin-right: 1rem;
 }
 
-/* Sağ tarafa özel alan yerleştirilebilir */
+/* SaÄŸ tarafa Ã¶zel alan yerleÅŸtirilebilir */
 .datatable-toolbar-end {
     float: right;
 }
@@ -15464,7 +15483,7 @@ html[data-theme="dark"] .btn-outline-danger {
 .select-disabled {
     pointer-events: none;
     opacity: 0.6;
-    background-color: #2c2c2c; /* Dark tema için uygun */
+    background-color: #2c2c2c; /* Dark tema iÃ§in uygun */
     color: #aaa;
 }
 

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using CleaningSuppliesSystem.WebUI.Services.TokenServices;
 using CleaningSuppliesSystem.WebUI.Handlers;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,13 +52,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
     options.TokenLifespan = TimeSpan.FromMinutes(15);
 });
 
-// Session
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(20); // 20 dk işlem yapılmazsa session sona erer
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true; // GDPR için gerekli
-});
 
 // MVC
 builder.Services.AddControllersWithViews();
@@ -74,35 +69,43 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession(); // Session middleware aktif edildi
 
-// Session timeout kontrol middleware'i
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.Use(async (context, next) =>
 {
-    if (context.User.Identity?.IsAuthenticated == true)
+    var token = context.Request.Cookies["AccessToken"];
+    var handler = new JwtSecurityTokenHandler();
+
+    if (!string.IsNullOrEmpty(token))
     {
-        var userName = context.Session.GetString("Identifier");
-        var userRole = context.Session.GetString("UserRole");
+        var jwt = handler.ReadJwtToken(token);
 
-        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userRole))
+        if (jwt.ValidTo < DateTime.UtcNow ||
+            context.User.Identity?.IsAuthenticated == true &&
+            context.User.FindFirst("Identifier") == null)
         {
-            // Session boşalmışsa, kullanıcıyı oturumdan at
+            context.Response.Cookies.Delete("AccessToken");
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            // Önemli: Oturumdan atıldıktan sonra kullanıcıyı hemen giriş sayfasına yönlendir.
-            // Bu, menüdeki yanlış linkin görülmesini engeller.
-            context.Response.Redirect("/Login/SignIn");
-            return;
+            context.User = new ClaimsPrincipal(); // Authenticated false gibi davranır
         }
     }
+
     await next();
+
+    // Eğer 404 ve 401 ise ve hâlâ authenticated görünüyorsa → login'e yönlendir
+    if ((context.Response.StatusCode == 404 || context.Response.StatusCode == 401) &&
+        context.User.Identity?.IsAuthenticated == true &&
+        !context.Response.HasStarted)
+    {
+        context.Response.Redirect("~/Login/SignIn");
+    }
 });
 
 
 app.UseStatusCodePagesWithReExecute("/ErrorPage/NotFound404/");
 
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "areas",

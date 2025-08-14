@@ -45,12 +45,6 @@ public class SubCategoryController : Controller
         return Content(string.Join("", options), "text/html");
     }
 
-    public async Task<IActionResult> Index2()
-    {
-        var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("TopCategories/active");
-        return View(topCategories);
-    }
-
     public async Task<IActionResult> Index()
     {
         var resultDtos = await _client.GetFromJsonAsync<List<ResultSubCategoryDto>>("subCategories/active");
@@ -62,7 +56,6 @@ public class SubCategoryController : Controller
 
         return View(vm);
     }
-
 
     public async Task<IActionResult> DeletedSubCategory()
     {
@@ -84,6 +77,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateSubCategory(CreateSubCategoryDto dto)
     {
         await LoadTopCategoriesDropdown();
@@ -121,6 +115,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateSubCategory(UpdateSubCategoryDto dto)
     {
         await LoadTopCategoriesDropdown();
@@ -150,6 +145,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SoftDeletedSubCategory(int id)
     {
         var response = await _client.PostAsync($"SubCategories/softdelete/{id}", null);
@@ -162,6 +158,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UndoSoftDeletedSubCategory(int id)
     {
         var response = await _client.PostAsync($"subCategories/undosoftdelete/{id}", null);
@@ -170,6 +167,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PermanentDeleteSubCategory(int id)
     {
         var response = await _client.DeleteAsync($"SubCategories/permanent/{id}");
@@ -182,6 +180,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
@@ -199,6 +198,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
@@ -216,6 +216,7 @@ public class SubCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())

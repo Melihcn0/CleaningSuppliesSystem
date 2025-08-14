@@ -6,6 +6,7 @@
 }
 
 <form id="updateProductForm" method="post" asp-action="UpdateProduct" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="ImageUrl" />
     <input type="hidden" name="existingImageUrl" value="@ViewBag.ExistingImageUrl" />
@@ -28,9 +29,15 @@
 
     <!-- Fiyat -->
     <div class="form-group">
-        <label for="UnitPrice">Ürün Birim Fiyatı</label>
+        <label for="UnitPrice">Birim Fiyatı</label>
         <input asp-for="UnitPrice" class="form-control" />
         <span asp-validation-for="UnitPrice" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label for="VatRate">KDV Oranı</label>
+        <input asp-for="VatRate" class="form-control" />
+        <span asp-validation-for="VatRate" class="text-danger"></span>
     </div>
 
     <!-- Mevcut & Yeni Görsel -->
@@ -64,8 +71,8 @@
     <br />
     <button type="button" class="btn btn-outline-warning-600" onclick="updateProduct()">Güncelle</button>
 </form>
-
-<div asp-validation-summary="All" class="text-danger"></div>
+@* 
+<div asp-validation-summary="All" class="text-danger"></div> *@
 
 
 @section Scripts {

@@ -5,6 +5,7 @@
 }
 
 <form method="post" id="updateCategoryForm">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <div class="form-group">
         <label for="CategoryId">Ürün Grubu / Kategori</label>

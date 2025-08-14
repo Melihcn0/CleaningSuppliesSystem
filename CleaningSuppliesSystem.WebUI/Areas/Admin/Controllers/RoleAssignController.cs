@@ -35,9 +35,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             return View(users);
         }
-
-
-        // GET: /Admin/RoleAssign/RolesIndex
         public async Task<IActionResult> RolesIndex()
         {
             var response = await _client.GetAsync("roleassign/rolesindex");
@@ -48,8 +45,8 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return View(users);
         }
 
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignRole(List<AssignRoleDto> assignRoleList, int userId)
         {
             var dto = new UserAssignRoleDto
@@ -85,6 +82,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int userId, bool newStatus)
         {
             var dto = new ToggleStatusDto

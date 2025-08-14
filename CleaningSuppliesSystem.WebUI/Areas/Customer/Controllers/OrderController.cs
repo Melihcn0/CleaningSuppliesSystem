@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.OrderItemDtos;
+﻿ using CleaningSuppliesSystem.DTO.DTOs.Customer.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
 using Microsoft.AspNetCore.Authorization;
@@ -22,10 +22,8 @@ public class OrderController : Controller
         _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
     }
 
-    // Müşterinin tüm siparişleri gösterir.
     public async Task<IActionResult> Index()
     {
-        // API'den sipariş listesini çekme
         var response = await _client.GetAsync("customerOrders");
 
         if (response.IsSuccessStatusCode)
@@ -40,72 +38,60 @@ public class OrderController : Controller
             return RedirectToAction("SignIn", "Login");
         }
 
-        // Diğer başarısız durumlar için genel bir hata mesajı gösterir
         TempData["ErrorMessage"] = "Siparişleriniz yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.";
         return View(new List<ResultOrderDto>());
     }
 
-    // Belirli bir siparişin detaylarını gösterir.
 
     public async Task<IActionResult> Details(int id)
     {
         var response = await _client.GetAsync($"customerOrders/{id}");
 
-        if (response.IsSuccessStatusCode)
-        {
-            var order = await response.Content.ReadFromJsonAsync<ResultOrderDto>();
-            if (order == null)
-            {
-                // Veri gelmediyse, hata partial view'ını döndür.
-                return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
-            }
-            // Başarılı durumda, sipariş verisiyle birlikte partial view'ı döndür.
-            return PartialView("_OrderDetailPartial", order);
-        }
-        else
+        if (!response.IsSuccessStatusCode)
         {
             string errorMessage;
             if (response.StatusCode == HttpStatusCode.Forbidden)
-            {
                 errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
-            }
             else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
                 errorMessage = "Aradığınız sipariş bulunamadı.";
-            }
             else
-            {
                 errorMessage = "Sipariş detayları yüklenirken bir sorun oluştu.";
-            }
-            // Hata durumunda da bir partial view döndür.
+
             return PartialView("_ErrorPartial", errorMessage);
         }
+
+        var order = await response.Content.ReadFromJsonAsync<ResultOrderDto>();
+
+        if (order == null)
+        {
+            return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
+        }
+
+        ViewData["ShowPendingPaymentMessage"] = order.Status == "Onay Bekleniyor";
+
+        return PartialView("_OrderDetailPartial", order);
     }
 
 
     [HttpPost]
+    [ValidateAntiForgeryToken]  
     public async Task<IActionResult> Cancel(int id)
     {
         var response = await _client.DeleteAsync($"customerOrders/{id}");
 
         if (response.StatusCode == HttpStatusCode.Forbidden)
-        {
-            TempData["ErrorMessage"] = "Bu siparişi iptal etme yetkiniz yok.";
-        }
-        else if (!response.IsSuccessStatusCode)
-        {
-            TempData["ErrorMessage"] = "Sipariş iptal edilemedi.";
-        }
-        else
-        {
-            TempData["SuccessMessage"] = "Sipariş başarıyla iptal edildi.";
-        }
+            return BadRequest("Bu siparişi iptal etme yetkiniz yok.");
 
-        return RedirectToAction(nameof(Index));
+        if (!response.IsSuccessStatusCode)
+            return BadRequest("Sipariş iptal edilemedi.");
+
+        return Ok();
     }
 
+
     [HttpPost]
-    [AllowAnonymous] // Giriş yapmamış da olsa kontrol içeride yapılır
+    [ValidateAntiForgeryToken]
+    [AllowAnonymous]
     public async Task<IActionResult> AddToCart(AddToOrderDto dto)
     {
         // Kullanıcı giriş yapmamışsa
@@ -144,8 +130,15 @@ public class OrderController : Controller
             return RedirectToAction("Index");
 
         var pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync();
-        return File(pdfBytes, "application/pdf", $"Invoice_{orderId}.pdf");
+
+        var contentDisposition = pdfResponse.Content.Headers.ContentDisposition;
+        string fileName = contentDisposition?.FileNameStar ?? contentDisposition?.FileName;
+
+        fileName = fileName?.Trim('"');
+
+        return File(pdfBytes, "application/pdf", fileName);
     }
+
 
 
 

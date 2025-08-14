@@ -104,10 +104,6 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 ViewBag.products = new List<SelectListItem>();
             }
         }
-
-
-
-
         public async Task<IActionResult> Index()
         {
             var result = await _client.GetFromJsonAsync<List<ResultStockOperationDto>>("stocks/active");
@@ -134,6 +130,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateStockOperation(CreateStockOperationDto dto)
         {
             var validator = new CreateStockOperationValidator();

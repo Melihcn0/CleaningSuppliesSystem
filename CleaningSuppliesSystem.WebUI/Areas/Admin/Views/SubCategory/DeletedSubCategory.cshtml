@@ -16,9 +16,10 @@
 }
 
 <div class="card basic-data-table">
+    @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Silinen Alt Kategoriler Listesi</h5>
-        <div class="d-flex align-items-center gap-2 ms-auto">
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
             <button id="undosoftdeleteSelectedBtn" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2" disabled>
                 <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Geri Al
             </button>
@@ -28,7 +29,7 @@
         </div>
     </div>
     <div class="card-body">
-        @Html.AntiForgeryToken()
+        <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
@@ -69,22 +70,25 @@
                             @item.DeletedDate?.ToString("dd.MM.yyyy HH:mm") <br />
                             @item.DeletedDate?.ToString("dd MMMM yyyy dddd")
                         </td>
-                        <td>
-                            <form asp-action="UndoSoftDeletedSubCategory" asp-controller="SubCategory" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
-                                    <span class="material-symbols-outlined">undo</span> Geri al
-                                </button>
-                            </form>
-                            <button type="button"
-                                    class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn permanent-delete-btn"
-                                    data-id="@item.Id">
-                                <span class="material-symbols-outlined me-1">delete</span> Sil
-                            </button>
-                        </td>
+                            <td>
+                                <div class="d-flex flex-nowrap gap-2">
+                                    <form asp-action="UndoSoftDeletedSubCategory" asp-controller="SubCategory" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-success-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
+                                            <span class="material-symbols-outlined">undo</span> Geri al
+                                        </button>
+                                    </form>
+                                    <button type="button"
+                                            class="btn btn-outline-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn permanent-delete-btn"
+                                            data-id="@item.Id">
+                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                    </button>
+                                </div>
+                            </td>
                     </tr>
                 }
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 

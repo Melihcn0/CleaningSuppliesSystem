@@ -15,7 +15,8 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
         Task AddToPendingOrderAsync(int userId, int productId, int quantity);
         Task<List<Order>> GetOrdersWithItemsAsync();
         Task<List<Order>> GetOrdersWithItemsByUserIdAsync(int userId);
-        Task<List<Order>> GetCompletedAndCancelledOrdersAsync();
+        Task<List<Order>> GetCompletedOrdersAsync();
+        Task<List<Order>> GetCancelledOrdersAsync();
         Task<Order> UpdateStatusAsync(int orderId, string status);
 
 

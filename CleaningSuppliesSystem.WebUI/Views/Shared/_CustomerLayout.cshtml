@@ -98,7 +98,7 @@
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <div class="dropdown">
                             <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
-                                <img src="~/wowdash-admin/assets/images/user.png" alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                                <span class="material-symbols-outlined fs-2 text-dark">account_circle</span>
                             </button>
                             <div class="dropdown-menu to-top dropdown-menu-sm">
                                 <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
@@ -134,7 +134,7 @@
                 <div class="d-flex align-items-center gap-2">
                     @if (ViewBag.ShowBackButton == true)
                     {
-                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+                        <a asp-action="Index" class="btn btn-info-600 btn-sm d-flex align-items-center gap-1">
                             <span class="material-symbols-outlined">arrow_left</span>
                         </a>
                     }
@@ -148,10 +148,10 @@
         <footer class="d-footer">
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
-                    <p class="mb-0">© 2024 WowDash. All Rights Reserved.</p>
+                    <p class="mb-0">© 2025 KySolutions. Tüm Hakları Saklıdır.</p>
                 </div>
                 <div class="col-auto">
-                    <p class="mb-0">Made by <span class="text-primary-600">wowtheme7</span></p>
+                    <p class="mb-0">KySolutions Tarafından Geliştirildi</p>
                 </div>
             </div>
         </footer>
@@ -252,6 +252,7 @@
 <script>
     $(document).ready(function () {
         $('#dataTable').DataTable({
+            responsive: true,
             language: {
                 url: '/wowdash-admin/assets/js/dataTable-tr.json'
             },
@@ -266,6 +267,9 @@
 @* Tema (dark/light) değişimini yönet *@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // Sayfa her yüklendiğinde temayı 'light' olarak ayarla
+        document.documentElement.setAttribute("data-theme", "light");
+
         const updateThemeElements = () => {
             const theme = document.documentElement.getAttribute("data-theme") || "light";
 
@@ -286,7 +290,7 @@
         // Sayfa ilk yüklemede uygula
         updateThemeElements();
 
-        // Tema değişikliği dinle
+        // Tema değişikliği dinle (Bu kısım isteğe bağlıdır, sadece tema değiştirme butonu varsa gereklidir)
         const observer = new MutationObserver(() => updateThemeElements());
         observer.observe(document.documentElement, {
             attributes: true,
@@ -294,7 +298,7 @@
         });
     });
 
-        window.getSwalClass = function() {
+    window.getSwalClass = function() {
         const theme = document.documentElement.getAttribute("data-theme") || "light";
         return theme === "dark" ? "swal-dark" : "swal-light";
     };

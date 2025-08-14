@@ -5,6 +5,7 @@
 }
 
 <form method="post">
+    @Html.AntiForgeryToken()
     <label>Finans Adı</label>
     <input type="text" asp-for="Title" class="form-control" />
     <span asp-validation-for="Title" class="text-danger"></span>
@@ -21,5 +22,5 @@
     <input type="text" asp-for="Amount" class="form-control" />
     <span asp-validation-for="Amount" class="text-danger"></span>
     <br />
-    <button class="btn btn-outline-primary">Kaydet</button>
+    <button class="btn btn-primary-600">Kaydet</button>
 </form>

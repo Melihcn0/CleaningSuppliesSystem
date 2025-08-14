@@ -6,6 +6,7 @@
 }
 
 <form id="updateSecondaryBannerForm" method="post" asp-action="UpdateSecondaryBanner" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="ImageUrl1" />
     <input type="hidden" asp-for="ImageUrl2" />

@@ -16,7 +16,8 @@ namespace CleaningSuppliesSystem.Business.Abstract
         Task TAddToPendingOrderAsync(int userId, int productId, int quantity);
         Task<List<ResultOrderDto>> TGetOrdersWithItemsAsync();
         Task<List<ResultOrderDto>> TGetOrdersWithItemsByUserIdAsync(int userId);
-        Task<List<Order>> TGetCompletedAndCancelledOrdersAsync();
+        Task<List<Order>> TGetCompletedOrdersAsync();
+        Task<List<Order>> TGetCancelledOrdersAsync();
         Task<OrderStatusUpdateDto> UpdateStatusAsync(int orderId, string status);
 
     }

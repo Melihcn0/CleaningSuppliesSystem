@@ -8,11 +8,10 @@
 <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
 <form id="updateCategoryForm" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="ImageUrl" />
     <input type="hidden" name="existingImageUrl" value="@ViewBag.ExistingImageUrl" />
-
-
 
     <!-- Üst Kategori -->
     <div class="form-group">

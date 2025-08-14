@@ -7,6 +7,7 @@
 <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
 <form asp-action="CreateProduct" method="post" enctype="multipart/form-data" style="margin: 0; padding: 0;">
+    @Html.AntiForgeryToken()
     <div class="container-fluid p-0" style="width: 100vw;">
         <div class="col-md-10">
             <div class="row">
@@ -30,6 +31,12 @@
                         <label for="UnitPrice">Birim Fiyat</label>
                         <input asp-for="UnitPrice" class="form-control" />
                         <span asp-validation-for="UnitPrice" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="VatRate">KDV Oranı </label>
+                        <input asp-for="VatRate" class="form-control" />
+                        <span asp-validation-for="VatRate" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">

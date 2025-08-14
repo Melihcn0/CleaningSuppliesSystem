@@ -719,3 +719,11 @@ a.btn-link.text-light:after {
     }
 }
 
+@media (max-width: 991.98px) {
+    .banner-section {
+        height: auto; /* Mobil cihazlarda yüksekliði içeriðe göre ayarlar */
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+   }
+

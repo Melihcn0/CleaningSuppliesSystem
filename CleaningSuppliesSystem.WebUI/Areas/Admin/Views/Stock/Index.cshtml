@@ -5,18 +5,17 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     int count = 0;
 }
-
 <div class="card basic-data-table">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Stok Listesi</h5>
-        <div class="d-flex align-items-center gap-2 ms-auto">
-            <a asp-action="CreateStockOperation" asp-controller="Stock" asp-area="Admin" class="btn btn-outline-info-600 btn-sm d-inline-flex align-items-center">
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
+            <a asp-action="CreateStockOperation" asp-controller="Stock" asp-area="Admin" class="btn rounded-pill btn-info-50 text-info-600 btn-sm d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1">add</span> Stok Yönetimi
             </a>
         </div>
     </div>
-
     <div class="card-body">
+        <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
@@ -71,6 +70,7 @@
                 }
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 

@@ -2,6 +2,17 @@
 @{
     Layout = null;
 }
+@{
+    var token = Context.Request.Cookies["AccessToken"];
+    var isTokenValid = false;
+
+    if (!string.IsNullOrEmpty(token))
+    {
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+        isTokenValid = jwt.ValidTo > DateTime.UtcNow;
+    }
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -257,8 +268,7 @@
                                 Ürünler
                             </a>
                         </li>
-
-                        @if (!User.Identity.IsAuthenticated)
+                        @if (!User.Identity.IsAuthenticated || !isTokenValid)
                         {
                             <li class="nav-item">
                                 <a href="/Login/SignIn" class="nav-link px-1 custom-nav-link">
@@ -266,24 +276,21 @@
                                 </a>
                             </li>
                         }
-                        else
+                        else if (User.IsInRole("Admin"))
                         {
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a href="/Admin/TopCategory/Index" class="nav-link px-1 custom-nav-link">
-                                        Yönetim Paneli
-                                    </a>
-                                </li>
-                            }
-                            else if (User.IsInRole("Customer"))
-                            {
-                                <li class="nav-item">
-                                    <a href="/Customer/Order/Index" class="nav-link px-1 custom-nav-link">
-                                        Müşteri Paneli
-                                    </a>
-                                </li>
-                            }
+                            <li class="nav-item">
+                                <a href="/Admin/TopCategory/Index" class="nav-link px-1 custom-nav-link">
+                                    Yönetim Paneli
+                                </a>
+                            </li>
+                        }
+                        else if (User.IsInRole("Customer"))
+                        {
+                            <li class="nav-item">
+                                <a href="/Customer/Order/Index" class="nav-link px-1 custom-nav-link">
+                                    Müşteri Paneli
+                                </a>
+                            </li>
                         }
 
                     </ul>
@@ -391,21 +398,18 @@
                     <div class="footer-menu">
                         <h5 class="widget-title">Mail Bülteni</h5>
                         <p>Kampanyalardan ilk siz haberdar olmak için mail bültenimize abone olun</p>
-                        <form class="d-flex mt-3 gap-0" action="index.html">
-                            <input class="form-control rounded-start rounded-0 bg-light" type="email" placeholder="Email Address" aria-label="Mail Adresi">
-                            <button class="btn btn-dark rounded-end rounded-0" type="submit">Abone Ol</button>
-                        </form>
+                        <a href="/Login/SignIn" class="btn btn-dark mt-3">Abone Ol</a>
                     </div>
                 </div>
 
             </div>
         </div>
     </footer>
-    <div id="footer-bottom">
+    <div id="footer-bottom mt-5">
         <div class="container-lg">
             <div class="row">
                 <div class="col-md-6 copyright">
-                    <p>© 2025 KayaTech tüm hakları saklıdır.</p>
+                    <p>© 2025 KySolutions tüm hakları saklıdır.</p>
                 </div>
             </div>
         </div>

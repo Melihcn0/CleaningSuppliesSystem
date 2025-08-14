@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\images\ess_star_logo_dark.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.18" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.17" />
@@ -20,6 +24,10 @@
   <ItemGroup>
     <ProjectReference Include="..\CleaningSuppliesSystem.Business\CleaningSuppliesSystem.Business.csproj" />
     <ProjectReference Include="..\CleaningSuppliesSystem.DTO\CleaningSuppliesSystem.DTO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\ess_star_logo_dark.png" />
   </ItemGroup>
 
 </Project>

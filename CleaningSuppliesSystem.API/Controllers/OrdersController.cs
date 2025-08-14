@@ -27,11 +27,18 @@ namespace CleaningSuppliesSystem.API.Controllers
             var orders = _mapper.Map<List<ResultOrderDto>>(values);
             return Ok(orders);
         }
-        // Teslim Edilen ve İptal Edilen siparişleri getir
-        [HttpGet("completed-cancelled")]
-        public async Task<ActionResult<List<ResultOrderDto>>> GetCompletedAndCancelledOrders()
+        [HttpGet("completed")]
+        public async Task<ActionResult<List<ResultOrderDto>>> GetCompletedOrders()
         {
-            var values = await _orderService.TGetCompletedAndCancelledOrdersAsync();
+            var values = await _orderService.TGetCompletedOrdersAsync();
+            var orders = _mapper.Map<List<ResultOrderDto>>(values);
+            return Ok(orders);
+        }
+
+        [HttpGet("cancelled")]
+        public async Task<ActionResult<List<ResultOrderDto>>> GetCancelledOrders()
+        {
+            var values = await _orderService.TGetCancelledOrdersAsync();
             var orders = _mapper.Map<List<ResultOrderDto>>(values);
             return Ok(orders);
         }

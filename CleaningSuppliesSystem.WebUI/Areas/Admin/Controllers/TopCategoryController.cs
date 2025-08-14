@@ -34,6 +34,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateTopCategory(CreateTopCategoryDto dto)
     {
         var validator = new CreateTopCategoryValidator();
@@ -69,6 +70,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateTopCategory(UpdateTopCategoryDto dto)
     {
         var validator = new UpdateTopCategoryValidator();
@@ -97,6 +99,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SoftDeletedTopCategory(int id)
     {
         var response = await _client.PostAsync($"TopCategories/softdelete/{id}", null);
@@ -109,6 +112,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UndoSoftDeletedTopCategory(int id)
     {
         var response = await _client.PostAsync($"TopCategories/undosoftdelete/{id}", null);
@@ -117,6 +121,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PermanentDeleteTopCategory(int id)
     {
         var response = await _client.DeleteAsync($"topCategories/permanent/{id}");
@@ -130,6 +135,7 @@ public class TopCategoryController : Controller
 
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
@@ -147,6 +153,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
@@ -164,6 +171,7 @@ public class TopCategoryController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())

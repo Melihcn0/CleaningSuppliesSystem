@@ -5,6 +5,7 @@
 }
 
 <form method="post">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label for="ServiceIconId">Hizmet İkonu</label>
         <select id="ServiceIconId" name="ServiceIconId" asp-items="ViewBag.serviceIcons" class="form-control">

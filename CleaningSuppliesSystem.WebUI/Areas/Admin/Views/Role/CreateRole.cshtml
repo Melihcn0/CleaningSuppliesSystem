@@ -5,6 +5,7 @@
 }
 
 <form method="post">
+    @Html.AntiForgeryToken()
     <label>Rol Seçimi</label>
     <select asp-for="Name" class="form-control">
         <option value="" disabled selected>-- Rol Seçiniz --</option>
@@ -24,5 +25,5 @@
     </select>
     <span asp-validation-for="Name" class="text-danger"></span>
     <br />
-    <button class="btn btn-outline-primary-600">Kaydet</button>
+    <button class="btn btn-primary-600">Kaydet</button>
 </form>

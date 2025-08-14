@@ -52,7 +52,7 @@
             <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
         </button>
         <div>
-            <a href="index.html" class="sidebar-logo">
+            <a href="#" class="sidebar-logo">
                 <img src="~/images/ess_star_yatay_logo_dark1.png" alt="site logo" class="light-logo">
                 <img src="~/images/ess_star_yatay_logo_light1.png" alt="site logo" class="dark-logo">
                 <img id="theme-logo" src="~/images/ess_star_logo_light.png" alt="site logo" class="logo-icon ">
@@ -64,13 +64,13 @@
                 <li>
                     <a asp-area="" asp-controller="Home" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">arrow_menu_close</span>
-                        <span>Ana Sayfaya Dön</span>
+                        <span class="menu-text">Ana Sayfaya Dön</span>
                     </a>
                 </li>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <span class="material-symbols-outlined menu-icon">splitscreen_portrait</span>
-                        <span>Kategori İşlemleri</span>
+                        <span class="menu-text">Kategori İşlemleri</span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
@@ -96,49 +96,49 @@
                 <li>
                     <a asp-area="Admin" asp-controller="Brand" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">fiber_new</span>
-                        <span>Markalar</span>
+                        <span class="menu-text">Markalar</span>
                     </a>
                 </li>
                 <li>
                     <a asp-area="Admin" asp-controller="Product" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">box</span>
-                        <span>Ürünler</span>
+                        <span class="menu-text">Ürünler</span>
                     </a>
                 </li>
                 <li>
                     <a asp-area="Admin" asp-controller="Finance" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">finance</span>
-                        <span>Finans</span>
+                        <span class="menu-text">Finans</span>
                     </a>
                 </li>
                 <li>
                     <a asp-area="Admin" asp-controller="Stock" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">shelves</span>
-                        <span>Stok</span>
+                        <span class="menu-text">Stok</span>
                     </a>
                 </li>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <span class="material-symbols-outlined menu-icon">settings_account_box</span>
-                        <span>Kullanıcı İşlemleri</span>
+                        <span class="menu-text">Kullanıcı İşlemleri</span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
                             <a asp-area="Admin" asp-controller="RoleAssign" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span>Kullanıcı Listesi</span>
+                                <span class="menu-text">Kullanıcı Listesi</span>
                             </a>
                         </li>
                         <li>
                             <a asp-area="Admin" asp-controller="RoleAssign" asp-action="RolesIndex">
                                 <span class="material-symbols-outlined menu-icon">manage_accounts</span>
-                                <span>Rol Atama</span>
+                                <span class="menu-text">Rol Atama</span>
                             </a>
                         </li>
                         <li>
                             <a asp-area="Admin" asp-controller="Role" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span>Rol Listesi</span>
+                                <span class="menu-text">Rol Listesi</span>
                             </a>
                         </li>
                     </ul>
@@ -146,25 +146,25 @@
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <span class="material-symbols-outlined menu-icon">person_celebrate</span>
-                        <span>Ana Sayfa Ayarları</span>
+                        <span class="menu-text">Ana Sayfa Ayarları</span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
                             <a asp-area="Admin" asp-controller="Banner" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span>Banner Alanı</span>
+                                <span class="menu-text">Banner Alanı</span>
                             </a>
                         </li>
                         <li>
                             <a asp-area="Admin" asp-controller="SecondaryBanner" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span>İkincil Banner Alanı</span>
+                                <span class="menu-text">İkincil Banner Alanı</span>
                             </a>
                         </li>
                         <li>
                             <a asp-area="Admin" asp-controller="Service" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">linked_services</span>
-                                <span>Hizmetler Alanı</span>
+                                <span class="menu-text">Hizmetler Alanı</span>
                             </a>
                         </li>
                     </ul>
@@ -172,25 +172,31 @@
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <span class="material-symbols-outlined menu-icon">orders</span>
-                        <span>Sipariş İşlemleri</span>
+                        <span class="menu-text">Sipariş İşlemleri</span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li>
-                            <a asp-area="Admin" asp-controller="Order" asp-action="Index"> <!-- Siparişin durumunu değiştirebilelim o ayarı ekle radio button tarzı durum seçip ilgili alana o durumu atasın -->
+                            <a asp-area="Admin" asp-controller="Order" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">order_play</span>
-                                <span>Gelen Siparişler</span>
+                                <span class="menu-text">Gelen Siparişler</span>
                             </a>
                         </li>
                         <li>
-                            <a asp-area="Admin" asp-controller="Order" asp-action="CompletedAndCancelledOrders">
-                                <span class="material-symbols-outlined menu-icon">order_approve</span>
-                                <span>Teslim / İptal Siparişler</span>
+                            <a asp-area="Admin" asp-controller="Order" asp-action="CompletedOrders">
+                                <span class="material-symbols-outlined menu-icon">approval_delegation</span>
+                                <span class="menu-text">Teslim Edilen Siparişler</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Order" asp-action="CancelledOrders">
+                                <span class="material-symbols-outlined menu-icon">approval_delegation_off</span>
+                                <span class="menu-text">İptal Edilen Siparişler</span>
                             </a>
                         </li>
                         <li>
                             <a asp-area="Admin" asp-controller="Order" asp-action="Index"><!--  Sipariş sorgulama ekranı olcak ad soyad sipariş nosuna göre veya fatura nosuna göre olcak-->
                                 <span class="material-symbols-outlined menu-icon">receipt</span>
-                                <span>Sipariş Sorgula</span>
+                                <span class="menu-text">Sipariş Sorgula</span>
                             </a>
                         </li>
                     </ul>
@@ -451,7 +457,7 @@
                 <div class="d-flex align-items-center gap-2">
                     @if (ViewBag.ShowBackButton == true)
                     {
-                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+                        <a asp-action="Index" class="btn btn-neutral-600 px-1 py-1 mb-1 d-flex align-items-center gap-1">
                             <span class="material-symbols-outlined">arrow_left</span>
                         </a>
                     }
@@ -465,10 +471,10 @@
         <footer class="d-footer">
             <div class="row align-items-center justify-content-between">
                 <div class="col-auto">
-                    <p class="mb-0">© 2024 WowDash. All Rights Reserved.</p>
+                    <p class="mb-0">© 2025 KySolutions. Tüm Hakları Saklıdır.</p>
                 </div>
                 <div class="col-auto">
-                    <p class="mb-0">Made by <span class="text-primary-600">wowtheme7</span></p>
+                    <p class="mb-0">KySolutions Tarafından Geliştirildi</p>
                 </div>
             </div>
         </footer>
@@ -547,8 +553,6 @@
     <script src="~/wowdash-admin/assets/js/Global-UndoSoftDeleteMultiple.js"></script>
     <script src="~/wowdash-admin/assets/js/Global-PermanentDeleteMultiple.js"></script>
     <script src="~/wowdash-admin/assets/js/Global-PermanentDelete.js"></script>
-
-
 
     @RenderSection("Scripts", required: false)
 
@@ -640,6 +644,7 @@
 <script>
     $(document).ready(function () {
         $('#dataTable').DataTable({
+            responsive: true,
             language: {
                 url: '/wowdash-admin/assets/js/dataTable-tr.json'
             },

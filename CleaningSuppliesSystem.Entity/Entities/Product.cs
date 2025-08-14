@@ -22,6 +22,7 @@ namespace CleaningSuppliesSystem.Entity.Entities
             public bool IsShown { get; set; }
             public int BrandId { get; set; }
             public Brand Brand { get; set; }
+            public decimal VatRate { get; set; }
 
-        }
+    }
 }

@@ -16,6 +16,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ProductDtos
         public string Name { get; set; }
         public decimal UnitPrice { get; set; }
         public int BrandId { get; set; }
+        public decimal VatRate { get; set; }
 
     }
 }

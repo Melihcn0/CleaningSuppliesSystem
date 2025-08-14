@@ -96,9 +96,13 @@ public class InvoicesController : ControllerBase
         }
 
         var pdfBytes = await _invoiceService.TGenerateInvoicePdfAsync(invoice.OrderId);
-        return File(pdfBytes, "application/pdf", $"Invoice_{invoice.Id}.pdf");
-    }
+        // Kullanıcı adı ve soyadını dosya adına ekle
+        var firstName = invoice.Order?.AppUser?.FirstName;
+        var lastName = invoice.Order?.AppUser?.LastName;
+        var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
 
+        return File(pdfBytes, "application/pdf", safeFileName);
+    }
     [HttpGet("byorder/{orderId}")]
     [Authorize(Roles = "Admin,Customer")]
     public async Task<IActionResult> GetPdfByOrderId(int orderId)
@@ -119,7 +123,13 @@ public class InvoicesController : ControllerBase
         }
 
         var pdfBytes = await _invoiceService.TGenerateInvoicePdfAsync(invoice.OrderId);
-        return File(pdfBytes, "application/pdf", $"Invoice_{invoice.Id}.pdf");
+        var firstName = invoice.Order?.AppUser?.FirstName ?? "Unknown";
+        var lastName = invoice.Order?.AppUser?.LastName ?? "User";
+
+        var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
+
+        // File() metodu zaten Content-Disposition header'ını ayarlıyor, elle eklemeye gerek yok
+        return File(pdfBytes, "application/pdf", safeFileName);
     }
 
 

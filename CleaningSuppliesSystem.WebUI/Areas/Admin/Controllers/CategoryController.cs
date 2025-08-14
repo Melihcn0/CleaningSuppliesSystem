@@ -29,8 +29,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
             _env = env;
         }
-
-
         private async Task LoadDropdownsAsync(int? topCategoryId = null, int? subCategoryId = null)
         {
             var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active");
@@ -103,6 +101,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDto dto)
         {
             var validator = new CreateCategoryValidator();
@@ -151,7 +150,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return View(dto);
         }
 
-
         public async Task<string> SaveImageAsWebPAsync(IFormFile imageFile)
         {
             var uploadsFolder = Path.Combine(_env.WebRootPath, "images", "categories");
@@ -188,7 +186,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return "/images/categories/" + fileName;
         }
 
-    public async Task<IActionResult> UpdateCategory(int id)
+        public async Task<IActionResult> UpdateCategory(int id)
         {
             ViewBag.ShowBackButton = true;
 
@@ -209,6 +207,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCategory(UpdateCategoryDto dto, string existingImageUrl)
         {
             var validator = new UpdateCategoryValidator();
@@ -290,10 +289,10 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             ViewBag.ExistingImageUrl = dto.ImageUrl;
             await LoadDropdownsAsync(dto.TopCategoryId, dto.SubCategoryId);
             return View(dto);
-        }
-    
+        }    
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedCategory(int id)
         {
             var response = await _client.PostAsync($"Categories/softdelete/{id}", null);
@@ -306,6 +305,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedCategory(int id)
         {
             var response = await _client.PostAsync($"Categories/undosoftdelete/{id}", null);
@@ -313,8 +313,8 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return RedirectToAction(nameof(DeletedCategory));
         }
 
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteCategory(int id)
         {
             // Kategori bilgilerini al
@@ -347,6 +347,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -364,6 +365,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
@@ -381,6 +383,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())

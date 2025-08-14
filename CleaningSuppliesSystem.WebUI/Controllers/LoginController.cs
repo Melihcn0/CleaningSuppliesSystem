@@ -28,6 +28,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> SignIn(UserLoginDto userLoginDto)
         {
@@ -46,100 +47,106 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
 
             var responseMessage = await _client.PostAsJsonAsync("Users/login", userLoginDto);
 
-            if (responseMessage.IsSuccessStatusCode)
+            if (!responseMessage.IsSuccessStatusCode)
             {
-                var response = await responseMessage.Content.ReadFromJsonAsync<LoginResponseDto>();
-
-                if (!string.IsNullOrEmpty(response?.Token?.Token?.Token))
+                var errorResponse = await responseMessage.Content.ReadFromJsonAsync<List<TokenDetailDto>>();
+                if (errorResponse != null && errorResponse.Any())
                 {
-                    string jwtToken = response.Token.Token.Token;
-                    DateTime expireDate = response.Token.Token.ExpireDate;
+                    var actualErrors = errorResponse
+                        .Where(e => !string.Equals(e.Code?.Trim(), "RemainingAttempts", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
 
-                    var handler = new JwtSecurityTokenHandler();
-                    var token = handler.ReadJwtToken(jwtToken);
+                    ViewBag.HataSayisi = actualErrors.Count;
 
-                    var claims = token.Claims.ToList();
-                    claims.Add(new Claim("Token", jwtToken));
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProps = new AuthenticationProperties
+                    foreach (var error in actualErrors)
                     {
-                        ExpiresUtc = expireDate,
-                        IsPersistent = true
-                    };
+                        var key = error.Code?.Trim() switch
+                        {
+                            "AccountStatus" or "Identifier" or "AccountLockout" => "Identifier",
+                            "Password" => "Password",
+                            _ => error.Code ?? ""
+                        };
 
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProps);
-
-                    // ---- Session'a kullanıcı adı ve rol ekleme ----
-                    HttpContext.Session.SetString("Identifier", userLoginDto.Identifier);
-
-                    var roleClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role");
-                    if (roleClaim != null)
-                    {
-                        HttpContext.Session.SetString("UserRole", roleClaim.Value);
+                        ModelState.AddModelError(key, error.Description ?? "Giriş işlemi başarısız.");
                     }
-                    // ----------------------------------------------
 
-                    var userRole = roleClaim?.Value;
+                    var remainingError = errorResponse
+                        .FirstOrDefault(e => string.Equals(e.Code?.Trim(), "RemainingAttempts", StringComparison.OrdinalIgnoreCase));
 
-                    return userRole switch
+                    if (remainingError != null && !string.IsNullOrWhiteSpace(remainingError.Description))
                     {
-                        "Admin" => RedirectToAction("Index", "SecondaryBanner", new { area = "Admin" }),
-                        "Customer" => RedirectToAction("Index", "Home"),
-                        _ => RedirectToAction("AccessDenied", "Auth")
-                    };
+                        const int maxAttempts = 10;
+
+                        if (int.TryParse(remainingError.Description.Trim(), out int remaining))
+                        {
+                            int used = maxAttempts - remaining;
+                            ViewBag.RemainingAttempts = remaining;
+                            ViewBag.RemainingAttemptsMessage = $"Toplam {maxAttempts} denemeden {used} tanesi kullanıldı. Kalan: {remaining}";
+                        }
+                        else
+                        {
+                            ViewBag.RemainingAttemptsMessage = remainingError.Description;
+                        }
+                    }
                 }
 
+                return View(userLoginDto);
+            }
+
+            var response = await responseMessage.Content.ReadFromJsonAsync<LoginResponseDto>();
+            var jwtToken = response?.Token?.Token?.Token;
+            var expireDate = response?.Token?.Token?.ExpireDate;
+
+            if (string.IsNullOrEmpty(jwtToken) || expireDate == null)
+            {
                 ModelState.AddModelError("", "Token alınamadı.");
                 return View(userLoginDto);
             }
 
-            // Hata yönetimi (senin mevcut kodun)
-            var errorResponse = await responseMessage.Content.ReadFromJsonAsync<List<TokenDetailDto>>();
-            if (errorResponse != null && errorResponse.Any())
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwtToken);
+
+            // 🔍 Token içindeki claim’leri al
+            var name = token.Claims.FirstOrDefault(c => c.Type == "name" || c.Type == ClaimTypes.Name)?.Value ?? userLoginDto.Identifier;
+            var role = token.Claims.FirstOrDefault(c => c.Type == "role" || c.Type == ClaimTypes.Role)?.Value ?? "Customer";
+
+            // 🔐 Identifier sabit olarak DTO'dan alınıyor
+            var identifier = userLoginDto.Identifier;
+
+            // ✅ ClaimsPrincipal oluştur
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, name),
+        new Claim(ClaimTypes.Role, role),
+        new Claim(ClaimTypes.NameIdentifier, identifier),
+        new Claim("Identifier", identifier) // 🔥 Middleware için garanti
+    };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProps = new AuthenticationProperties
             {
-                var actualErrors = errorResponse
-                    .Where(e => !string.Equals(e.Code?.Trim(), "RemainingAttempts", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                ExpiresUtc = expireDate,
+                IsPersistent = true
+            };
 
-                ViewBag.HataSayisi = actualErrors.Count;
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProps);
 
-                foreach (var error in actualErrors)
-                {
-                    var key = error.Code?.Trim() switch
-                    {
-                        "AccountStatus" or "Identifier" or "AccountLockout" => "Identifier",
-                        "Password" => "Password",
-                        _ => error.Code ?? ""
-                    };
+            // 🔐 Token'ı HttpOnly cookie olarak sakla (TokenHandler için garanti)
+            Response.Cookies.Append("AccessToken", jwtToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                Expires = expireDate
+            });
 
-                    ModelState.AddModelError(key, error.Description ?? "Giriş işlemi başarısız.");
-                }
-
-                var remainingError = errorResponse
-                    .FirstOrDefault(e => string.Equals(e.Code?.Trim(), "RemainingAttempts", StringComparison.OrdinalIgnoreCase));
-
-                if (remainingError != null && !string.IsNullOrWhiteSpace(remainingError.Description))
-                {
-                    const int maxAttempts = 10;
-
-                    if (int.TryParse(remainingError.Description.Trim(), out int remaining))
-                    {
-                        int used = maxAttempts - remaining;
-                        ViewBag.RemainingAttempts = remaining;
-                        ViewBag.RemainingAttemptsMessage = $"Toplam {maxAttempts} denemeden {used} tanesi kullanıldı. Kalan: {remaining}";
-                    }
-                    else
-                    {
-                        ViewBag.RemainingAttemptsMessage = remainingError.Description;
-                    }
-                }
-            }
-
-            return View(userLoginDto);
+            // 🔁 Role’a göre yönlendirme
+            return role switch
+            {
+                "Admin" => RedirectToAction("Index", "SecondaryBanner", new { area = "Admin" }),
+                "Customer" => RedirectToAction("Index", "Home"),
+                _ => RedirectToAction("AccessDenied", "Auth")
+            };
         }
-
-
 
 
         public async Task<IActionResult> Logout()

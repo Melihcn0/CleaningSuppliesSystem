@@ -49,10 +49,26 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 .Include(o => o.Invoice)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
-        public async Task<List<Order>> GetCompletedAndCancelledOrdersAsync()
+        public async Task<List<Order>> GetCompletedOrdersAsync()
         {
             return await _cleaningSuppliesContext.Orders
-                .Where(o => o.Status == "Teslim Edildi" || o.Status == "İptal Edildi")
+                .Where(o => o.Status == "Teslim Edildi")
+                .Include(o => o.AppUser)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.Brand)
+                            .ThenInclude(b => b.Category)
+                                .ThenInclude(c => c.SubCategory)
+                                    .ThenInclude(sc => sc.TopCategory)
+                .Include(o => o.Invoice)
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Order>> GetCancelledOrdersAsync()
+        {
+            return await _cleaningSuppliesContext.Orders
+                .Where(o => o.Status == "İptal Edildi")
                 .Include(o => o.AppUser)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)

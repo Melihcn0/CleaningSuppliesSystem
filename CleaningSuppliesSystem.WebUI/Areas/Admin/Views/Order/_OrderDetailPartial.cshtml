@@ -57,7 +57,7 @@
     }
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+    <button type="button" class="btn btn-neutral-600" data-bs-dismiss="modal">Kapat</button>
 </div>
 
 @functions {
@@ -66,11 +66,11 @@
         return status switch
         {
             "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
-            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
             "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
-            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-info-gradient px-20 py-9 radius-4 text-white",
-            "Onay Bekliyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-            "Onaylandı" => "badge text-sm fw-semibold bg-dark-lilac-gradient px-20 py-9 radius-4 text-white",
+            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+            "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+            "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
             _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
         };
     }

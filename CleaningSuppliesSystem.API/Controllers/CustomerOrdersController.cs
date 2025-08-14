@@ -97,6 +97,11 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (userIdClaim == null || order.AppUserId != int.Parse(userIdClaim.Value))
                 return Forbid();
 
+            if (order.Status == "Onaylandı")
+            {
+                return BadRequest("Onaylanmış siparişler iptal edilemez.");
+            }
+
             order.Status = "İptal Edildi";
             await _orderService.TUpdateAsync(order);
 

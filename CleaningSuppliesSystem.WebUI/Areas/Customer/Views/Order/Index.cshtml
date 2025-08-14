@@ -5,64 +5,93 @@
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
 }
 
+<div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3">
+    <h6 class="text-dark mb-2" style="font-size: 1rem;">Ödeme Talimatları</h6>
+    <ul class="mb-2 ps-3" style="list-style-type: disc; font-size: 0.9rem;">
+        <li>Toplam tutarı aşağıdaki IBAN'a havale edin.</li>
+        <li>Açıklama kısmına <strong>Sipariş Numaranızı</strong> yazın.</li>
+        <li>Ödeme yapıldığında siparişiniz işleme alınacaktır.</li>
+    </ul>
+    <div class="mt-2" style="font-size: 0.9rem;">
+        <strong>Alıcı:</strong> Zülküf Aktaş<br>
+        <strong>IBAN:</strong> TR12 3456 7890 1234 5678 9012 34<br>
+        <strong>Açıklama:</strong> [Sipariş Numarası]
+    </div>
+    <strong><small class="text-muted d-block mt-2" style="font-size: 0.8rem;">
+            Not: Havale tamamlanmadan sipariş işleme alınmaz.
+        </small>
+    </strong>
+</div>
+
 <div class="card basic-data-table">
+    @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Sipariş Listesi</h5>
     </div>
     <div class="card-body">
         @if (Model != null && Model.Any())
         {
-            <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Sipariş No</th>
-                        <th>Sipariş Tarihi</th>
-                        <th>Sipariş Durumu</th>
-                        <th>Detay</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.Count; i++)
-                    {
-                        var order = Model[i];
-                        var statusClass = order.Status switch
-                        {
-                            "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
-                            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
-                            "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
-                            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-info-gradient px-20 py-9 radius-4 text-white",
-                            "Onay Bekliyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-                            "Onaylandı" => "badge text-sm fw-semibold bg-dark-lilac-gradient px-20 py-9 radius-4 text-white",
-                            _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
-                        };
-
+            <div class="table-responsive" style="overflow-y: hidden;">
+                <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                    <thead class="table-light">
                         <tr>
-                            <td>@(i + 1)</td>
-                            <td><strong>#@order.OrderNumber</strong></td>
-                            <td>
-                                @order.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                                @order.CreatedDate.ToString("dd MMMM yyyy dddd")
-                            </td>
-                            <td>
-                                <span class="@statusClass">@order.Status</span>
-                            </td>
-                            <td>
-                                <a href="#" class="btn btn-outline-info-600 radius-8 d-inline-flex align-items-center me-2 js-show-order-detail" data-order-id="@order.Id">
-                                    <span class="material-symbols-outlined">read_more</span> Detay
-                                </a>
-                                @if (order.Status != "Onay Bekleniyor" && order.Status != "Onaylandı")
-                                {
-                                    <a href="@Url.Action("DownloadInvoice", "Order", new { orderId = order.Id })" class="btn btn-primary">
-                                        Faturayı İndir
-                                    </a>
-                                }
-                            </td>
+                            <th>#</th>
+                            <th>Sipariş No</th>
+                            <th>Sipariş Tarihi</th>
+                            <th>Sipariş Durumu</th>
+                            <th>Detay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var order = Model[i];
+                            var statusClass = order.Status switch
+                            {
+                                "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
+                                "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
+                                "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+                                "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
+                            };
+
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td><strong>#@order.OrderNumber</strong></td>
+                                <td>
+                                    @order.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
+                                    @order.CreatedDate.ToString("dd MMMM yyyy dddd")
+                                </td>
+                                <td>
+                                    <span class="@statusClass">@order.Status</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-nowrap gap-2">
+                                        <a href="#" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center btn-sm js-show-order-detail" data-order-id="@order.Id" title="Detay">
+                                            <span class="material-symbols-outlined me-1">read_more</span> Daha Fazla..
+                                        </a>
+                                        @if (order.Status == "Onay Bekleniyor")
+                                        {
+                                            <button type="button" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="cancelOrder(@order.Id)">
+                                                <span class="material-symbols-outlined me-1">cancel</span> İptal Et
+                                            </button>
+                                        }
+                                        @if (order.Status != "Onay Bekleniyor" && order.Status != "Onaylandı" && order.Status != "İptal Edildi")
+                                        {
+                                            <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-orderId="@order.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
+                                                <span class="material-symbols-outlined me-1">download</span> Faturayı İndir
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
 
                         </tr>
                     }
                 </tbody>
             </table>
+            </div>
 
             <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -85,8 +114,10 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
+            // Sipariş detay modalını açma işlevi
             $('.js-show-order-detail').on('click', function (e) {
                 e.preventDefault();
 
@@ -94,6 +125,7 @@
                 var modal = $('#orderDetailModal');
                 var modalContent = $('#orderDetailModalContent');
 
+                // Modal içeriği yüklenirken geçici yükleniyor ekranı göster
                 modalContent.html(`
                     <div class="modal-header">
                         <h5 class="modal-title">Yükleniyor...</h5>
@@ -109,8 +141,11 @@
                     </div>
                 `);
 
-                modal.modal('show');
+                // Bootstrap 5 modalı açma
+                var bootstrapModal = new bootstrap.Modal(modal[0]);
+                bootstrapModal.show();
 
+                // AJAX ile sipariş detaylarını çek
                 $.ajax({
                     url: '/Customer/Order/Details/' + orderId,
                     type: 'GET',
@@ -140,6 +175,49 @@
                     }
                 });
             });
+
+            // Sipariş iptal etme işlevi
+            window.cancelOrder = function (orderId) {
+                Swal.fire({
+                    title: 'Siparişi iptal etmek istiyor musunuz?',
+                    text: "Bu işlem geri alınamaz.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet, iptal et',
+                    cancelButtonText: 'Hayır',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#dc3545',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Customer/Order/Cancel',
+                            type: 'POST',
+                            data: { id: orderId },
+                            success: function () {
+                                Swal.fire({
+                                    title: 'İptal Edildi!',
+                                    text: 'Siparişiniz iptal edildi.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function () {
+                                Swal.fire('Hata', 'Sipariş iptal edilemedi.', 'error');
+                            }
+                        });
+                    }
+                });
+            }
         });
     </script>
 }
+
