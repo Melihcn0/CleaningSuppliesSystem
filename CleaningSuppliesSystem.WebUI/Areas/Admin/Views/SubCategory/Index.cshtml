@@ -20,12 +20,12 @@
             <a asp-action="CreateSubCategory" asp-controller="SubCategory" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Alt Kategori Ekle
             </a>
-            <a asp-action="DeletedSubCategory" asp-controller="SubCategory" asp-area="Admin" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
-            </a>
-            <button id="deleteSelectedBtn" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center me-2" disabled>
+            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center me-2" disabled>
                 <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
             </button>
+            <a asp-action="DeletedSubCategory" asp-controller="SubCategory" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            </a>
         </div>
     </div>
     <div class="card-body">

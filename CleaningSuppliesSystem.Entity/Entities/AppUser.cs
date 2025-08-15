@@ -9,11 +9,15 @@ namespace CleaningSuppliesSystem.Entity.Entities
 {
     public class AppUser : IdentityUser<int>
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public bool IsActive { get; set; } = false;
-        public bool WantsNewsletter { get; set; } = false;
-        public ICollection<Order> Orders { get; set; }
+        public string? NationalId { get; set; } // Ad
+        public string FirstName { get; set; } // Ad
+        public string LastName { get; set; } // Soyad
+        public DateTime CreatedAt { get; set; } = DateTime.Now; // Kayıt tarihi
+        public bool IsActive { get; set; } = false; // Kullanıcı aktif mi
+        public bool WantsNewsletter { get; set; } = false; // Bülten aboneliği
+        public DateTime? LastLogoutAt { get; set; }
+        public ICollection<Order> Orders { get; set; }   // Kullanıcının siparişleri
+        public ICollection<CustomerAddress> CustomerAddresses { get; set; } // Teslimat adresleri (birden fazla olabilir)
+        public string PreferredTheme { get; set; } = "light"; // "light" veya "dark"
     }
 }

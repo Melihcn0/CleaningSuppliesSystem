@@ -18,7 +18,7 @@
             <a asp-action="CreateSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni İkincil Banner Ekle
             </a>
-            <a asp-action="DeletedSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center">
+            <a asp-action="DeletedSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
@@ -44,7 +44,7 @@
                     <tr>
                         <td>@count</td>
                         <td>
-                            <div class="d-flex flex-wrap justify-content-center align-items-start gap-4 py-3 text-center">
+                            <div class="d-flex justify-content-center align-items-start gap-4 py-3 text-center">
                                 <!-- Kart -->
                                 <div class="card shadow-sm" style="width: 180px;">
                                     <img src="@Url.Content(item.ImageUrl1)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 1" />
@@ -108,7 +108,7 @@
                                     <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
 
                                     <div class="form-switch">
-                                        <input class="form-check-input @(item.IsShown ? "bg-success" : "bg-warning")"
+                                        <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-warning-600")"
                                                type="checkbox"
                                                role="switch"
                                                id="isShownSwitch-@item.Id"

@@ -71,10 +71,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             if (order == null)
                 throw new Exception("Sipariş bulunamadı.");
 
-            decimal subtotal = 0;
-            decimal totalVat = 0;
-            decimal discountTotal = 0;
-
             var logoPath = Path.Combine(_env.WebRootPath, "images", "ess_star_logo_dark.png");
             byte[] logoData = File.Exists(logoPath)
                 ? await File.ReadAllBytesAsync(logoPath)
@@ -84,204 +80,333 @@ namespace CleaningSuppliesSystem.Business.Concrete
             {
                 container.Page(page =>
                 {
-                    page.Margin(50); // margin biraz azaltıldı ki logo tam üste yaklaşsın
+                    page.Margin(30);
                     page.Size(PageSizes.A4);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Black));
+                    page.DefaultTextStyle(x => x.FontSize(9).FontColor(Colors.Black));
 
-                    page.Content()
-                .Column(column =>
-                {
-                    // --- HEADER: fatura ve logo aynı hizada, dikey ortalı ---
-                    column.Item().Row(row =>
+                    page.Content().Column(column =>
                     {
-                        // Soldaki sütun (fatura bilgileri) -> dikey ortalanmış
-                        row.RelativeColumn()
-                            .AlignMiddle() // önemli: burada AlignMiddle çağrısı RelativeColumn() üzerinde olmalı
-                            .Column(col =>
-                            {
-                                col.Item().Text($"Fatura #{order.OrderNumber ?? string.Empty}")
-                                    .FontSize(14)
-                                    .SemiBold()
-                                    .FontColor(Colors.Black);
+                        // Calculate totals first
+                        decimal subtotal = 0;
+                        decimal totalVat = 0;
 
-                                col.Item().Text($"Düzenlenme Tarihi: {order.Invoice?.GeneratedAt:dd.MM.yyyy}")
-                                    .FontSize(11)
-                                    .FontColor(Colors.Grey.Darken1);
+                        foreach (var item in order.OrderItems)
+                        {
+                            var quantity = item.Quantity;
+                            var unitPriceInclVat = item.Product?.UnitPrice ?? 0;
+                            var vatRate = item.Product?.VatRate ?? 0;
+
+                            var unitPriceExclVat = unitPriceInclVat / (1 + vatRate / 100);
+                            var vatAmountPerUnit = unitPriceInclVat - unitPriceExclVat;
+                            decimal totalExclVat = unitPriceExclVat * quantity;
+                            decimal vatAmountTotal = vatAmountPerUnit * quantity;
+
+                            subtotal += totalExclVat;
+                            totalVat += vatAmountTotal;
+                        }
+
+                        // === HEADER SECTION ===
+                        column.Item().Row(row =>
+                        {
+                            // Sol taraf - Şirket Bilgileri
+                            row.RelativeColumn(2).Column(col =>
+                            {
+                                col.Item().Text("Satıcı (Şube):").FontSize(8).SemiBold();
+                                col.Item().Text("ESS STAR TEDARİK A.Ş.").FontSize(10).SemiBold();
+
+                                col.Item().PaddingTop(2).Text("Adres:").FontSize(8).SemiBold();
+                                col.Item().Text("MUSTAFAPAŞA MAHALLESİ, 41400 ")
+                                    .FontSize(8);
+                                col.Item().Text("709 SOK NO 25/B").FontSize(8);
+                                col.Item().Text("41400 KOCAELİ, TÜRKİYE").FontSize(8);
+
+                                col.Item().PaddingTop(2).Row(r =>
+                                {
+                                    r.RelativeColumn().Column(c =>
+                                    {
+                                        c.Item().Text("Telefon / Faks:").FontSize(8).SemiBold();
+                                        c.Item().Text("+90 533 407 31 97").FontSize(8);
+
+                                        c.Item().PaddingTop(1).Text("E-Posta / Web:").FontSize(8).SemiBold();
+                                        c.Item().Text("zulkufa71@gmail.com").FontSize(8);
+
+                                        c.Item().PaddingTop(1).Text("Vergi No / Dairesi:").FontSize(8).SemiBold();
+                                        c.Item().Text("4470211661 / KADIKÖY").FontSize(8);
+
+                                        c.Item().PaddingTop(1).Text("Ticaret Sicil No:").FontSize(8).SemiBold();
+                                        c.Item().Text("123456").FontSize(8);
+
+                                        c.Item().PaddingTop(1).Text("Mersis No:").FontSize(8).SemiBold();
+                                        c.Item().Text("12-87-54-24-41-58-74").FontSize(8);
+                                    });  
+                                });
                             });
 
-                        // Sağdaki sütun (logo) -> dikey ortalanmış, sağa yaslı
-                        if (logoData.Length > 0)
-                        {
-                            row.ConstantColumn(140)
-                                .Height(80)
-                                .AlignRight()
-                                .AlignMiddle() // AlignMiddle burada ConstantColumn() üzerinde
-                                .Image(logoData, ImageScaling.FitHeight);
-                        }
-                        else
-                        {
-                            // Logo yoksa placeholder kutu
-                            row.ConstantColumn(140)
-                                .Height(80)
-                                .AlignRight()
-                                .AlignMiddle()
-                                .Background(Colors.Grey.Lighten3)
-                                .Border(1)
-                                .BorderColor(Colors.Grey.Lighten1)
-                                .AlignCenter()
-                                .AlignMiddle()
-                                .Text("LOGO")
-                                .FontSize(12)
-                                .FontColor(Colors.Grey.Darken1);
-                        }
-                    });
-
-                    // --- FROM & FOR SECTION ---
-                    column.Item().PaddingTop(10).Row(row =>
-                    {
-                        // From (Gönderen)
-                        row.RelativeColumn().Column(col =>
-                        {
-                            col.Item().Text("Şirket Bilgileri (Gönderen)")
-                                .FontSize(11)
-                                .SemiBold()
-                                .FontColor(Colors.Black);
-
-                            col.Item().PaddingTop(4).BorderBottom(1).BorderColor(Colors.Black).PaddingBottom(4);
-
-                            col.Item().PaddingTop(4).Text("Şirket Adı: Ess Star Tedarik").FontSize(10).SemiBold();
-                            col.Item().Text("Yetkili: Zülküf Aktaş").FontSize(10).SemiBold();
-                            col.Item().Text("Adres: Mustafapaşa, 709 sok no 25/b, 41400 Gebze/Kocaeli, Türkiye").FontSize(9);
-                            col.Item().Text("E-posta: zulkufa71@gmail.com").FontSize(9);
-                            col.Item().Text("Telefon: +90 533 407 31 97").FontSize(9);
-                        });
-
-                        // For (Alıcı)
-                        row.RelativeColumn().Column(col =>
-                        {
-                            col.Item().Text("Müşteri Bilgileri (Alıcı)")
-                                .FontSize(11)
-                                .SemiBold()
-                                .FontColor(Colors.Black);
-
-                            col.Item().PaddingTop(4).BorderBottom(1).BorderColor(Colors.Black).PaddingBottom(4);
-
-                            col.Item().PaddingTop(4).Text($"Müşteri Adı Soyadı: {order.AppUser?.FirstName} {order.AppUser?.LastName}").FontSize(10).SemiBold();
-                            col.Item().Text($"E-posta: {order.AppUser?.Email}").FontSize(9);
-                            col.Item().Text($"Kullanıcı Adı: {order.AppUser?.UserName}").FontSize(9);
-                            col.Item().Text($"Sipariş Numarası: #{order.OrderNumber}").FontSize(9);
-                            col.Item().Text($"Sipariş Tarihi: {order.CreatedDate:dd.MM.yyyy}").FontSize(9);
-                        });
-                    });
-
-
-                    // --- PRODUCTS TABLE ---
-                    column.Item().PaddingTop(40).Table(table =>
+                            // Orta - Logo
+                            row.ConstantColumn(120).AlignCenter().Column(col =>
                             {
-                                table.ColumnsDefinition(columns =>
+                                if (logoData.Length > 0)
                                 {
-                                    columns.ConstantColumn(30);   // #
-                                    columns.RelativeColumn(5);    // Product
-                                    columns.ConstantColumn(80);   // Unit Price (excl VAT)
-                                    columns.ConstantColumn(50);   // VAT Rate
-                                    columns.ConstantColumn(60);   // VAT Amount
-                                    columns.ConstantColumn(60);   // Quantity
-                                    columns.ConstantColumn(80);   // Total (incl VAT)
-                                });
-
-                                // Header
-                                table.Header(header =>
-                                {
-                                    header.Cell().Text("#").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                    header.Cell().Text("Ürün").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                    header.Cell().AlignRight().Text("Birim Fiyat (KDV'siz)").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                    header.Cell().AlignRight().Text("KDV %").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                    header.Cell().AlignRight().Text("KDV Tutarı").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                    header.Cell().AlignRight().Text("Miktar").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                    header.Cell().AlignRight().Text("Toplam (KDV Dahil)").FontSize(11).SemiBold().FontColor(Colors.Black);
-                                });
-
-                                // Products
-                                int count = 1;
-                                foreach (var item in order.OrderItems)
-                                {
-                                    var originalPrice = item.Product?.UnitPrice ?? 0;
-                                    var discountedPrice = item.Product?.DiscountedPrice ?? 0;
-                                    var unitPriceExclVat = discountedPrice > 0 ? discountedPrice : originalPrice; // KDV'siz fiyat
-
-                                    var vatRate = item.Product?.VatRate ?? 0;
-                                    var vatAmountPerUnit = unitPriceExclVat * vatRate / 100;
-                                    var unitPriceInclVat = unitPriceExclVat + vatAmountPerUnit;
-
-                                    var quantity = item.Quantity;
-
-                                    decimal totalExclVat = unitPriceExclVat * quantity;
-                                    decimal vatAmountTotal = vatAmountPerUnit * quantity;  // Değişken ismi değişti çakışma önlendi
-                                    decimal totalInclVat = unitPriceInclVat * quantity;
-
-                                    subtotal += totalExclVat;
-                                    totalVat += vatAmountTotal;
-                                    discountTotal += (originalPrice - unitPriceExclVat) * quantity;
-
-                                    if (count == 1)
-                                    {
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).Text(count.ToString()).FontSize(10);
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).Text(item.Product?.Name ?? "").FontSize(10);
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).AlignRight().Text(unitPriceExclVat.ToString("C")).FontSize(10);
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).AlignRight().Text(vatRate.ToString("N2") + "%").FontSize(10);
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).AlignRight().Text(vatAmountTotal.ToString("C")).FontSize(10);
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).AlignRight().Text(quantity.ToString()).FontSize(10);
-                                        table.Cell().BorderTop(1).BorderColor(Colors.Grey.Lighten1).PaddingTop(8).AlignRight().Text(totalInclVat.ToString("C")).FontSize(10).SemiBold();
-                                    }
-                                    else
-                                    {
-                                        table.Cell().PaddingVertical(4).Text(count.ToString()).FontSize(10);
-                                        table.Cell().PaddingVertical(4).Text(item.Product?.Name ?? "").FontSize(10);
-                                        table.Cell().PaddingVertical(4).AlignRight().Text(unitPriceExclVat.ToString("C")).FontSize(10);
-                                        table.Cell().PaddingVertical(4).AlignRight().Text(vatRate.ToString("N2") + "%").FontSize(10);
-                                        table.Cell().PaddingVertical(4).AlignRight().Text(vatAmountTotal.ToString("C")).FontSize(10);
-                                        table.Cell().PaddingVertical(4).AlignRight().Text(quantity.ToString()).FontSize(10);
-                                        table.Cell().PaddingVertical(4).AlignRight().Text(totalInclVat.ToString("C")).FontSize(10).SemiBold();
-                                    }
-                                    count++;
+                                    col.Item().Height(80).AlignCenter()
+                                        .Image(logoData, ImageScaling.FitHeight);
                                 }
-
-                                // Total row
-                                decimal finalTotal = subtotal + totalVat;
-
-                                table.Cell().BorderTop(1).BorderColor(Colors.Black).PaddingTop(8);
-                                table.Cell().BorderTop(1).BorderColor(Colors.Black).PaddingTop(8);
-                                table.Cell().BorderTop(1).BorderColor(Colors.Black).PaddingTop(8);
-                                table.Cell().BorderTop(1).BorderColor(Colors.Black).PaddingTop(8);
-                                table.Cell().BorderTop(1).BorderColor(Colors.Black).PaddingTop(8).AlignRight().Text("Genel Toplam:").FontSize(11).SemiBold();
-                                table.Cell().BorderTop(1).BorderColor(Colors.Black).PaddingTop(8).AlignRight().Text(finalTotal.ToString("C")).FontSize(11).SemiBold();
+                                else
+                                {
+                                    col.Item().Height(80).AlignCenter()
+                                        .Background(Colors.Grey.Lighten3)
+                                        .Border(1).BorderColor(Colors.Grey.Lighten1)
+                                        .AlignCenter().Text("LOGO").FontSize(12).FontColor(Colors.Grey.Darken1);
+                                }
                             });
 
-                            // --- COMMENTS SECTION ---
-                            column.Item().PaddingTop(40)
-                                .Background(Colors.Grey.Lighten4)
-                                .Padding(15)
-                                .Column(col =>
-                                {
-                                    col.Item().Text("Yorumlar")
-                                        .FontSize(12)
-                                        .SemiBold()
-                                        .FontColor(Colors.Black);
+                            // Yeni hali:
+                            // Sağ taraf - Fatura Bilgileri
+                            row.RelativeColumn().Column(col =>
+                            {
+                                col.Item().AlignRight().Text("FATURA").FontSize(12).SemiBold(); // Başlık değişti
 
-                                    col.Item().PaddingTop(5).Text("Bizi tercih ettiğiniz için teşekkür ederiz. Ürünlerimizin kalitesi ve hizmet anlayışımızla sizleri memnun etmeye devam ediyoruz. Herhangi bir sorunuz veya talebiniz için bizimle iletişime geçebilirsiniz.")
-                                        .FontSize(10)
-                                        .FontColor(Colors.Black)
-                                        .LineHeight(1.4f);
-                                });
+                                col.Item().PaddingTop(10).Border(1).BorderColor(Colors.Grey.Darken1)
+                                    .Padding(8).Column(innerCol =>
+                                    {
+                                        innerCol.Item().Row(r =>
+                                        {
+                                            r.RelativeColumn().Text("Fatura No:").FontSize(8).SemiBold();
+                                            r.RelativeColumn().AlignRight().Text($"#{order.OrderNumber}").FontSize(8);
+                                        });
+
+                                        innerCol.Item().Row(r =>
+                                        {
+                                            r.RelativeColumn().Text("Fatura Tarihi:").FontSize(8).SemiBold();
+                                            r.RelativeColumn().AlignRight().Text($"{order.Invoice?.GeneratedAt:dd/MM/yyyy}").FontSize(8);
+                                        });
+
+                                        innerCol.Item().Row(r =>
+                                        {
+                                            r.RelativeColumn().Text("Fatura Saati:").FontSize(8).SemiBold();
+                                            r.RelativeColumn().AlignRight().Text($"{order.Invoice?.GeneratedAt:HH:mm:ss}").FontSize(8);
+                                        });
+                                    });
+                            });
                         });
 
-                    // --- FOOTER ---
-                    page.Footer()
-                        .AlignCenter()
-                        .Text("Sayfa 1")
-                        .FontSize(10)
-                        .FontColor(Colors.Black);
+                        // === CUSTOMER INFO ===
+                        column.Item().PaddingTop(20).Column(col =>
+                        {
+                            col.Item().Text("Alıcı (Şube):").FontSize(8).SemiBold();
+                            col.Item().Text($"{order.AppUser?.FirstName} {order.AppUser?.LastName}").FontSize(10).SemiBold();
+
+                            col.Item().PaddingTop(2).Text("Adres:").FontSize(8).SemiBold();
+                            col.Item().Text("Aydenevler Mh. Samatya Cd. Mendirlek Sk. No: 3 Orka Plaza")
+                                .FontSize(8);
+                            col.Item().Text("Maltepe, İstanbul, TÜRKİYE").FontSize(8);
+
+                            col.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeColumn().Column(c =>
+                                {
+                                    c.Item().Text("Telefon / Faks:").FontSize(8).SemiBold();
+                                    c.Item().Text("2162130061").FontSize(8);
+
+                                    c.Item().PaddingTop(1).Text("Vergi No / Dairesi:").FontSize(8).SemiBold();
+                                    c.Item().Text($"{order.AppUser?.UserName ?? "11111111111"}").FontSize(8);
+                                });
+                            });
+                        });
+                       
+                        foreach (var item in order.OrderItems)
+                        {
+                            var quantity = item.Quantity;
+                            var unitPriceInclVat = item.Product?.UnitPrice ?? 0;
+                            var vatRate = item.Product?.VatRate ?? 0;
+
+                            var unitPriceExclVat = unitPriceInclVat / (1 + vatRate / 100);
+                            var vatAmountPerUnit = unitPriceInclVat - unitPriceExclVat;
+                            decimal totalExclVat = unitPriceExclVat * quantity;
+                            decimal vatAmountTotal = vatAmountPerUnit * quantity;
+
+                            // Tanımlanmış değişkenlere değer ekleyin
+                            subtotal += totalExclVat;
+                            totalVat += vatAmountTotal;
+                        }
+
+                        // === PRODUCTS TABLE ===
+                        column.Item().PaddingTop(20).Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(25);   // Sıra No
+                                columns.RelativeColumn(4);    // Ürün Adı
+                                columns.ConstantColumn(50);   // Miktar
+                                columns.ConstantColumn(60);   // Birim
+                                columns.ConstantColumn(70);   // Birim Fiyat
+                                columns.ConstantColumn(50);   // Brüt Fiyat
+                                columns.ConstantColumn(45);   // KDV Oranı
+                                columns.ConstantColumn(70);   // KDV Tutarı
+                                columns.ConstantColumn(70);   // Diğer Vergiler
+                                columns.ConstantColumn(70);   // Ürün Tutarı
+                            });
+
+                            var headerStyle = TextStyle.Default.SemiBold().FontSize(8);
+                            var borderColor = Colors.Black;
+                            var cellStyle = TextStyle.Default.FontSize(8);
+
+                            // Table Header
+                            table.Header(header =>
+                            {
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Sıra No").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Ürün / Hizmet Adı").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Miktar").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Birim").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Birim Fiyat").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("K.D.V. Oranı").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("K.D.V. Tutarı").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Diğer Vergiler").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Ürün / Hizmet Tutarı").AlignCenter().Style(headerStyle);
+                            });
+
+                            // Table Rows
+                            int count = 1;
+                            foreach (var item in order.OrderItems)
+                            {
+                                var quantity = item.Quantity;
+                                var unitPriceInclVat = item.Product?.UnitPrice ?? 0;
+                                var vatRate = item.Product?.VatRate ?? 0;
+                                var productName = item.Product?.Name ?? "";
+
+                                var unitPriceExclVat = unitPriceInclVat / (1 + vatRate / 100);
+                                var vatAmountPerUnit = unitPriceInclVat - unitPriceExclVat;
+                                decimal totalExclVat = unitPriceExclVat * quantity;
+                                decimal vatAmountTotal = vatAmountPerUnit * quantity;
+                                decimal totalInclVat = unitPriceInclVat * quantity;
+
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text(count.ToString()).AlignCenter().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text(productName).AlignLeft().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text($"{quantity:N0}").AlignCenter().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("adet").AlignCenter().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text(unitPriceExclVat.ToString("N2") + " TL").AlignRight().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("%" + vatRate.ToString("N0")).AlignCenter().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text(vatAmountTotal.ToString("N2") + " TL").AlignRight().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("-").AlignCenter().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text(totalInclVat.ToString("N2") + " TL").AlignRight().Style(cellStyle);
+
+                                count++;
+                            }
+                        });
+
+                        // === TOTALS SECTION ===
+                        column.Item().PaddingTop(10).Column(col =>
+                        {
+                            // KDV oranlarına göre gruplandırılmış toplamları hesaplayın
+                            var vatRateGroups = order.OrderItems
+                                .GroupBy(item => item.Product?.VatRate ?? 0)
+                                .Select(group => new
+                                {
+                                    VatRate = group.Key,
+                                    Subtotal = group.Sum(item => (item.Product?.UnitPrice ?? 0) * item.Quantity / (1 + (item.Product?.VatRate ?? 0) / 100)),
+                                    TotalVat = group.Sum(item => ((item.Product?.UnitPrice ?? 0) - (item.Product?.UnitPrice ?? 0) / (1 + (item.Product?.VatRate ?? 0) / 100)) * item.Quantity)
+                                })
+                                .ToList();
+
+                            decimal finalTotal = subtotal + totalVat;
+
+                            col.Item().Row(row =>
+                            {
+                                row.RelativeColumn(2).Text("");
+                                row.RelativeColumn().Column(totalsCol =>
+                                {
+                                    // Ürün/Hizmet Toplam Tutarı
+                                    totalsCol.Item().Row(r =>
+                                    {
+                                        r.RelativeColumn().Text("Ürün / Hizmet Toplam Tutarı:").FontSize(9).SemiBold();
+                                        r.ConstantColumn(80).AlignRight().Text(subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                    });
+
+                                    // KDV Oranlarına Göre Matrah ve KDV Tutarları
+                                    foreach (var group in vatRateGroups)
+                                    {
+                                        totalsCol.Item().Row(r =>
+                                        {
+                                            r.RelativeColumn().Text($"K.D.V. Matrahı (%{group.VatRate}):").FontSize(9).SemiBold();
+                                            r.ConstantColumn(80).AlignRight().Text(group.Subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                        });
+
+                                        totalsCol.Item().Row(r =>
+                                        {
+                                            r.RelativeColumn().Text($"Hesaplanan K.D.V. (%{group.VatRate}):").FontSize(9).SemiBold();
+                                            r.ConstantColumn(80).AlignRight().Text(group.TotalVat.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                        });
+                                    }
+
+                                    // Vergiler Dahil Toplam Tutar
+                                    totalsCol.Item().Row(r =>
+                                    {
+                                        r.RelativeColumn().Text("Vergiler Dahil Toplam Tutar:").FontSize(9).SemiBold();
+                                        r.ConstantColumn(80).AlignRight().Text(finalTotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                    });
+
+                                    // Vergiler Hariç Toplam Tutar
+                                    totalsCol.Item().Row(r =>
+                                    {
+                                        r.RelativeColumn().Text("Vergiler Hariç Toplam Tutar:").FontSize(9).SemiBold();
+                                        r.ConstantColumn(80).AlignRight().Text(subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                    });
+
+                                    // Ödenecek Tutar
+                                    totalsCol.Item().Border(1).BorderColor(Colors.Black).Padding(3).Row(r =>
+                                    {
+                                        r.RelativeColumn().Text("ÖDENECEK TUTAR:").FontSize(10).SemiBold();
+                                        r.ConstantColumn(80).AlignRight().Text(finalTotal.ToString("N2") + " TL").FontSize(10).SemiBold();
+                                    });
+                                });
+                            });
+                        });
+
+                        // === NOTLAR BÖLÜMÜ ===
+                        column.Item().PaddingTop(20).Column(col =>
+                        {
+                            col.Item().Text("Notlar:").FontSize(9).SemiBold();
+                            // Bu ibare, belgenin sevk irsaliyesi yerine geçtiğini belirtir.
+                            col.Item().Text("İŞBU BELGE SEVK İRSALİYESİ YERİNE GEÇER.").FontSize(8).SemiBold();
+                            col.Item().Text("Yalnız: " + NumberToWords(subtotal + totalVat) + " TL").FontSize(8);
+                            col.Item().PaddingTop(5).Text("Sipariş Notu: " +
+                                (!string.IsNullOrEmpty(order.OrderNote) ? order.OrderNote : "Sipariş notu bulunmamaktadır."))
+                                .FontSize(8);
+                        });
+                    });
+
+                    // === FOOTER ===
+                    page.Footer().Column(col =>
+                    {
+                        col.Item().AlignCenter().Text("ESS Star Tedarik tarafından hazırlanmıştır - www.essstartedarik.com")
+                            .FontSize(8).FontColor(Colors.Grey.Darken1);
+
+                        col.Item().PaddingTop(5).AlignRight().Text(x =>
+                        {
+                            x.Span("Sayfa ").FontSize(8);
+                            x.CurrentPageNumber().FontSize(8);
+                            x.Span(" / ").FontSize(8);
+                            x.TotalPages().FontSize(8);
+                        });
+                    });
                 });
             });
 
@@ -291,8 +416,16 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return ms.ToArray();
         }
 
+        // Helper method to convert number to words (simplified version)
+        private static string NumberToWords(decimal number)
+        {
+            // Bu metodu tam implementasyon için genişletebilirsiniz
+            // Şimdilik basit bir yaklaşım
+            var intPart = (int)Math.Floor(number);
+            var decPart = (int)Math.Round((number - intPart) * 100);
 
-
+            return $"{intPart:N0}"; // Basitleştirilmiş
+        }
 
 
 

@@ -137,11 +137,6 @@ public class UsersController : ControllerBase
         return Ok(token);
     }
 
-
-
-
-
-
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
@@ -255,5 +250,18 @@ public class UsersController : ControllerBase
 
         await _emailService.SendPasswordResetMailAsync(user.UserName, user.Email);
         return Ok(new { message = "Şifreniz başarıyla güncellendi." });
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user != null)
+        {
+            user.LastLogoutAt = DateTime.Now;
+            await _userManager.UpdateAsync(user);
+        }
+        await _signInManager.SignOutAsync();
+        return Ok();
     }
 }

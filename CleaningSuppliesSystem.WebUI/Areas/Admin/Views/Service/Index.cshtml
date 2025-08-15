@@ -20,7 +20,7 @@
             <a asp-action="CreateService" asp-controller="Service" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Hizmet Ekle
             </a>
-            <a asp-action="DeletedService" asp-controller="Service" asp-area="Admin" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center">
+            <a asp-action="DeletedService" asp-controller="Service" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
@@ -73,12 +73,12 @@
                         </td>
                             <td class="text-center align-middle">
                                 <form method="post" asp-action="ToggleStatus" asp-controller="Service" id="toggleForm-@item.Id" class="d-inline-block">
-                                    @Html.AntiForgeryToken();
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="serviceId" value="@item.Id" />
                                     <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
 
                                     <div class="form-switch">
-                                        <input class="form-check-input @(item.IsShown ? "bg-success" : "bg-warning")"
+                                        <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-warning-600")"
                                                type="checkbox"
                                                role="switch"
                                                id="isShownSwitch-@item.Id"

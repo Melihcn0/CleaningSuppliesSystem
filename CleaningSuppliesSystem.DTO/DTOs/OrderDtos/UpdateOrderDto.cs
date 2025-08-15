@@ -11,6 +11,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.OrderDtos
     {
         public int Id { get; set; }
         public string Status { get; set; }
+        public string? OrderNote { get; set; }
         public int AppUserId { get; set; }
 
     }

@@ -9,15 +9,16 @@ namespace CleaningSuppliesSystem.Entity.Entities
     public class Order
     {
         public int Id { get; set; } // Sipariş kimliği
-        public string OrderNumber { get; set; } // Sipariş No
+        public string OrderNumber { get; set; } // Sipariş Numarası
         public DateTime CreatedDate { get; set; } // Oluşturulma zamanı
         public DateTime? UpdatedDate { get; set; } // Güncelleme zamanı
         public string Status { get; set; } // Sipariş durumu
-        public DateTime? ApprovedDate { get; set; }       // Onaylandı
-        public DateTime? PreparingDate { get; set; }       // Hazırlanıyor
-        public DateTime? ShippedDate { get; set; }         // Kargoya Verildi
-        public DateTime? DeliveredDate { get; set; }       // Teslim Edildi
-        public DateTime? CanceledDate { get; set; }        // İptal Edildi
+        public DateTime? ApprovedDate { get; set; } // Onaylandı
+        public DateTime? PreparingDate { get; set; } // Hazırlanıyor
+        public DateTime? ShippedDate { get; set; } // Kargoya Verildi
+        public DateTime? DeliveredDate { get; set; } // Teslim Edildi
+        public DateTime? CanceledDate { get; set; } // İptal Edildi
+        public string? OrderNote { get; set; } // Sipariş notu
         public int AppUserId { get; set; } // Siparişi veren kullanıcı
         public AppUser AppUser { get; set; } // Navigation
         public ICollection<OrderItem> OrderItems { get; set; } // Sipariş detay satırları

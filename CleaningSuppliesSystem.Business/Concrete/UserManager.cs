@@ -1,6 +1,7 @@
 ﻿using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
 using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +13,10 @@ using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.Business.Concrete
 {
-    public class UserManager(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, RoleManager<AppRole> _roleManager, IConfiguration _config) : IUserService
+    public class UserManager(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, RoleManager<AppRole> _roleManager, IConfiguration _config, IHttpContextAccessor _httpContextAccessor) : IUserService
     {
-            public async Task<IdentityResult> CreateUserAsync(UserRegisterDto userRegisterDto)
+
+        public async Task<IdentityResult> CreateUserAsync(UserRegisterDto userRegisterDto)
             {
                 var user = new AppUser
                 {
@@ -167,6 +169,13 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             public async Task LogoutAsync()
             {
+                var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                if (user != null)
+                {
+                    user.LastLogoutAt = DateTime.Now;
+                    await _userManager.UpdateAsync(user);
+                }
+
                 await _signInManager.SignOutAsync();
             }
             public Task<bool> CreateRoleAsync(UserRoleDto userRoleDto)
@@ -268,7 +277,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             {
                 var user = await GetUserByIdAsync(userId);
                 if (user == null)
-                    return null; // veya boş liste dönebilirsin
+                    return null;
 
                 var roles = await _roleManager.Roles.ToListAsync();
                 var userRoles = await _userManager.GetRolesAsync(user);

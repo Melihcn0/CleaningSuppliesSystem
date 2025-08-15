@@ -84,6 +84,9 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastLogoutAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -93,6 +96,9 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NationalId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -110,6 +116,10 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("PreferredTheme")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -287,6 +297,33 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AppUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("CustomerAddresses");
+                });
+
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Finance", b =>
                 {
                     b.Property<int>("Id")
@@ -331,11 +368,50 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AddressTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApartmentNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BuildingNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("GeneratedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Neighborhood")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -367,6 +443,9 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     b.Property<DateTime?>("DeliveredDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderNote")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OrderNumber")
                         .IsRequired()
@@ -823,6 +902,17 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Navigation("TopCategory");
                 });
 
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerAddress", b =>
+                {
+                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppUser", "AppUser")
+                        .WithMany("CustomerAddresses")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Invoice", b =>
                 {
                     b.HasOne("CleaningSuppliesSystem.Entity.Entities.Order", "Order")
@@ -950,6 +1040,8 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.AppUser", b =>
                 {
+                    b.Navigation("CustomerAddresses");
+
                     b.Navigation("Orders");
                 });
 

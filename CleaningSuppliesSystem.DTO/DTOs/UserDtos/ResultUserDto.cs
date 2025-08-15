@@ -14,5 +14,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.UserDtos
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = false;
         public ICollection<Order> Orders { get; set; }
+
     }
 }

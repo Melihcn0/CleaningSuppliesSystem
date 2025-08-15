@@ -1,5 +1,6 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ForgotPasswordDtos;
@@ -8,6 +9,7 @@ using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LoginDtos;
+using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.RegisterDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ResetPasswordDtos;
@@ -56,6 +58,24 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .NotNull().WithMessage("Üst kategori seçmelisiniz.");
             }
         }
+
+        public class CreateOrderValidator : AbstractValidator<CreateOrderDto>
+        {
+            public CreateOrderValidator()
+            {
+                RuleFor(x => x.OrderNote)
+                    .MaximumLength(100).WithMessage("Sipariş notunuz en fazla 100 karakter olmalıdır.");
+            }
+        }
+        public class UpdateOrderValidator : AbstractValidator<UpdateOrderDto>
+        {
+            public UpdateOrderValidator()
+            {
+                RuleFor(x => x.OrderNote)
+                    .MaximumLength(100).WithMessage("Sipariş notunuz en fazla 100 karakter olmalıdır.");
+            }
+        }
+
         public class CreateProductValidator : AbstractValidator<CreateProductDto>
         {
             public CreateProductValidator()
@@ -665,6 +685,36 @@ namespace CleaningSuppliesSystem.Business.Validators
 
                 RuleFor(x => x.ServiceIconId)
                     .NotNull().WithMessage("Hizmet iconu seçmelisiniz.");
+            }
+        }
+        public class UpdateCustomerProfileValidator : AbstractValidator<UpdateCustomerProfileDto>
+        {
+            public UpdateCustomerProfileValidator()
+            {
+                RuleFor(x => x.FirstName)
+                    .NotEmpty().WithMessage("Ad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Ad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.LastName)
+                    .NotEmpty().WithMessage("Soyad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Soyad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.UserName)
+                    .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
+                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.");
+
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("E-posta boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir e-posta giriniz.")
+                    .MaximumLength(100).WithMessage("E-posta en fazla 100 karakter olabilir.");
+
+                RuleFor(x => x.PhoneNumber)
+                    .NotEmpty().WithMessage("Telefon numarası boş bırakılamaz.")
+                    .MaximumLength(17).WithMessage("Telefon numarası en fazla 17 karakter olmalıdır.");
+
+                RuleFor(x => x.NationalId)
+                    .NotEmpty().WithMessage("Kimlik numarası boş bırakılamaz.")
+                    .MaximumLength(11).WithMessage("Kimlik numarası en fazla 11 karakter olmalıdır.");
             }
         }
     }

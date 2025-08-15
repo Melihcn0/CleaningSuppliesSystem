@@ -11,6 +11,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.LoginDtos
     {
         public InnerTokenDto Token { get; set; }
         public string Message { get; set; }
+        public string Theme { get; set; }
     }
 
 }

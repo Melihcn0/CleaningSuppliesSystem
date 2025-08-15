@@ -13,6 +13,7 @@ using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.LoginValidatorDto;
 using CleaningSuppliesSystem.DTO.DTOs.TokenDtos;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Net.Http;
 
 namespace CleaningSuppliesSystem.WebUI.Controllers
 {
@@ -109,18 +110,23 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
             // 🔍 Token içindeki claim’leri al
             var name = token.Claims.FirstOrDefault(c => c.Type == "name" || c.Type == ClaimTypes.Name)?.Value ?? userLoginDto.Identifier;
             var role = token.Claims.FirstOrDefault(c => c.Type == "role" || c.Type == ClaimTypes.Role)?.Value ?? "Customer";
+            var theme = response?.Theme ?? "light";
+
+
 
             // 🔐 Identifier sabit olarak DTO'dan alınıyor
             var identifier = userLoginDto.Identifier;
 
             // ✅ ClaimsPrincipal oluştur
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, name),
-        new Claim(ClaimTypes.Role, role),
-        new Claim(ClaimTypes.NameIdentifier, identifier),
-        new Claim("Identifier", identifier) // 🔥 Middleware için garanti
-    };
+            {
+                new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Role, role),
+                new Claim(ClaimTypes.NameIdentifier, identifier),
+                new Claim("Identifier", identifier),
+                new Claim("theme", theme) // 🔥 Tema bilgisi burada
+
+            };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProps = new AuthenticationProperties
@@ -148,10 +154,19 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
             };
         }
 
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            var response = await _client.PostAsync("users/logout", new StringContent(""));
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return RedirectToAction("Index", "Home");
         }
     }

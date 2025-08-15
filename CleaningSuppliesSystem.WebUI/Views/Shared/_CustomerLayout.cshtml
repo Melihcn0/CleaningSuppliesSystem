@@ -10,6 +10,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ess Star | Müşteri Paneli</title>
     <link rel="icon" type="image/png" href="~/images/ess_star_logo_dark.png" sizes="16x16">
+    <!-- Temayı sayfa render olmadan uygula -->
+    <script>
+        (function () {
+            const token = localStorage.getItem("jwt");
+            if (!token) {
+                document.documentElement.setAttribute("data-theme", "light");
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const theme = payload.theme || "light";
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
+
+    <style>
+        /* Tablolar başlangıçta şeffaf */
+        #dataTable {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+            /* Hazır olduğunda görünür */
+            #dataTable.loaded {
+                opacity: 1;
+            }
+    </style>
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="~/wowdash-admin/assets/css/remixicon.css">
     <!-- BootStrap css -->
@@ -63,13 +94,19 @@
                 <li>
                     <a asp-area="" asp-controller="Home" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">arrow_menu_close</span>
-                        <span>Ana Sayfaya Dön</span>
+                        <span class="menu-text">Ana Sayfaya Dön</span>
                     </a>
                 </li>
                 <li>
                     <a asp-area="Customer" asp-controller="Order" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">fiber_new</span>
-                        <span>Siparişlerim</span>
+                        <span class="menu-text">Siparişlerim</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Customer" asp-controller="CustomerProfile" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">settings</span>
+                        <span class="menu-text">Ayarlar</span>
                     </a>
                 </li>
             </ul>
@@ -88,17 +125,14 @@
                         <button type="button" class="sidebar-mobile-toggle">
                             <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                         </button>
-                        <form class="navbar-search">
-                            <input type="text" name="search" placeholder="Ara">
-                            <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                        </form>
                     </div>
                 </div>
                 <div class="col-auto">
                     <div class="d-flex flex-wrap align-items-center gap-3">
+                        <button type="button" data-theme-toggle class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
                         <div class="dropdown">
                             <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
-                                <span class="material-symbols-outlined fs-2 text-dark">account_circle</span>
+                                <span class="material-symbols-outlined fs-2">account_circle</span>
                             </button>
                             <div class="dropdown-menu to-top dropdown-menu-sm">
                                 <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
@@ -112,14 +146,17 @@
                                 </div>
                                 <ul class="to-top-list">
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="view-profile.html">
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" asp-area="Customer" asp-controler="CustomerProfile" asp-action="Index">
                                             <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon>  Profilim
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="/Login/Logout">
-                                            <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>  Çıkış Yap
-                                        </a>
+                                        <form id="logoutForm" method="post" action="/Login/Logout">
+                                            <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit(); resetThemeOnLogout();">
+                                                <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Çıkış Yap
+                                            </a>
+                                            @Html.AntiForgeryToken()
+                                        </form>
                                     </li>
                                 </ul>
                             </div>
@@ -134,7 +171,7 @@
                 <div class="d-flex align-items-center gap-2">
                     @if (ViewBag.ShowBackButton == true)
                     {
-                        <a asp-action="Index" class="btn btn-info-600 btn-sm d-flex align-items-center gap-1">
+                        <a asp-action="Index" class="btn btn-neutral-500 btn-sm d-flex align-items-center gap-1">
                             <span class="material-symbols-outlined">arrow_left</span>
                         </a>
                     }
@@ -151,7 +188,7 @@
                     <p class="mb-0">© 2025 KySolutions. Tüm Hakları Saklıdır.</p>
                 </div>
                 <div class="col-auto">
-                    <p class="mb-0">KySolutions Tarafından Geliştirildi</p>
+                    <p class="mb-0">Geliştirici Melihcan Kaya</p>
                 </div>
             </div>
         </footer>
@@ -194,6 +231,49 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     @RenderSection("Scripts", required: false)
+
+    <script>
+        $(document).ready(function () {
+            const updateThemeElements = () => {
+                const theme = document.documentElement.getAttribute("data-theme") || "light";
+
+                // DataTable tema
+                $('#dataTable').toggleClass('table-dark', theme === 'dark');
+
+                // Tablolar (ekstra varsa)
+                document.querySelectorAll("table").forEach(table => {
+                    table.classList.toggle("table-dark", theme === "dark");
+                });
+
+                // Logo değişimi
+                const logo = document.getElementById("theme-logo");
+                if (logo) {
+                    logo.src = theme === "dark"
+                        ? "/images/ess_star_logo_light.png"
+                        : "/images/ess_star_logo_dark.png";
+                }
+            };
+
+            // DataTable hazır olduğunda çalışır
+            $('#dataTable').on('init.dt', function () {
+                const theme = document.documentElement.getAttribute("data-theme") || "light";
+                if (theme === 'dark') {
+                    $(this).addClass('table-dark');
+                }
+                $(this).addClass('loaded'); // fade-in başlar
+            });
+
+            // Sayfa ilk yüklemede uygula
+            updateThemeElements();
+
+            // Tema değişikliklerini dinle
+            const observer = new MutationObserver(() => updateThemeElements());
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ["data-theme"]
+            });
+        });
+    </script>
 
 </body>
 </html>
@@ -249,6 +329,7 @@
         });
     </script>
 }
+
 <script>
     $(document).ready(function () {
         $('#dataTable').DataTable({
@@ -257,50 +338,26 @@
                 url: '/wowdash-admin/assets/js/dataTable-tr.json'
             },
             columnDefs: [
-                { targets: 0, orderable: false, searchable: false }
+                {
+                    targets: 0,
+                    orderable: false,
+                    searchable: false,
+                    width: "75px" // 0. kolonun genişliğini 50 piksel olarak ayarlar
+                }
             ]
         });
     });
 </script>
 
-
-@* Tema (dark/light) değişimini yönet *@
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Sayfa her yüklendiğinde temayı 'light' olarak ayarla
+    function resetThemeOnLogout() {
+        // Tema light olarak sıfırlanır
         document.documentElement.setAttribute("data-theme", "light");
 
-        const updateThemeElements = () => {
-            const theme = document.documentElement.getAttribute("data-theme") || "light";
+        // JWT token localStorage'dan silinir
+        localStorage.removeItem("jwt");
 
-            // Tüm tablolar için dark mode sınıfı ekle/kaldır
-            document.querySelectorAll("table").forEach(table => {
-                table.classList.toggle("table-dark", theme === "dark");
-            });
-
-            // Logo değişimi
-            const logo = document.getElementById("theme-logo");
-            if (logo) {
-                logo.src = theme === "dark"
-                    ? "/images/ess_star_logo_light.png"
-                    : "/images/ess_star_logo_dark.png";
-            }
-        };
-
-        // Sayfa ilk yüklemede uygula
-        updateThemeElements();
-
-        // Tema değişikliği dinle (Bu kısım isteğe bağlıdır, sadece tema değiştirme butonu varsa gereklidir)
-        const observer = new MutationObserver(() => updateThemeElements());
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ["data-theme"]
-        });
-    });
-
-    window.getSwalClass = function() {
-        const theme = document.documentElement.getAttribute("data-theme") || "light";
-        return theme === "dark" ? "swal-dark" : "swal-light";
-    };
-
+        // Eğer tema localStorage'da ayrı tutuluyorsa onu da sil
+        localStorage.removeItem("theme");
+    }
 </script>

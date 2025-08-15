@@ -20,5 +20,6 @@ namespace CleaningSuppliesSystem.WebUI.Services.TokenServices
         public string GetUserRole => _context?.User?.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
 
         public string GetUserNameSurname => _context?.User?.FindFirst("fullName")?.Value ?? "";
+        public string GetUserTheme => _context?.User?.FindFirst("theme")?.Value ?? "light";
     }
 }

@@ -15371,13 +15371,11 @@ html[data-theme="dark"] table#dataTable {
 html[data-theme="light"] table#dataTable tbody tr {
     background-color: white;
     color: black;
-    transition: background-color 0.3s ease;
 }
 
 html[data-theme="dark"] table#dataTable tbody tr {
     background-color: #2c2c3e;
     color: white;
-    transition: background-color 0.3s ease;
 }
 
 /* Satır hover efektleri */
@@ -15424,6 +15422,7 @@ html[data-theme="dark"] table#dataTable td {
 }
 
 /* Butonlar, iconlar veya diğer elementlerin rengi tema bazlı değilse onlara da ayrı renk verilebilir */
+
 
 /* Örnek: */
 html[data-theme="light"] .btn-outline-info {

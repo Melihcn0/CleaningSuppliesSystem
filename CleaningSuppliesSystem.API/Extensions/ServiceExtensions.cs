@@ -84,6 +84,9 @@ namespace CleaningSuppliesSystem.API.Extensions
 
             services.AddScoped<IPdfService, PdfManager>();
 
+            services.AddScoped<ICustomerProfileService, CustomerProfileManager>();
+            services.AddScoped<ICustomerProfileRepository, CustomerProfileRepository>();
+
             services.AddHttpClient();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

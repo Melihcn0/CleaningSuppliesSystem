@@ -144,9 +144,9 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
 
 
 
-        private string GenerateOrderNumber(int userId)
+        private string GenerateOrderNumber(int orderId)
         {
-            return $"ORD-{DateTime.Now:yyMMdd-HHmmss}-{userId}";
+            return $"INV-{DateTime.Now.Year}-{orderId}";
         }
 
         public async Task<List<Order>> GetOrdersWithItemsAsync()

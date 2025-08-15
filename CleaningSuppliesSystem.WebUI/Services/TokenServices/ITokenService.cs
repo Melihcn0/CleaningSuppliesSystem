@@ -6,5 +6,6 @@
         public int GetUserId { get; }
         public string GetUserRole { get; }
         public string GetUserNameSurname { get; }
+        public string GetUserTheme { get; }
     }
 }

@@ -1,0 +1,245 @@
+﻿@model CustomerProfileViewModel
+@{
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="dashboard-main-body">
+    <div class="row gy-4">
+        <!-- Sol Profil Kartı -->
+        <div class="col-lg-4">
+            <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
+                <img src="~/images/image6.png" alt="" class="w-100 object-fit-cover">
+                <div class=" ms-16 mb-24 me-16 mt--100">
+                    <div class="text-center border border-top-0 border-start-0 border-end-0">
+                        <img src="~/images/image7.png" alt=""
+                             class="border br-white border-width-2-px w-200-px h-200-px rounded-circle object-fit-cover">
+                        <h6 class="mb-0 mt-16">@((!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) ||
+                                !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName))
+                                ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}" : "-")
+                        </h6>
+                        <span class="text-secondary-light mb-16">@(!string.IsNullOrWhiteSpace(Model.CustomerProfile.Email) ? Model.CustomerProfile.Email : "-")
+                        </span>
+
+                    </div>
+                    <div class="mt-24">
+                        <h6 class="text-xl mb-16">Kişisel Bilgiler</h6>
+                        <ul>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">Ad Soyad</span>
+                                <span class="w-70 text-secondary-light fw-medium">
+                                    : @((!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) ||
+                                      !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName))
+                                      ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}"
+                                      : "-")
+                                </span>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">Kullanıcı Adı</span>
+                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.UserName ?? "-")</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">TC Kimlik No</span>
+                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.NationalId ?? "-")</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">Telefon</span>
+                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.PhoneNumber ?? "-")</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">Son Çıkış</span>
+                                <span class="w-70 text-secondary-light fw-medium">
+                                    : @(Model.CustomerProfile.LastLogoutAt != DateTime.MinValue
+                                      ? Model.CustomerProfile.LastLogoutAt.ToString("dd.MM.yyyy HH:mm")
+                                      : "-")
+                                </span>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">Adres Başlığı</span>
+                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.AddressTitle ?? "-")</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-1 mb-12">
+                                <span class="w-30 text-md fw-semibold text-primary-light">Açık Adres</span>
+                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.Address ?? "-")</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf (Tablar) -->
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-body p-24">
+                    <!-- İçerik buraya-->
+                    <ul class="nav border-gradient-tab nav-pills mb-20 d-inline-flex" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link d-flex align-items-center px-24 active" id="pills-edit-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-edit-profile" type="button" role="tab" aria-controls="pills-edit-profile" aria-selected="true">
+                                Profili Düzenle
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link d-flex align-items-center px-24" id="pills-change-passwork-tab" data-bs-toggle="pill" data-bs-target="#pills-change-passwork" type="button" role="tab" aria-controls="pills-change-passwork" aria-selected="false" tabindex="-1">
+                                Şifre Değiştir
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link d-flex align-items-center px-24" id="pills-notification-tab" data-bs-toggle="pill" data-bs-target="#pills-notification" type="button" role="tab" aria-controls="pills-notification" aria-selected="false" tabindex="-1">
+                                Bildirim Ayarları
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="pills-tabContent">
+                        <form asp-area="Customer" asp-controller="CustomerProfile" asp-action="UpdateCustomerProfile" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-20">
+                                        <label for="firstName" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                            Ad <span class="text-danger-600">*</span>
+                                        </label>
+                                        <input type="text" class="form-control radius-8" id="firstName" name="FirstName"
+                                               value="@Model.CustomerProfile.FirstName">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="mb-20">
+                                        <label for="lastName" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                            Soyad <span class="text-danger-600">*</span>
+                                        </label>
+                                        <input type="text" class="form-control radius-8" id="lastName" name="LastName"
+                                               value="@Model.CustomerProfile.LastName">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="mb-20">
+                                        <label for="Email" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                            E-posta <span class="text-danger-600">*</span>
+                                        </label>
+                                        <input asp-for="CustomerProfile.Email"
+                                               class="form-control radius-8"
+                                               id="Email"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="mb-20">
+                                        <label for="PhoneNumber" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                            Telefon
+                                        </label>
+                                        <input asp-for="CustomerProfile.PhoneNumber"
+                                               class="form-control radius-8"
+                                               id="PhoneNumber"
+                                               maxlength="17"
+                                               placeholder="+90 500 400 30 20" />
+                                        <span class="text-secondary-light text-sm mt-4 d-block">Örnek: +90 500 400 30 20</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="mb-20">
+                                        <label for="NationalId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                            Kimlik Numarası
+                                        </label>
+                                        <input asp-for="CustomerProfile.NationalId"
+                                               class="form-control radius-8"
+                                               id="NationalId"
+                                               maxlength="11" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                <a href="@Url.Action("Index", "CustomerProfile")"
+                                   class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
+                                    İptal
+                                </a>
+                                <button type="submit"
+                                        class="btn btn-primary border border-primary-600 text-md px-56 py-12 radius-8">
+                                    Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+
+
+                        <!-- Şifre Değiştir -->
+                        <div class="tab-pane fade" id="pills-change-passwork" role="tabpanel" aria-labelledby="pills-change-passwork-tab" tabindex="0">
+                            <div class="mb-20">
+                                <label for="your-password" class="form-label fw-semibold text-primary-light text-sm mb-8">Yeni Şifre <span class="text-danger-600">*</span></label>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control radius-8" id="your-password" placeholder="Yeni şifrenizi giriniz">
+                                    <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
+                                </div>
+                            </div>
+                            <div class="mb-20">
+                                <label for="confirm-password" class="form-label fw-semibold text-primary-light text-sm mb-8">Şifreyi Onayla <span class="text-danger-600">*</span></label>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control radius-8" id="confirm-password" placeholder="Şifrenizi tekrar giriniz">
+                                    <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#confirm-password"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bildirim Ayarları -->
+                        <div class="tab-pane fade" id="pills-notification" role="tabpanel" aria-labelledby="pills-notification-tab" tabindex="0">
+                            <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
+                                <label for="companzNew" class="position-absolute w-100 h-100 start-0 top-0"></label>
+                                <div class="d-flex align-items-center gap-3 justify-content-between">
+                                    <span class="form-check-label line-height-1 fw-medium text-secondary-light">Şirket Haberleri</span>
+                                    <input class="form-check-input" type="checkbox" role="switch" id="companzNew">
+                                </div>
+                            </div>
+                            <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
+                                <label for="pushNotifcation" class="position-absolute w-100 h-100 start-0 top-0"></label>
+                                <div class="d-flex align-items-center gap-3 justify-content-between">
+                                    <span class="form-check-label line-height-1 fw-medium text-secondary-light">Anlık Bildirimler</span>
+                                    <input class="form-check-input" type="checkbox" role="switch" id="pushNotifcation" checked>
+                                </div>
+                            </div>
+                            <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
+                                <label for="weeklyLetters" class="position-absolute w-100 h-100 start-0 top-0"></label>
+                                <div class="d-flex align-items-center gap-3 justify-content-between">
+                                    <span class="form-check-label line-height-1 fw-medium text-secondary-light">Haftalık Haber Bülteni</span>
+                                    <input class="form-check-input" type="checkbox" role="switch" id="weeklyLetters" checked>
+                                </div>
+                            </div>
+                            <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
+                                <label for="meetUp" class="position-absolute w-100 h-100 start-0 top-0"></label>
+                                <div class="d-flex align-items-center gap-3 justify-content-between">
+                                    <span class="form-check-label line-height-1 fw-medium text-secondary-light">Yakınınızdaki Buluşmalar</span>
+                                    <input class="form-check-input" type="checkbox" role="switch" id="meetUp">
+                                </div>
+                            </div>
+                            <div class="form-switch switch-primary py-12 px-16 border radius-8 position-relative mb-16">
+                                <label for="orderNotification" class="position-absolute w-100 h-100 start-0 top-0"></label>
+                                <div class="d-flex align-items-center gap-3 justify-content-between">
+                                    <span class="form-check-label line-height-1 fw-medium text-secondary-light">Sipariş Bildirimleri</span>
+                                    <input class="form-check-input" type="checkbox" role="switch" id="orderNotification" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+<script>
+    document.getElementById('PhoneNumber').addEventListener('input', function() {
+        let d = this.value.replace(/\D/g,'').substring(0,12);
+        if(d.startsWith('0')) d='90'+d.slice(1);
+        else if(!d.startsWith('90')) d='90'+d;
+        this.value = '+'
+            + d.slice(0,2)+' '
+            + (d.length>2?d.slice(2,5)+' ':'')
+            + (d.length>5?d.slice(5,8)+' ':'')
+            + (d.length>8?d.slice(8,10)+' ':'')
+            + (d.length>10?d.slice(10,12):'')
+            .trim();
+    });
+</script>

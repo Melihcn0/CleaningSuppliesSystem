@@ -13,7 +13,9 @@ namespace CleaningSuppliesSystem.DTO.DTOs.OrderDtos
     {
         public string Status { get; set; } = "Onay Bekleniyor";
         public string OrderNumber { get; set; }
+        public string? OrderNote { get; set; }
         public int AppUserId { get; set; }
+        public int CustomerAddressId { get; set; }
         public List<CreateOrderItemDto> OrderItems { get; set; } = new List<CreateOrderItemDto>();
     }
 }

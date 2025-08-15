@@ -25,6 +25,7 @@
             public DateTime? ShippedDate { get; set; }         // Kargoya Verildi
             public DateTime? DeliveredDate { get; set; }       // Teslim Edildi
             public DateTime? CanceledDate { get; set; }        // İptal Edildi
+            public string? OrderNote { get; set; }
             public DateTime? UpdatedDate { get; set; }
         }
     }

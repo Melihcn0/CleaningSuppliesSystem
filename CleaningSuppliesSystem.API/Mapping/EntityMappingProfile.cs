@@ -17,9 +17,8 @@ using CleaningSuppliesSystem.DTO.DTOs.Home.BannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
-using CleaningSuppliesSystem.Business.Abstract;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -51,8 +50,9 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<UpdateFinanceDto, Finance>().ReverseMap();
 
             // Invoice
-            CreateMap<CreateInvoiceDto, Invoice>().ReverseMap();
-            CreateMap<InvoiceDto, Invoice>().ReverseMap();
+            CreateMap<CreateInvoiceDto, Invoice>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // Id'yi mapleme
+                .ReverseMap();
 
             // Order
             CreateMap<CreateOrderDto, Order>().ReverseMap();
@@ -122,7 +122,29 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.IconName, opt => opt.MapFrom(src => src.ServiceIcon.IconName))
                 .ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.ServiceIcon.IconUrl));
 
+            CreateMap<AppUser, CustomerProfileDto>()
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+            .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.NationalId))
+            .ForMember(dest => dest.LastLogoutAt, opt => opt.MapFrom(src => src.LastLogoutAt))
+            .AfterMap((src, dest) =>
+            {
+                if (src.CustomerAddresses != null)
+                {
+                    var defaultAddress = src.CustomerAddresses.FirstOrDefault(a => a.IsDefault);
+                    if (defaultAddress != null)
+                    {
+                        dest.Address = defaultAddress.Address;
+                        dest.AddressTitle = defaultAddress.AddressTitle;
+                    }
+                }
+            });
 
+
+            CreateMap<UpdateCustomerProfileDto, AppUser>().ReverseMap();
 
         }
     }
