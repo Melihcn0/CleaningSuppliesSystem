@@ -8,7 +8,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
 {
     public class UpdateCustomerProfileDto
     {
-        public int AppUserId { get; set; }                  // Kullanıcı ID
+        public int Id { get; set; }                  // Kullanıcı ID
         public string? NationalId { get; set; }           // Kimlik Numarası
         public string FirstName { get; set; }              // Ad Soyad
         public string LastName { get; set; }              // Ad Soyad

@@ -8,6 +8,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos
 {
     public class CustomerProfileDto
     {
+        public int Id { get; set; }           // Kimlik Numarası
         public string? NationalId { get; set; }           // Kimlik Numarası
         public string FirstName { get; set; }              // Ad Soyad
         public string LastName { get; set; }              // Ad Soyad

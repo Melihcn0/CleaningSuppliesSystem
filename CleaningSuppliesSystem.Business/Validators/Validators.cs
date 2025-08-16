@@ -717,5 +717,33 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .MaximumLength(11).WithMessage("Kimlik numarası en fazla 11 karakter olmalıdır.");
             }
         }
+
+        public class CreateCustomerAddressValidator : AbstractValidator<CreateCustomerAddressDto>
+        {
+            public CreateCustomerAddressValidator()
+            {
+                RuleFor(x => x.AddressTitle)
+                         .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
+                         .MaximumLength(100).WithMessage("Adres başlığı en fazla 30 karakter olmalıdır.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Açık adres boş bırakılamaz.")
+                    .MaximumLength(500).WithMessage("Açık adres en fazla 200 karakter olmalıdır.");
+            }
+        }
+
+        public class UpdateCustomerAddressValidator : AbstractValidator<UpdateCustomerAddressDto>
+        {
+            public UpdateCustomerAddressValidator()
+            {
+                RuleFor(x => x.AddressTitle)
+                         .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
+                         .MaximumLength(100).WithMessage("Adres başlığı en fazla 30 karakter olmalıdır.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Açık adres boş bırakılamaz.")
+                    .MaximumLength(500).WithMessage("Açık adres en fazla 200 karakter olmalıdır.");
+            }
+        }
     }
 }

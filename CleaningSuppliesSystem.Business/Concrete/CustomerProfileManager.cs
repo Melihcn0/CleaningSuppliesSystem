@@ -38,6 +38,14 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             return _mapper.Map<CustomerProfileDto>(user);
         }
+        public async Task<UpdateCustomerProfileDto?> TGetUpdateCustomerProfileAsync()
+        {
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            if (user == null)
+                return null;
+
+            return _mapper.Map<UpdateCustomerProfileDto>(user);
+        }
         public async Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateCustomerProfileAsync(UpdateCustomerProfileDto updateCustomerProfileDto)
         {
             // Validator ile kontrol
@@ -51,7 +59,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             }
 
             // Mevcut müşteri profiliyi veritabanından getir
-            var customerProfile = await _customerProfileRepository.GetByIdAsync(updateCustomerProfileDto.AppUserId);
+            var customerProfile = await _customerProfileRepository.GetByIdAsync(updateCustomerProfileDto.Id);
             if (customerProfile == null)
                 return (false, "Müşteri profili bulunamadı.", 0);
 

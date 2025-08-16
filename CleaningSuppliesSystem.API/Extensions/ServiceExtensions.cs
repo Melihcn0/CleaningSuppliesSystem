@@ -87,6 +87,12 @@ namespace CleaningSuppliesSystem.API.Extensions
             services.AddScoped<ICustomerProfileService, CustomerProfileManager>();
             services.AddScoped<ICustomerProfileRepository, CustomerProfileRepository>();
 
+            services.AddScoped<IServiceService, ServiceManager>();
+            services.AddScoped<IServiceRepository, ServiceRepository>();
+
+            services.AddScoped<ICustomerAddressService, CustomerAddressManager>();
+            services.AddScoped<ICustomerAddressRepository, CustomerAddressRepository>();
+
             services.AddHttpClient();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

@@ -12,6 +12,7 @@ namespace CleaningSuppliesSystem.Business.Abstract
     public interface ICustomerProfileService
     {
         Task<CustomerProfileDto> TGetProfileAsync();
+        Task<UpdateCustomerProfileDto> TGetUpdateCustomerProfileAsync();
         Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateCustomerProfileAsync(UpdateCustomerProfileDto updateCustomerProfileDto);
 
     }

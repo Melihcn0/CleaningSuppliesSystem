@@ -690,8 +690,7 @@
              role="alert">
             <div class="d-flex align-items-center gap-2">
                 <div class="toast-body d-flex align-items-center">
-                    @Html.Raw(iconHtml)
-                    @toastMessage
+                    @Html.Raw(iconHtml) <span class="ms-1">@toastMessage</span>
                 </div>
                 <button type="button" class="remove-button @textColor text-xxl line-height-1" onclick="closeCustomToast('@toastId')">
                     <iconify-icon icon="iconamoon:sign-times-light" class="icon"></iconify-icon>

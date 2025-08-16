@@ -66,9 +66,6 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<UpdateOrderDto, Order>().ReverseMap();
             CreateMap<OrderStatusUpdateDto, Order>().ReverseMap();
 
-
-
-
             // OrderItem
             CreateMap<CreateOrderItemDto, OrderItem>().ReverseMap();
             CreateMap<UpdateOrderItemDto, OrderItem>().ReverseMap();
@@ -123,6 +120,7 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.ServiceIcon.IconUrl));
 
             CreateMap<AppUser, CustomerProfileDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
@@ -143,8 +141,11 @@ namespace CleaningSuppliesSystem.API.Mapping
                 }
             });
 
-
             CreateMap<UpdateCustomerProfileDto, AppUser>().ReverseMap();
+
+            CreateMap<CreateCustomerAddressDto, CustomerAddress>().ReverseMap();
+            CreateMap<UpdateCustomerAddressDto, CustomerAddress>().ReverseMap();
+
 
         }
     }
