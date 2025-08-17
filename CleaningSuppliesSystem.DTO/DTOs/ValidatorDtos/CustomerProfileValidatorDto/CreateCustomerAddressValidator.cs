@@ -14,11 +14,11 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CustomerProfileValidator
         {
             RuleFor(x => x.AddressTitle)
                      .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
-                     .MaximumLength(100).WithMessage("Adres başlığı en fazla 30 karakter olmalıdır.");
+                     .MaximumLength(30).WithMessage("Adres başlığı en fazla 30 karakter olmalıdır.");
 
             RuleFor(x => x.Address)
                 .NotEmpty().WithMessage("Açık adres boş bırakılamaz.")
-                .MaximumLength(500).WithMessage("Açık adres en fazla 200 karakter olmalıdır.");
+                .MaximumLength(200).WithMessage("Açık adres en fazla 200 karakter olmalıdır.");
         }
     }
 }

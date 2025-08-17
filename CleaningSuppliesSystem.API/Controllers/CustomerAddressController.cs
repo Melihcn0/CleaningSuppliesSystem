@@ -16,10 +16,12 @@ namespace CleaningSuppliesSystem.API.Controllers
     {
         private readonly ICustomerAddressService _customerAddressService;
         private readonly IMapper _mapper;
-        public CustomerAddressController(ICustomerAddressService customerAddressService, IMapper mapper)
+        private readonly IUserService _userService;
+        public CustomerAddressController(ICustomerAddressService customerAddressService, IMapper mapper, IUserService userService)
         {
             _customerAddressService = customerAddressService;
             _mapper = mapper;
+            _userService = userService;
         }
 
         [HttpGet("all/{userId}")]
@@ -37,18 +39,32 @@ namespace CleaningSuppliesSystem.API.Controllers
 
             return Ok(customerAddress);
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCustomerAddressDto createCustomerAddressDto)
         {
+            // Claim'den kullanıcı adı veya email al
+            var userIdentifier = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdentifier))
+                return Unauthorized(new { message = "Kullanıcı oturumu bulunamadı." });
+
+            // Kullanıcıyı UserService üzerinden al
+            var user = await _userService.GetUserByEmailAsync(userIdentifier)
+                       ?? await _userService.GetUserByIdAsync(int.Parse(userIdentifier)); // ID geliyorsa
+
+            if (user == null)
+                return NotFound(new { message = "Kullanıcı bulunamadı." });
+
+            createCustomerAddressDto.AppUserId = user.Id;
+
             var (isSuccess, message, createdId) = await _customerAddressService.TCreateCustomerAddressAsync(createCustomerAddressDto);
 
             if (!isSuccess)
-            {
                 return BadRequest(new { message });
-            }
 
             return Ok(new { message = "Müşteri adresi başarıyla oluşturuldu.", id = createdId });
         }
+
 
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateCustomerAddressDto updateCustomerAddressDto)
@@ -56,9 +72,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             var (isSuccess, message, updatedId) = await _customerAddressService.TUpdateCustomerAddressAsync(updateCustomerAddressDto);
 
             if (!isSuccess)
-            {
                 return BadRequest(new { message });
-            }
 
             return Ok(new { message = "Müşteri adresi başarıyla güncellendi.", id = updatedId });
         }

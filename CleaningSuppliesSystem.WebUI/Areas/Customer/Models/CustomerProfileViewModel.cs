@@ -8,7 +8,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Models
         public CustomerProfileDto CustomerProfile { get; set; }
         public UpdateCustomerProfileDto UpdateCustomerProfile { get; set; }
         public List<CustomerAddressDto> CustomerAddresses { get; set; } = new List<CustomerAddressDto>();
-        public UpdateCustomerAddressDto NewAddress { get; set; } = new UpdateCustomerAddressDto();
+        public CreateCustomerAddressDto CreateCustomerProfile { get; set; }
         public UpdateCustomerAddressDto UpdateAddress { get; set; } = new UpdateCustomerAddressDto();
     }
 }

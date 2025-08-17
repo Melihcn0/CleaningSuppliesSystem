@@ -143,8 +143,9 @@ namespace CleaningSuppliesSystem.API.Mapping
 
             CreateMap<UpdateCustomerProfileDto, AppUser>().ReverseMap();
 
-            CreateMap<CreateCustomerAddressDto, CustomerAddress>().ReverseMap();
-            CreateMap<UpdateCustomerAddressDto, CustomerAddress>().ReverseMap();
+            CreateMap<CreateCustomerAddressDto, CustomerAddress>();
+            CreateMap<UpdateCustomerAddressDto, CustomerAddress>();
+            CreateMap<CustomerAddress, CustomerAddressDto>();
 
 
         }

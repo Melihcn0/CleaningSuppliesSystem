@@ -1,0 +1,35 @@
+﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
+@model CreateCustomerAddressDto
+
+<form id="createAddressForm" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="CreateCustomerAddress">
+    @Html.AntiForgeryToken()
+    <div class="row g-3">
+        <!-- Adres Başlığı -->
+        <div class="col-12">
+            <label asp-for="AddressTitle" class="form-label fw-semibold text-primary-light text-sm">
+                Adres Başlığı <span class="text-danger">*</span>
+            </label>
+            <input asp-for="AddressTitle" class="form-control radius-8" />
+            <span asp-validation-for="AddressTitle" class="text-danger text-sm"></span>
+        </div>
+
+        <!-- Açık Adres -->
+        <div class="col-12">
+            <label asp-for="Address" class="form-label fw-semibold text-primary-light text-sm">
+                Açık Adres <span class="text-danger">*</span>
+            </label>
+            <textarea asp-for="Address" class="form-control radius-8" rows="3"></textarea>
+            <span asp-validation-for="Address" class="text-danger text-sm"></span>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="col-12 d-flex justify-content-center gap-3 mt-4">
+            <a href="@Url.Action("Index", "CustomerProfile")" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
+                İptal
+            </a>
+            <button type="submit" class="btn btn-primary px-5 py-2 radius-8">
+                Kaydet
+            </button>
+        </div>
+    </div>
+</form>

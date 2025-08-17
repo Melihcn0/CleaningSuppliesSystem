@@ -1,44 +1,36 @@
-﻿@model CleaningSuppliesSystem.WebUI.Areas.Customer.Models.CustomerProfileViewModel
+﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
+@model CleaningSuppliesSystem.WebUI.Areas.Customer.Models.CustomerProfileViewModel
 
 <div class="customer-addresses">
-    <!-- Add New Address Button -->
-    <div class="d-flex justify-content-start mb-3">
-        <form asp-action="CreateAddressPartial" asp-controller="CustomerProfile" asp-area="Customer" method="get">
-            <button type="submit" class="btn btn-primary">Add New Address</button>
-        </form>
+
+    <div id="address-list">
+        @if (Model.CustomerAddresses != null && Model.CustomerAddresses.Any())
+        {
+            <ul class="list-group">
+                @foreach (var address in Model.CustomerAddresses)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>@address.Address</div>
+                        <div class="d-flex align-items-center">
+                            <form asp-action="SetDefaultAddress" asp-controller="CustomerProfile" asp-area="Customer" method="post" class="me-2">
+                                <input type="hidden" name="addressId" value="@address.Id" />
+                                <input type="checkbox" name="IsDefault" onchange="this.form.submit()" @(address.IsDefault ? "checked" : "") /> Default
+                            </form>
+
+                            <form asp-action="UpdateAddressPartial" asp-controller="CustomerProfile" asp-area="Customer" method="get">
+                                <input type="hidden" name="addressId" value="@address.Id" />
+                                <button type="submit" class="btn btn-sm btn-secondary">Düzenle</button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Henüz adres eklenmemiş.</p>
+        }
     </div>
 
-    <h4>Adresleriniz</h4>
-
-    @if (Model.CustomerAddresses != null && Model.CustomerAddresses.Any())
-    {
-        <ul class="list-group">
-            @foreach (var address in Model.CustomerAddresses)
-            {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        @address.Address
-                    </div>
-
-                    <div class="d-flex align-items-center">
-                        <!-- Default Checkbox -->
-                        <form asp-action="SetDefaultAddress" asp-controller="CustomerProfile" asp-area="Customer" method="post" class="me-2">
-                            <input type="hidden" name="addressId" value="@address.Id" />
-                            <input type="checkbox" name="IsDefault" onchange="this.form.submit()" @(address.IsDefault ? "checked" : "") /> Default
-                        </form>
-
-                        <!-- Edit Button -->
-                        <form asp-action="UpdateAddressPartial" asp-controller="CustomerProfile" asp-area="Customer" method="get">
-                            <input type="hidden" name="addressId" value="@address.Id" />
-                            <button type="submit" class="btn btn-sm btn-secondary">Düzenle</button>
-                        </form>
-                    </div>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>Henüz adres eklenmemiş.</p>
-    }
 </div>
+

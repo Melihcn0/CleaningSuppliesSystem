@@ -10,5 +10,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
     {
         public string AddressTitle { get; set; }
         public string Address { get; set; }
+        public int AppUserId { get; set; }
     }
 }
