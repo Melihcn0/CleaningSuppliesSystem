@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
 {
-    public class CreateCustomerAddressDto
+    public enum AddressType
     {
-        public string AddressTitle { get; set; }
-        public string Address { get; set; }
-        public int AppUserId { get; set; }
+        Individual,
+        Corporate
     }
 }

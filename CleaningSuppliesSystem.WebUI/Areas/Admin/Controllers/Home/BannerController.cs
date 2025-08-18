@@ -257,7 +257,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
             return "/images/banners/" + fileName;
         }
 
-
         [HttpPost]
         public async Task<IActionResult> ToggleStatus(int bannerId, bool newStatus)
         {

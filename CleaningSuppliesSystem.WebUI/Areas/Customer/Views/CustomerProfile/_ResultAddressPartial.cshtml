@@ -1,36 +1,84 @@
-﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
-@model CleaningSuppliesSystem.WebUI.Areas.Customer.Models.CustomerProfileViewModel
+﻿@model CustomerProfileViewModel
+
+<div class="d-flex justify-content-start mb-3">
+    <button class="btn btn-sm btn-primary d-flex align-items-center"
+            id="btnAddAddress"
+            data-bs-toggle="pill"
+            data-bs-target="#pills-add-address"
+        type="button">
+    <span class="material-symbols-outlined me-1">add</span>
+    Adres Ekle
+</button>
+
+</div>
+
 
 <div class="customer-addresses">
-
     <div id="address-list">
         @if (Model.CustomerAddresses != null && Model.CustomerAddresses.Any())
         {
-            <ul class="list-group">
-                @foreach (var address in Model.CustomerAddresses)
-                {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>@address.Address</div>
-                        <div class="d-flex align-items-center">
-                            <form asp-action="SetDefaultAddress" asp-controller="CustomerProfile" asp-area="Customer" method="post" class="me-2">
-                                <input type="hidden" name="addressId" value="@address.Id" />
-                                <input type="checkbox" name="IsDefault" onchange="this.form.submit()" @(address.IsDefault ? "checked" : "") /> Default
-                            </form>
+            @foreach (var address in Model.CustomerAddresses)
+            {
+                <div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-0"><strong>Adres Adı:</strong> @address.AddressTitle</p>
+                            <p class="mb-1"><strong>Adres:</strong> @address.Address</p>
+                        </div>
+                        <div class="d-flex flex-column align-items-end">
 
+                            <!-- Switch: Varsayılan Adres -->
+                                <form method="post" asp-action="ToggleStatus" asp-controller="CustomerProfile" id="toggleForm-@address.Id" class="d-inline-block">
+                                    <input type="hidden" name="addressId" value="@address.Id" />
+                                    <input type="hidden" name="newStatus" id="newStatus-@address.Id" value="@address.IsDefault.ToString().ToLower()" />
+                                    <div class="form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               role="switch"
+                                               id="isShownSwitch-@address.Id"
+                                               name="isShown"
+                                               @(address.IsDefault ? "checked" : "")
+                                               onchange="onToggleChange(@address.Id)" />
+                                    </div>
+                                </form>
+
+                            <!-- Düzenle Butonu (Google Material Icon ile) -->
                             <form asp-action="UpdateAddressPartial" asp-controller="CustomerProfile" asp-area="Customer" method="get">
                                 <input type="hidden" name="addressId" value="@address.Id" />
-                                <button type="submit" class="btn btn-sm btn-secondary">Düzenle</button>
+                                <button type="submit" class="btn rounded-pill btn-warning-100 text-warning-600 radius-8 d-inline-flex align-items-center me-2">
+                                    <span class="material-symbols-outlined me-1">edit_square</span>
+                                    Düzenle
+                                </button>
                             </form>
+
                         </div>
-                    </li>
-                }
-            </ul>
+                    </div>
+                </div>
+            }
         }
         else
         {
             <p>Henüz adres eklenmemiş.</p>
         }
     </div>
-
 </div>
+
+
+
+<script>
+    function onToggleChange(addressId) {
+        const checkbox = document.getElementById(`isShownSwitch-${addressId}`);
+        const form = document.getElementById(`toggleForm-${addressId}`);
+        const newStatusInput = document.getElementById(`newStatus-${addressId}`);
+        newStatusInput.value = checkbox.checked;
+        form.submit();
+    }
+</script>
+<script>
+    document.getElementById("btnAddAddress").addEventListener("click", function () {
+        var triggerEl = document.querySelector('#pills-add-address-tab'); // nav’daki tab butonu
+        var tab = new bootstrap.Tab(triggerEl);
+        tab.show();
+    });
+</script>
 

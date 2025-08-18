@@ -19,6 +19,8 @@ using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -143,9 +145,13 @@ namespace CleaningSuppliesSystem.API.Mapping
 
             CreateMap<UpdateCustomerProfileDto, AppUser>().ReverseMap();
 
-            CreateMap<CreateCustomerAddressDto, CustomerAddress>();
-            CreateMap<UpdateCustomerAddressDto, CustomerAddress>();
-            CreateMap<CustomerAddress, CustomerAddressDto>();
+            CreateMap<CreateCustomerIndivivualAddressDto, CustomerIndivivualAddress>();
+            CreateMap<UpdateCustomerIndivivualAddressDto, CustomerIndivivualAddress>();
+            CreateMap<CustomerIndivivualAddress, CustomerIndivivualAddressDto>();
+
+            CreateMap<CreateCustomerCorporateAddressDto, CustomerCorporateAddress>();
+            CreateMap<UpdateCustomerCorporateAddressDto, CustomerCorporateAddress>();
+            CreateMap<CustomerCorporateAddress, CustomerCorporateAddressDto>();
 
 
         }

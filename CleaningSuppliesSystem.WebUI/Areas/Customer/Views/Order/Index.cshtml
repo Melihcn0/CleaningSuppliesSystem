@@ -5,9 +5,9 @@
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
 }
 
-<div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3">
-    <h6 class="mb-2" style="font-size: 1rem;">Ödeme Talimatları</h6>
-    <ul class="mb-2 ps-3" style="list-style-type: disc; font-size: 0.9rem;">
+<div class="p-16 bg-neutral-100 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
+    <h6 class="text-primary-light text-md mb-8">Ödeme Talimatları</h6>
+    <ul class="list-unstyled mb-0 space-y-2" style="font-size: 0.9rem;">
         <li>Toplam tutarı aşağıdaki IBAN'a havale edin.</li>
         <li>Açıklama kısmına <strong>Sipariş Numaranızı</strong> yazın.</li>
         <li>Ödeme yapıldığında siparişiniz işleme alınacaktır.</li>
@@ -17,11 +17,11 @@
         <strong>IBAN:</strong> TR12 3456 7890 1234 5678 9012 34<br>
         <strong>Açıklama:</strong> [Sipariş Numarası]
     </div>
-    <strong><small class="d-block mt-2" style="font-size: 0.8rem;">
-            Not: Havale tamamlanmadan sipariş işleme alınmaz.
-        </small>
-    </strong>
+    <small class="d-block mt-2" style="font-size: 0.8rem;">
+        Not: Havale tamamlanmadan sipariş işleme alınmaz.
+    </small>
 </div>
+
 
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()

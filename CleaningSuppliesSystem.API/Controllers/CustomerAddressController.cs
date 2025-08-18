@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +14,10 @@ namespace CleaningSuppliesSystem.API.Controllers
     [ApiController]
     public class CustomerAddressController : ControllerBase
     {
-        private readonly ICustomerAddressService _customerAddressService;
+        private readonly ICustomerInvdivualAddressService _customerAddressService;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        public CustomerAddressController(ICustomerAddressService customerAddressService, IMapper mapper, IUserService userService)
+        public CustomerAddressController(ICustomerInvdivualAddressService customerAddressService, IMapper mapper, IUserService userService)
         {
             _customerAddressService = customerAddressService;
             _mapper = mapper;
@@ -39,35 +39,33 @@ namespace CleaningSuppliesSystem.API.Controllers
 
             return Ok(customerAddress);
         }
-
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateCustomerAddressDto createCustomerAddressDto)
+        public async Task<IActionResult> Create([FromBody] CreateCustomerIndivivualAddressDto createCustomerAddressDto)
         {
-            // Claim'den kullanıcı adı veya email al
+            // Kullanıcıyı al
             var userIdentifier = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdentifier))
-                return Unauthorized(new { message = "Kullanıcı oturumu bulunamadı." });
+                return Ok(new { isSuccess = false, message = "Kullanıcı oturumu bulunamadı." });
 
-            // Kullanıcıyı UserService üzerinden al
             var user = await _userService.GetUserByEmailAsync(userIdentifier)
-                       ?? await _userService.GetUserByIdAsync(int.Parse(userIdentifier)); // ID geliyorsa
+                       ?? await _userService.GetUserByIdAsync(int.Parse(userIdentifier));
 
             if (user == null)
-                return NotFound(new { message = "Kullanıcı bulunamadı." });
+                return Ok(new { isSuccess = false, message = "Kullanıcı bulunamadı." });
 
             createCustomerAddressDto.AppUserId = user.Id;
 
             var (isSuccess, message, createdId) = await _customerAddressService.TCreateCustomerAddressAsync(createCustomerAddressDto);
 
             if (!isSuccess)
-                return BadRequest(new { message });
+                return Ok(new { isSuccess = false, message }); // Burada artık BadRequest yerine OK dönüyoruz
 
-            return Ok(new { message = "Müşteri adresi başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { isSuccess = true, message = "Müşteri adresi başarıyla oluşturuldu.", id = createdId });
         }
 
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateCustomerAddressDto updateCustomerAddressDto)
+        public async Task<IActionResult> Update([FromBody] UpdateCustomerIndivivualAddressDto updateCustomerAddressDto)
         {
             var (isSuccess, message, updatedId) = await _customerAddressService.TUpdateCustomerAddressAsync(updateCustomerAddressDto);
 
@@ -76,5 +74,17 @@ namespace CleaningSuppliesSystem.API.Controllers
 
             return Ok(new { message = "Müşteri adresi başarıyla güncellendi.", id = updatedId });
         }
+
+        [HttpPost("togglestatus")]
+        public async Task<IActionResult> ToggleStatus([FromQuery] int addressId, [FromQuery] bool newStatus)
+        {
+            var result = await _customerAddressService.ToggleCustomerAddressStatusAsync(addressId, newStatus);
+            if (!result)
+                return BadRequest("Adres durumu güncellenemedi.");
+
+            return Ok("Adres durumu güncellendi.");
+        }
+
+
     }
 }

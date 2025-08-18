@@ -90,8 +90,11 @@ namespace CleaningSuppliesSystem.API.Extensions
             services.AddScoped<IServiceService, ServiceManager>();
             services.AddScoped<IServiceRepository, ServiceRepository>();
 
-            services.AddScoped<ICustomerAddressService, CustomerAddressManager>();
-            services.AddScoped<ICustomerAddressRepository, CustomerAddressRepository>();
+            services.AddScoped<ICustomerIndivivualAddressService, CustomerIndivivualAddressManager>();
+            services.AddScoped<ICustomerIndivivualAddressRepository, CustomerIndivivualAddressRepository>();
+
+            services.AddScoped<ICustomerCorporateAddressService, CustomerCorporateAddressManager>();
+            services.AddScoped<ICustomerCorporateAddressRepository, CustomerCorporateAddressRepository>();
 
             services.AddHttpClient();
 

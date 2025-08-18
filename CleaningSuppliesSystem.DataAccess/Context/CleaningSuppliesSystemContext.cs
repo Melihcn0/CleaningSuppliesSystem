@@ -23,7 +23,8 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         public DbSet<SecondaryBanner> SecondaryBanners { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<ServiceIcon> ServiceIcons { get; set; }
-        public DbSet<CustomerAddress> CustomerAddresses { get; set; }
+        public DbSet<CustomerIndivivualAddress> CustomerIndivivualAddresses { get; set; }
+        public DbSet<CustomerCorporateAddress> CustomerCorporateAddresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

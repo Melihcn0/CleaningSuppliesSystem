@@ -1,5 +1,4 @@
-﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
-@model CreateCustomerAddressDto
+﻿@model CreateCustomerIndivivualAddressDto
 
 <form id="createAddressForm" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="CreateCustomerAddress">
     @Html.AntiForgeryToken()
@@ -11,6 +10,23 @@
             </label>
             <input asp-for="AddressTitle" class="form-control radius-8" />
             <span asp-validation-for="AddressTitle" class="text-danger text-sm"></span>
+        </div>
+
+        <!-- Şehir ve İlçe (yan yana) -->
+        <div class="col-md-6">
+            <label asp-for="City" class="form-label fw-semibold text-primary-light text-sm">
+                Şehir <span class="text-danger">*</span>
+            </label>
+            <input asp-for="City" class="form-control radius-8" />
+            <span asp-validation-for="City" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="District" class="form-label fw-semibold text-primary-light text-sm">
+                İlçe <span class="text-danger">*</span>
+            </label>
+            <input asp-for="District" class="form-control radius-8" />
+            <span asp-validation-for="District" class="text-danger text-sm"></span>
         </div>
 
         <!-- Açık Adres -->

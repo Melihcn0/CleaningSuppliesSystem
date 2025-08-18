@@ -1,6 +1,10 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Customer.CustomerIndivualAddressDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CustomerProfileValidatorDto;
+using CleaningSuppliesSystem.Entity.Entities;
 using CleaningSuppliesSystem.WebUI.Areas.Customer.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -20,13 +24,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string activeTab = "pills-blank")
         {
             var model = await GetCustomerProfileViewModel();
             if (model == null)
                 return NotFound("Kullanıcı bilgileri bulunamadı.");
 
-            ViewBag.ActiveTab = TempData["ActiveTab"]?.ToString(); // sadece burada oku
+            ViewBag.ActiveTab = TempData["ActiveTab"]?.ToString() ?? activeTab;
             return View(model);
         }
 
@@ -55,21 +59,28 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             if (response.IsSuccessStatusCode)
             {
                 TempData["SuccessMessage"] = "Müşteri profili başarıyla güncellendi.";
-                ViewBag.ActiveTab = "pills-edit-profile";
+                TempData["ActiveTab"] = "pills-edit-profile";
                 return RedirectToAction(nameof(Index));
             }
 
             TempData["ErrorMessage"] = "Müşteri profili güncellenemedi.";
-            ViewBag.ActiveTab = "pills-edit-profile";
+            TempData["ActiveTab"] = "pills-edit-profile";
             var errorModel = await GetCustomerProfileViewModel(updateProfileDto: dto);
             return View("Index", errorModel);
         }
 
+        [HttpGet]
+        public IActionResult CreateAddressPartial()
+        {
+            var model = new CreateCustomerIndivivualAddressDto();
+            return View("_CreateAddressPartial", model);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCustomerAddress(CreateCustomerAddressDto newAddress)
+        public async Task<IActionResult> CreateCustomerAddress(CreateCustomerIndivivualAddressDto newAddress)
         {
-            var validator = new CreateCustomerAddressValidator();
+            var validator = new CreateIndivivualAddressValidator();
             var validationResult = await validator.ValidateAsync(newAddress);
 
             if (!validationResult.IsValid)
@@ -81,36 +92,38 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
                 }
 
                 ViewBag.ActiveTab = "pills-add-address";
-                ViewBag.ErrorMessage = "Adres eklenemedi.";
                 var model = await GetCustomerProfileViewModel(createAddressDto: newAddress);
                 return View("Index", model);
             }
 
             var response = await _client.PostAsJsonAsync("CustomerAddress", newAddress);
+            var content = await response.Content.ReadAsStringAsync();
 
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                ModelState.AddModelError("", "Adres oluşturulamadı.");
-                ViewBag.ActiveTab = "pills-add-address";
-                var model = await GetCustomerProfileViewModel(createAddressDto: newAddress);
-                return View("Index", model);
+                var messageObj = System.Text.Json.JsonDocument.Parse(content);
+                var message = messageObj.RootElement.GetProperty("message").GetString();
+                var isSuccess = messageObj.RootElement.GetProperty("isSuccess").GetBoolean();
+
+                if (isSuccess)
+                    TempData["SuccessMessage"] = message;
+                else
+                    TempData["ErrorMessage"] = message;
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = content;
             }
 
-            // Başarılıysa "Adreslerim" tab'ını aktif yap
-            ModelState.Clear();
-            ViewBag.ActiveTab = "pills-list-address";
-            ViewBag.SuccessMessage = "Adres başarıyla eklendi.";
-            var updatedModel = await GetCustomerProfileViewModel();
-            return View("Index", updatedModel);
+            TempData["ActiveTab"] = "pills-list-address";
+            return RedirectToAction(nameof(Index));
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateAddress(UpdateCustomerAddressDto updateAddress)
+        public async Task<IActionResult> UpdateAddress(UpdateCustomerIndivivualAddressDto updateAddress)
         {
-            var validator = new UpdateCustomerAddressValidator();
+            var validator = new UpdateIndivivualAddressValidator();
             var validationResult = await validator.ValidateAsync(updateAddress);
 
             if (!validationResult.IsValid)
@@ -122,44 +135,60 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
                 }
 
                 TempData["ErrorMessage"] = "Adres güncellenemedi.";
-                ViewBag.ActiveTab = "pills-list-address";
+                TempData["ActiveTab"] = "pills-list-address";
                 var model = await GetCustomerProfileViewModel(updateAddressDto: updateAddress);
                 return View("Index", model);
             }
 
-            var response = await _client.PutAsJsonAsync("CustomerAddress", updateAddress);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["SuccessMessage"] = "Adres başarıyla güncellendi.";
-                ViewBag.ActiveTab = "pills-list-address";
+                TempData["ActiveTab"] = "pills-list-address";
                 return RedirectToAction(nameof(Index));
             }
 
             TempData["ErrorMessage"] = "Adres güncellenemedi.";
-            ViewBag.ActiveTab = "pills-list-address";
+            TempData["ActiveTab"] = "pills-list-address";
             var errorModel = await GetCustomerProfileViewModel(updateAddressDto: updateAddress);
             return View("Index", errorModel);
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleStatus(int addressId, bool newStatus)
+        {
+            var response = await _client.PostAsync($"customerAddress/togglestatus?addressId={addressId}&newStatus={newStatus}", null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["ErrorMessage"] = $"Adres durumu güncellenirken bir hata oluştu: {error}";
+            }
+
+            TempData["ActiveTab"] = "pills-list-address";
+            return RedirectToAction(nameof(Index));
+        }
+
         private async Task<CustomerProfileViewModel> GetCustomerProfileViewModel(
             UpdateCustomerProfileDto? updateProfileDto = null,
-            CreateCustomerAddressDto? createAddressDto = null,
-            UpdateCustomerAddressDto? updateAddressDto = null)
+            CreateCustomerIndivivualAddressDto? createAddressDto = null,
+            UpdateCustomerIndivivualAddressDto? updateAddressDto = null)
         {
             var profileDto = await _client.GetFromJsonAsync<CustomerProfileDto>("CustomerProfile/Profile");
             if (profileDto == null) return null;
 
             var updateDto = updateProfileDto ?? await _client.GetFromJsonAsync<UpdateCustomerProfileDto>("CustomerProfile/UpdateCustomerProfile");
-            var addresses = await _client.GetFromJsonAsync<List<CustomerAddressDto>>($"CustomerAddress/all/{profileDto.Id}");
+            var indivivualAddresses = await _client.GetFromJsonAsync<List<CustomerIndivivualAddressDto>>($"CustomerAddress/all-indivivual/{profileDto.Id}");
+            var corporateAddresses = await _client.GetFromJsonAsync<List<CustomerCorporateAddressDto>>($"CustomerAddress/all-corporate/{profileDto.Id}");
 
             return new CustomerProfileViewModel
             {
                 CustomerProfile = profileDto,
                 UpdateCustomerProfile = updateDto,
                 CustomerAddresses = addresses,
-                CreateCustomerProfile = createAddressDto ?? new CreateCustomerAddressDto(),
-                UpdateAddress = updateAddressDto ?? new UpdateCustomerAddressDto()
+                CreateCustomerAddress = createAddressDto ?? new CreateCustomerIndivivualAddressDto(),
+                UpdateAddress = updateAddressDto ?? new UpdateCustomerIndivivualAddressDto()
             };
         }
     }

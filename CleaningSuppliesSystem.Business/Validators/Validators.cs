@@ -19,6 +19,7 @@ using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ToggleDtos;
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
+using CleaningSuppliesSystem.Entity.Entities;
 using FluentValidation;
 
 namespace CleaningSuppliesSystem.Business.Validators
@@ -718,31 +719,105 @@ namespace CleaningSuppliesSystem.Business.Validators
             }
         }
 
-        public class CreateCustomerAddressValidator : AbstractValidator<CreateCustomerAddressDto>
+        public class CreateIndivivualAddressValidator : AbstractValidator<CustomerIndivivualAddress>
         {
-            public CreateCustomerAddressValidator()
+            public CreateIndivivualAddressValidator()
             {
                 RuleFor(x => x.AddressTitle)
-                         .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
-                         .MaximumLength(100).WithMessage("Adres başlığı en fazla 30 karakter olmalıdır.");
+                    .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
+                    .MaximumLength(35).WithMessage("Adres başlığı en fazla 35 karakter olmalıdır.");
 
                 RuleFor(x => x.Address)
-                    .NotEmpty().WithMessage("Açık adres boş bırakılamaz.")
-                    .MaximumLength(500).WithMessage("Açık adres en fazla 200 karakter olmalıdır.");
+                    .NotEmpty().WithMessage("Adres boş bırakılamaz.")
+                    .MaximumLength(150).WithMessage("Adres en fazla 150 karakter olmalıdır.");
+
+                RuleFor(x => x.City)
+                    .NotEmpty().WithMessage("Şehir boş bırakılamaz.");
+
+                RuleFor(x => x.District)
+                    .NotEmpty().WithMessage("İlçe boş bırakılamaz.");
             }
         }
 
-        public class UpdateCustomerAddressValidator : AbstractValidator<UpdateCustomerAddressDto>
+        public class CreateCorporateAddressValidator : AbstractValidator<CustomerCorporateAddress>
         {
-            public UpdateCustomerAddressValidator()
+            public CreateCorporateAddressValidator()
             {
+                RuleFor(x => x.CompanyName)
+                    .NotEmpty().WithMessage("Şirket adı boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Şirket adı en fazla 100 karakter olmalıdır.");
+
+                RuleFor(x => x.TaxOffice)
+                    .NotEmpty().WithMessage("Vergi dairesi boş bırakılamaz.");
+
+                RuleFor(x => x.TaxNumber)
+                    .NotEmpty().WithMessage("Vergi numarası boş bırakılamaz.")
+                    .Length(11).WithMessage("Vergi numarası 11 karakter olmalıdır.");
+
                 RuleFor(x => x.AddressTitle)
-                         .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
-                         .MaximumLength(100).WithMessage("Adres başlığı en fazla 30 karakter olmalıdır.");
+                    .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
+                    .MaximumLength(35).WithMessage("Adres başlığı en fazla 35 karakter olmalıdır.");
 
                 RuleFor(x => x.Address)
-                    .NotEmpty().WithMessage("Açık adres boş bırakılamaz.")
-                    .MaximumLength(500).WithMessage("Açık adres en fazla 200 karakter olmalıdır.");
+                    .NotEmpty().WithMessage("Adres boş bırakılamaz.")
+                    .MaximumLength(150).WithMessage("Adres en fazla 150 karakter olmalıdır.");
+
+                RuleFor(x => x.City)
+                    .NotEmpty().WithMessage("Şehir boş bırakılamaz.");
+
+                RuleFor(x => x.District)
+                    .NotEmpty().WithMessage("İlçe boş bırakılamaz.");
+            }
+        }
+
+        public class UpdateIndivivualAddressValidator : AbstractValidator<CustomerIndivivualAddress>
+        {
+            public UpdateIndivivualAddressValidator()
+            {
+                RuleFor(x => x.AddressTitle)
+                    .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
+                    .MaximumLength(35).WithMessage("Adres başlığı en fazla 35 karakter olmalıdır.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Adres boş bırakılamaz.")
+                    .MaximumLength(150).WithMessage("Adres en fazla 150 karakter olmalıdır.");
+
+                RuleFor(x => x.City)
+                    .NotEmpty().WithMessage("Şehir boş bırakılamaz.");
+
+                RuleFor(x => x.District)
+                    .NotEmpty().WithMessage("İlçe boş bırakılamaz.");
+            }
+        }
+
+        public class UpdateCorporateAddressValidator : AbstractValidator<CustomerCorporateAddress>
+        {
+            public UpdateCorporateAddressValidator()
+            {
+                RuleFor(x => x.CompanyName)
+                    .NotEmpty().WithMessage("Şirket adı boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Şirket adı en fazla 100 karakter olmalıdır.");
+
+                RuleFor(x => x.TaxOffice)
+                    .NotEmpty().WithMessage("Vergi dairesi boş bırakılamaz.");
+
+                RuleFor(x => x.TaxNumber)
+                    .NotEmpty().WithMessage("Vergi numarası boş bırakılamaz.")
+                    .Length(11).WithMessage("Vergi numarası 11 karakter olmalıdır.");
+
+                RuleFor(x => x.AddressTitle)
+                    .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
+                    .MaximumLength(35).WithMessage("Adres başlığı en fazla 35 karakter olmalıdır.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Adres boş bırakılamaz.")
+                    .MaximumLength(150).WithMessage("Adres en fazla 150 karakter olmalıdır.");
+
+                RuleFor(x => x.City)
+                    .NotEmpty().WithMessage("Şehir boş bırakılamaz.");
+
+                RuleFor(x => x.District)
+                    .NotEmpty().WithMessage("İlçe boş bırakılamaz.");
             }
         }
     }

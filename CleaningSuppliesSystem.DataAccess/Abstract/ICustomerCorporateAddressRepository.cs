@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.DataAccess.Abstract
 {
-    public interface ICustomerAddressRepository : IRepository<CustomerAddress>
+    public interface ICustomerCorporateAddressRepository : IRepository<CustomerCorporateAddress>
     {
+        Task<bool> SetAsDefaultAsync(int addressId);
+        Task<List<CustomerCorporateAddress>> GetAllByUserIdAsync(int userId);
     }
 }
