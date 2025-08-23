@@ -1,0 +1,163 @@
+﻿@model UpdateCustomerIndividualAddressDto
+
+<form id="individualForm_@Model.Id" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="UpdateIndividualAddress">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div id="individualFields_@Model.Id">
+        <div class="col-md-6 mb-3">
+            <label asp-for="AddressTitle" class="form-label">Adres Başlığı <span class="text-danger">*</span></label>
+            <input asp-for="AddressTitle" class="form-control" minlength="3" maxlength="50" />
+            <span asp-validation-for="AddressTitle" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="CityId">Şehir <span class="text-danger">*</span></label>
+                <select asp-for="CityId" id="individualCity_@Model.Id" class="form-control">
+                    <option value="" hidden>Şehir Seçin</option>
+                    @if (ViewBag.Cities != null)
+                    {
+                        foreach (var city in ViewBag.Cities as List<SelectListItem>)
+                        {
+                            if (city.Selected)
+                            {
+                                <option value="@city.Value" selected>@city.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@city.Value">@city.Text</option>
+                            }
+                        }
+                    }
+                </select>
+                <input type="hidden" name="CityName" id="individualCityName_@Model.Id" />
+                <span asp-validation-for="CityId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="DistrictId">İlçe <span class="text-danger">*</span></label>
+                <select asp-for="DistrictId" id="individualDistrict_@Model.Id" class="form-control">
+                    <option value="" hidden>Önce Şehir seçiniz...</option>
+                    @if (ViewBag.Districts != null)
+                    {
+                        foreach (var district in ViewBag.Districts as List<SelectListItem>)
+                        {
+                            if (district.Selected)
+                            {
+                                <option value="@district.Value" selected>@district.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@district.Value">@district.Text</option>
+                            }
+                        }
+                    }
+                </select>
+                <input type="hidden" name="DistrictName" id="individualDistrictName_@Model.Id" />
+                <span asp-validation-for="DistrictId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="col-12 mt-3">
+            <label asp-for="Address" class="form-label">Açık Adres <span class="text-danger">*</span></label>
+            <textarea asp-for="Address" class="form-control" rows="3" minlength="10" maxlength="250"></textarea>
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Kaydet</button>
+    </div>
+</form>
+
+<script>
+    (function() {
+        const formId = "@Model.Id";
+        const citySelect = document.getElementById("individualCity_" + formId);
+        const districtSelect = document.getElementById("individualDistrict_" + formId);
+        const cityNameInput = document.getElementById("individualCityName_" + formId);
+        const districtNameInput = document.getElementById("individualDistrictName_" + formId);
+
+        if (!citySelect || !districtSelect || !cityNameInput || !districtNameInput) {
+            setTimeout(function() {
+                initializeForm();
+            }, 100);
+            return;
+        }
+
+        function initializeForm() {
+            const citySelect = document.getElementById("individualCity_" + formId);
+            const districtSelect = document.getElementById("individualDistrict_" + formId);
+            const cityNameInput = document.getElementById("individualCityName_" + formId);
+            const districtNameInput = document.getElementById("individualDistrictName_" + formId);
+
+            if (!citySelect || !districtSelect || !cityNameInput || !districtNameInput) return;
+
+            // Başlangıç değerlerini set et
+            if (citySelect.value) {
+                cityNameInput.value = citySelect.options[citySelect.selectedIndex].text;
+            }
+            if (districtSelect.value) {
+                districtNameInput.value = districtSelect.options[districtSelect.selectedIndex].text;
+            }
+
+            async function loadDistricts(cityId) {
+                if (!cityId || cityId === "0") {
+                    districtSelect.innerHTML = '<option value="" hidden>Önce Şehir seçiniz...</option>';
+                    districtNameInput.value = "";
+                    return;
+                }
+
+                districtSelect.innerHTML = '<option value="" hidden>Yükleniyor...</option>';
+
+                try {
+                    const response = await fetch('/Customer/CustomerProfile/GetByCity?cityId=' + cityId);
+                    if (!response.ok) throw new Error("İstek başarısız");
+
+                    const districts = await response.json();
+                    console.log("Districts loaded:", districts);
+
+                    districtSelect.innerHTML = '<option value="" hidden>İlçe seçiniz...</option>';
+
+                    districts.forEach(d => {
+                        const opt = document.createElement("option");
+                        opt.value = d.id;
+                        opt.textContent = d.districtName;
+                        districtSelect.appendChild(opt);
+                    });
+
+                } catch (err) {
+                    console.error("İlçe yükleme hatası:", err);
+                    districtSelect.innerHTML = '<option value="" hidden>İlçe yüklenemedi</option>';
+                }
+            }
+
+            citySelect.removeEventListener("change", cityChangeHandler);
+            districtSelect.removeEventListener("change", districtChangeHandler);
+
+            function cityChangeHandler() {
+                const selectedCityText = citySelect.options[citySelect.selectedIndex].text;
+                cityNameInput.value = citySelect.value ? selectedCityText : "";
+                districtNameInput.value = "";
+                loadDistricts(citySelect.value);
+            }
+
+            function districtChangeHandler() {
+                const selectedDistrictText = districtSelect.options[districtSelect.selectedIndex].text;
+                districtNameInput.value = districtSelect.value ? selectedDistrictText : "";
+            }
+
+            citySelect.addEventListener("change", cityChangeHandler);
+            districtSelect.addEventListener("change", districtChangeHandler);
+
+            // Sayfa yüklendiğinde şehir seçiliyse ilçeleri yükle
+            const selectedCityId = citySelect.value;
+            console.log("Selected City ID:", selectedCityId);
+
+            if (selectedCityId && selectedCityId !== "0" && selectedCityId !== "") {
+                loadDistricts(selectedCityId);
+            }
+        }
+
+        initializeForm();
+    })();
+</script>

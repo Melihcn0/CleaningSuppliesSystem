@@ -89,6 +89,8 @@ app.Use(async (context, next) =>
             context.Response.Cookies.Delete("AccessToken");
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             context.User = new ClaimsPrincipal(); // Authenticated false gibi davranır
+            context.Response.Headers["X-Force-Refresh"] = "true"; // false ise refresh
+
         }
     }
 

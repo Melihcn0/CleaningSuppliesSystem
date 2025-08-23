@@ -1,59 +1,144 @@
 ﻿@model CustomerProfileViewModel
 
-<div class="d-flex justify-content-start mb-3">
+@{
+    var totalAddresses = (Model.CustomerIndividualAddresses?.Count ?? 0)
+                       + (Model.CustomerCorporateAddresses?.Count ?? 0);
+    var canAddAddress = totalAddresses < 5;
+}
+
+<div class="d-flex justify-content-start mb-3 align-items-center">
     <button class="btn btn-sm btn-primary d-flex align-items-center"
             id="btnAddAddress"
             data-bs-toggle="pill"
             data-bs-target="#pills-add-address"
-        type="button">
-    <span class="material-symbols-outlined me-1">add</span>
-    Adres Ekle
-</button>
-
+            type="button"
+            @(canAddAddress ? "" : "disabled")>
+        <span class="material-symbols-outlined me-1">add</span>
+        Adres Ekle
+    </button>
 </div>
 
+@if (!canAddAddress)
+{
+    <div class="col-lg-4 col-sm-6 mt-2">
+        <div class="p-16 bg-danger-50 radius-8 border-start-width-3-px border-danger border-top-0 border-end-0 border-bottom-0">
+            <h6 class="text-danger text-md mb-8">Uyarı</h6>
+            <span class="text-danger mb-0">Bir müşteri en fazla <strong>5 adres</strong> ekleyebilir.</span>
+        </div>
+        <br />
+    </div>
+}
 
 <div class="customer-addresses">
     <div id="address-list">
-        @if (Model.CustomerAddresses != null && Model.CustomerAddresses.Any())
+        @if ((Model.CustomerIndividualAddresses != null && Model.CustomerIndividualAddresses.Any()) ||
+        (Model.CustomerCorporateAddresses != null && Model.CustomerCorporateAddresses.Any()))
         {
-            @foreach (var address in Model.CustomerAddresses)
+            // Bireysel adresleri listele
+            if (Model.CustomerIndividualAddresses != null)
             {
-                <div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-0"><strong>Adres Adı:</strong> @address.AddressTitle</p>
-                            <p class="mb-1"><strong>Adres:</strong> @address.Address</p>
-                        </div>
-                        <div class="d-flex flex-column align-items-end">
+                foreach (var address in Model.CustomerIndividualAddresses)
+                {
+                    <div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-0"><strong>Adres Adı:</strong> @address.AddressTitle</p>
+                                <p class="mb-1"><strong>Adres:</strong> @address.Address</p>
+                                <p class="mb-1"><strong>Şehir:</strong> @address.CityName</p>
+                                <p class="mb-1"><strong>İlçe:</strong> @address.DistrictName</p>
+                            </div>
+                            <div class="d-flex justify-content-end align-items-center gap-2">
 
-                            <!-- Switch: Varsayılan Adres -->
-                                <form method="post" asp-action="ToggleStatus" asp-controller="CustomerProfile" id="toggleForm-@address.Id" class="d-inline-block">
+                                <form method="post" asp-action="ToggleStatus" asp-controller="CustomerProfile" id="toggleform-@address.Id" class="d-inline-block">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="addressId" value="@address.Id" />
-                                    <input type="hidden" name="newStatus" id="newStatus-@address.Id" value="@address.IsDefault.ToString().ToLower()" />
-                                    <div class="form-switch">
-                                        <input class="form-check-input"
+                                    <input type="hidden" name="newStatus" id="newtogglestatus-@address.Id" value="@address.IsDefault.ToString().ToLower()" />
+                                    <div class="form-switch d-flex align-items-center justify-content-center">
+                                        <input class="form-check-input @(address.IsDefault ? "bg-success-600" : "bg-warning-600")"
                                                type="checkbox"
                                                role="switch"
-                                               id="isShownSwitch-@address.Id"
+                                               id="toggleswitch-@address.Id"
                                                name="isShown"
-                                               @(address.IsDefault ? "checked" : "")
-                                               onchange="onToggleChange(@address.Id)" />
+                                        @(address.IsDefault ? "checked" : "")
+                                               onchange="onToggleCorporateChange(@address.Id)" />
                                     </div>
                                 </form>
 
-                            <!-- Düzenle Butonu (Google Material Icon ile) -->
-                            <form asp-action="UpdateAddressPartial" asp-controller="CustomerProfile" asp-area="Customer" method="get">
-                                <input type="hidden" name="addressId" value="@address.Id" />
-                                <button type="submit" class="btn rounded-pill btn-warning-100 text-warning-600 radius-8 d-inline-flex align-items-center me-2">
-                                    <span class="material-symbols-outlined me-1">edit_square</span>
-                                    Düzenle
-                                </button>
-                            </form>
+@*                                 <button type="button"
+                                        onclick="loadUpdateIndividualAddress(@address.Id)"
+                                        class="btn rounded-pill btn-info-50 text-info-600 radius-8 btn-sm d-inline-flex align-items-center justify-content-center"
+                                        title="Düzenle"
+                                        style="width: 40px; height: 40px;">
+                                    <span class="material-symbols-outlined">edit_square</span>
+                                </button> *@
 
+                                <form asp-action="PermanentDeleteIndividualAddress" asp-controller="CustomerProfile" asp-area="Customer" method="post" class="d-inline-block m-0 p-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@address.Id" />
+                                    <button type="submit"
+                                            class="btn btn-sm rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
+            }
+
+        // Kurumsal adresleri listele
+        if (Model.CustomerCorporateAddresses != null)
+            {
+                foreach (var address in Model.CustomerCorporateAddresses)
+                {
+                    <div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-0"><strong>Şirket Adı:</strong> @address.CompanyName</p>
+                                <p class="mb-1"><strong>Vergi Dairesi:</strong> @address.TaxOffice</p>
+                                <p class="mb-1"><strong>Vergi No:</strong> @address.TaxNumber</p>
+                                <p class="mb-1"><strong>Adres Adı:</strong> @address.AddressTitle</p>
+                                <p class="mb-1"><strong>Açık Adres:</strong> @address.Address</p>
+                                <p class="mb-1"><strong>Şehir:</strong> @address.CityName</p>
+                                <p class="mb-1"><strong>İlçe:</strong> @address.DistrictName</p>
+                            </div>
+                            <div class="d-flex justify-content-end align-items-center gap-2">
+
+                                <form method="post" asp-action="ToggleStatus" asp-controller="CustomerProfile" id="toggleform-@address.Id" class="d-inline-block m-0 p-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="addressId" value="@address.Id" />
+                                    <input type="hidden" name="newStatus" id="newtogglestatus-@address.Id" value="@address.IsDefault.ToString().ToLower()" />
+                                    <div class="form-switch d-flex align-items-center justify-content-center">
+                                        <input class="form-check-input @(address.IsDefault ? "bg-success-600" : "bg-warning-600")"
+                                               type="checkbox"
+                                               role="switch"
+                                               id="toggleswitch-@address.Id"
+                                               name="isShown"
+                                        @(address.IsDefault ? "checked" : "")
+                                               onchange="onToggleCorporateChange(@address.Id)" />
+                                    </div>
+                                </form>
+
+@*                                 <button type="button"
+                                        onclick="loadUpdateCorporateAddress(@address.Id)"
+                                        class="btn rounded-pill btn-info-50 text-info-600 radius-8 btn-sm d-inline-flex align-items-center justify-content-center"
+                                        title="Düzenle"
+                                        style="width: 40px; height: 40px;">
+                                    <span class="material-symbols-outlined">edit_square</span>
+                                </button> *@
+
+                                <form asp-action="PermanentDeleteCorporateAddress" asp-controller="CustomerProfile" asp-area="Customer" method="post" class="d-inline-block">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@address.Id" />
+                                    <button type="submit"
+                                            class="btn btn-sm rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
             }
         }
         else
@@ -63,17 +148,30 @@
     </div>
 </div>
 
+@* <script>
+        function loadUpdateIndividualAddress(id) {
+        $("#pills-update-IndividualAddress").load("/Customer/CustomerProfile/UpdateIndividualAddressPartial/" + id);
+            var tab = new bootstrap.Tab(document.getElementById('pills-update-IndividualAddress-tab'));
+            tab.show();
+        }
 
+        function loadUpdateCorporateAddress(id) {
+        $("#pills-update-CorporateAddress").load("/Customer/CustomerProfile/UpdateCorporateAddressPartial/" + id);
+            var tab = new bootstrap.Tab(document.getElementById('pills-update-CorporateAddress-tab'));
+            tab.show();
+        }
+    </script> *@
 
 <script>
-    function onToggleChange(addressId) {
-        const checkbox = document.getElementById(`isShownSwitch-${addressId}`);
-        const form = document.getElementById(`toggleForm-${addressId}`);
-        const newStatusInput = document.getElementById(`newStatus-${addressId}`);
+    function onToggleCorporateChange(addressId) {
+        const checkbox = document.getElementById(`toggleswitch-${addressId}`);
+        const form = document.getElementById(`toggleform-${addressId}`);
+        const newStatusInput = document.getElementById(`newtogglestatus-${addressId}`);
         newStatusInput.value = checkbox.checked;
         form.submit();
     }
 </script>
+
 <script>
     document.getElementById("btnAddAddress").addEventListener("click", function () {
         var triggerEl = document.querySelector('#pills-add-address-tab'); // nav’daki tab butonu
@@ -82,3 +180,188 @@
     });
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        const individualForm = document.getElementById("individualForm");
+        const corporateForm = document.getElementById("corporateForm");
+
+        // Radio toggle fonksiyonu
+        function toggleForm(){
+            const selected = document.querySelector('input[name="AddressType"]:checked')?.value;
+            if(selected==="Individual"){
+                individualForm.classList.remove("d-none");
+                corporateForm.classList.add("d-none");
+            } else if(selected==="Corporate"){
+                individualForm.classList.add("d-none");
+                corporateForm.classList.remove("d-none");
+            }
+        }
+
+        // **Sayfa yüklendiğinde toggleForm çağırıyoruz**
+        toggleForm();
+
+        // Radio değişince toggle
+        document.querySelectorAll('input[name="AddressType"]').forEach(r=>{
+            r.addEventListener("change", toggleForm);
+        });
+
+        // Şehir/İlçe dropdown setup
+        const forms = [
+            {cityId:"individualCity", districtId:"individualDistrict", cityNameId:"individualCityName", districtNameId:"individualDistrictName", selectedCityId:'@(Model.CreateIndividualAddress?.CityId)', selectedDistrictId:'@(Model.CreateIndividualAddress?.DistrictId)'},
+            {cityId:"corporateCity", districtId:"corporateDistrict", cityNameId:"corporateCityName", districtNameId:"corporateDistrictName", selectedCityId:'@(Model.CreateCorporateAddress?.CityId)', selectedDistrictId:'@(Model.CreateCorporateAddress?.DistrictId)'}
+        ];
+
+        forms.forEach(f=>{
+            const city = document.getElementById(f.cityId);
+            const district = document.getElementById(f.districtId);
+            const cityName = document.getElementById(f.cityNameId);
+            const districtName = document.getElementById(f.districtNameId);
+            if(!city || !district) return;
+
+            // Placeholder ekle
+            if(!f.selectedCityId && !city.querySelector('option[value=""]')){
+                const ph = document.createElement("option");
+                ph.value=""; ph.disabled=true; ph.selected=true; ph.textContent="Şehir seçin";
+                city.insertBefore(ph, city.firstChild);
+            }
+
+            async function loadDistricts(cityId, selectedDistrict=null){
+                district.innerHTML='<option value="" disabled selected>Yükleniyor...</option>';
+                if(!cityId){
+                    district.innerHTML='<option value="" disabled selected>Önce Şehir seçiniz...</option>';
+                    if(districtName) districtName.value="";
+                    return;
+                }
+                try{
+                    const res = await fetch('@Url.Action("GetByCity", "CustomerProfile")?cityId='+cityId);
+                    if(!res.ok) throw new Error("İstek başarısız");
+                    const data = await res.json();
+                    district.innerHTML='<option value="" disabled selected>İlçe seçiniz...</option>';
+                    data.forEach(d=>{
+                        const opt=document.createElement("option");
+                        opt.value=d.id; opt.textContent=d.districtName;
+                        if(selectedDistrict && selectedDistrict==d.id){
+                            opt.selected=true;
+                            if(districtName) districtName.value=d.districtName;
+                        }
+                        district.appendChild(opt);
+                    });
+                }catch(e){
+                    district.innerHTML='<option value="" disabled selected>İlçe yüklenemedi</option>';
+                    if(districtName) districtName.value="";
+                    console.error("İlçe yükleme hatası", e);
+                }
+            }
+
+            // Şehir değişince
+            city.addEventListener("change", function(){
+                if(cityName) cityName.value=this.options[this.selectedIndex].text;
+                loadDistricts(this.value);
+            });
+
+            // İlçe değişince
+            district.addEventListener("change", function(){
+                if(districtName) districtName.value=this.options[this.selectedIndex].text;
+            });
+
+            // Başlangıçta seçili değer varsa uygula
+            if(f.selectedCityId){
+                city.value=f.selectedCityId;
+                if(cityName) cityName.value=city.options[city.selectedIndex].text;
+                loadDistricts(f.selectedCityId, f.selectedDistrictId);
+            } else {
+                district.innerHTML='<option value="" disabled selected>Önce Şehir seçiniz...</option>';
+            }
+        });
+    });
+</script>
+
+
+
+@*     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            function setupCityDistrictForm(cityId, districtId, citySelectId, districtSelectId, cityNameId, districtNameId) {
+                const citySelect = document.getElementById(citySelectId);
+                const districtSelect = document.getElementById(districtSelectId);
+                const cityNameInput = document.getElementById(cityNameId);
+                const districtNameInput = document.getElementById(districtNameId);
+
+                async function loadDistricts(cityId, selectedDistrictId = null) {
+                    districtSelect.innerHTML = '<option value="" selected hidden>Yükleniyor...</option>';
+
+                    if (!cityId) {
+                        districtSelect.innerHTML = '<option value="" selected hidden>Önce Şehir seçiniz...</option>';
+                        districtNameInput.value = "";
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('@Url.Action("GetByCity", "CustomerProfile")?cityId=' + cityId);
+                        const districts = await response.json();
+
+                        districtSelect.innerHTML = '<option value="" selected hidden>İlçe seçiniz...</option>';
+
+                        districts.forEach(d => {
+                            const opt = document.createElement("option");
+                            opt.value = d.id;
+                            opt.textContent = d.districtName;
+                            districtSelect.appendChild(opt);
+                        });
+
+                        // ✅ Append bittikten sonra seçili yap
+                        if (selectedDistrictId) {
+                            const option = Array.from(districtSelect.options).find(o => o.value == selectedDistrictId);
+                            if (option) {
+                                option.selected = true;
+                                districtNameInput.value = option.text;
+                            }
+                        }
+
+                    } catch (err) {
+                        console.error(err);
+                        districtSelect.innerHTML = '<option value="" selected hidden>İlçe yüklenemedi</option>';
+                        districtNameInput.value = "";
+                    }
+                }
+
+                citySelect.addEventListener("change", () => {
+                    const selectedCityText = citySelect.options[citySelect.selectedIndex]?.text ?? "";
+                    cityNameInput.value = selectedCityText;
+                    loadDistricts(citySelect.value);
+                });
+
+                districtSelect.addEventListener("change", () => {
+                    districtNameInput.value = districtSelect.options[districtSelect.selectedIndex]?.text ?? "";
+                });
+
+                // Sayfa yüklenirken seçili city varsa districtleri yükle
+                if (cityId) {
+                    citySelect.value = cityId;
+                    cityNameInput.value = citySelect.options[citySelect.selectedIndex]?.text ?? "";
+                    loadDistricts(cityId, districtId);
+                }
+            }
+
+            // Bireysel
+            setupCityDistrictForm(
+                '@Model.CreateIndividualAddress?.CityId',
+                '@Model.CreateIndividualAddress?.DistrictId',
+                'individualCity',
+                'individualDistrict',
+                'individualCityName',
+                'individualDistrictName'
+            );
+
+            // Kurumsal
+            setupCityDistrictForm(
+                '@Model.CreateCorporateAddress?.CityId',
+                '@Model.CreateCorporateAddress?.DistrictId',
+                'corporateCity',
+                'corporateDistrict',
+                'corporateCityName',
+                'corporateDistrictName'
+            );
+
+        });
+    </script> *@

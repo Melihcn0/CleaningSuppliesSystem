@@ -203,6 +203,32 @@
                 </li>
                 <li class="dropdown">
                     <a href="javascript:void(0)">
+                        <span class="material-symbols-outlined menu-icon">globe_location_pin</span>
+                        <span class="menu-text">Lokasyonlar</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a asp-area="Admin" asp-controller="LocationCity" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">location_city</span>
+                                <span class="menu-text">Şehir Lokasyonu</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="LocationDistrict" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">location_chip</span>
+                                <span class="menu-text">İlçe Lokasyonu</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="LocationCityWithLocationDistrict" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">location_searching</span>
+                                <span class="menu-text">Lokasyon Listesi</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
                         <span class="material-symbols-outlined menu-icon">orders</span>
                         <span class="menu-text">Sipariş İşlemleri</span>
                     </a>

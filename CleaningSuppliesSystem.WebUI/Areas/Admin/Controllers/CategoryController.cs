@@ -299,9 +299,11 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                return Ok(msg);
+                TempData["SuccessMessage"] = "Kategori başarıyla soft silindi.";
             else
-                return BadRequest(msg);
+                TempData["ErrorMessage"] = "Kategori silinemedi.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -309,7 +311,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> UndoSoftDeletedCategory(int id)
         {
             var response = await _client.PostAsync($"Categories/undosoftdelete/{id}", null);
-            TempData["SuccessMessage"] = response.IsSuccessStatusCode ? "Üst kategori geri alındı." : "Geri alma işlemi başarısız.";
+
+            if (response.IsSuccessStatusCode)
+                TempData["SuccessMessage"] = "Kategori geri alındı.";
+            else
+                TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+
             return RedirectToAction(nameof(DeletedCategory));
         }
 

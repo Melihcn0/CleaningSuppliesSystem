@@ -45,23 +45,69 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return await _ınvoiceRepository.GetInvoicesByUserIdAsync(userId);
         }
 
-        public async Task TCreateInvoiceAsync(int orderId)
+
+        public async Task<Invoice> TCreateInvoiceAsync(int orderId)
         {
+            var order = await _orderRepository.GetByIdAsyncWithAppUserandOrderItemsandInvoice(orderId);
+            if (order == null)
+                throw new Exception("Sipariş bulunamadı.");
+
+            // Eğer fatura zaten varsa dön
             var existingInvoice = await _ınvoiceRepository.GetInvoiceByOrderIdAsync(orderId);
-
             if (existingInvoice != null)
-            {
-                return;
-            }
+                return existingInvoice;
 
-            var invoice = new Invoice
+            Invoice invoice = new Invoice
             {
-                OrderId = orderId,
-                GeneratedAt = DateTime.Now
+                OrderId = order.Id,
+                GeneratedAt = DateTime.Now,
+                TotalAmount = order.OrderItems.Sum(x => x.Quantity * (x.Product?.UnitPrice ?? 0))
             };
 
+            // Kullanıcının default adresini al
+            var individualAddress = order.AppUser.CustomerAddresses
+                .OfType<CustomerIndividualAddress>()
+                .FirstOrDefault(x => x.IsDefault);
+
+            var corporateAddress = order.AppUser.CustomerAddresses
+                .OfType<CustomerCorporateAddress>()
+                .FirstOrDefault(x => x.IsDefault);
+
+            if (individualAddress != null)
+            {
+                invoice.InvoiceType = "Individual";
+                invoice.FirstName = order.AppUser.FirstName;
+                invoice.LastName = order.AppUser.LastName;
+                invoice.NationalId = order.AppUser.NationalId;
+                invoice.PhoneNumber = order.AppUser.PhoneNumber;
+                invoice.Email = order.AppUser.Email;
+
+                invoice.AddressTitle = individualAddress.AddressTitle;
+                invoice.Address = individualAddress.Address;
+                invoice.CityName = individualAddress.CityName;
+                invoice.DistrictName = individualAddress.DistrictName;
+            }
+            else if (corporateAddress != null)
+            {
+                invoice.InvoiceType = "Corporate";
+                invoice.CompanyName = corporateAddress.CompanyName;
+                invoice.TaxOffice = corporateAddress.TaxOffice;
+                invoice.TaxNumber = corporateAddress.TaxNumber;
+
+                invoice.AddressTitle = corporateAddress.AddressTitle;
+                invoice.Address = corporateAddress.Address;
+                invoice.CityName = corporateAddress.CityName;
+                invoice.DistrictName = corporateAddress.DistrictName;
+            }
+            else
+            {
+                throw new Exception("Kullanıcının default bir adresi bulunamadı.");
+            }
+
             await _ınvoiceRepository.CreateAsync(invoice);
+            return invoice;
         }
+
 
 
 
@@ -426,9 +472,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             return $"{intPart:N0}"; // Basitleştirilmiş
         }
-
-
-
 
     }
 }

@@ -89,7 +89,7 @@
                                     <input type="hidden" name="bannerId" value="@item.Id" />
                                     <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
                                     <div class="form-switch">
-                                        <input class="form-check-input"
+                                        <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-warning-600")"
                                                type="checkbox"
                                                role="switch"
                                                id="isShownSwitch-@item.Id"

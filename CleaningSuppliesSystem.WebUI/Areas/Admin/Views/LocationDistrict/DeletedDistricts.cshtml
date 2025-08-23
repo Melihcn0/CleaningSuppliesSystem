@@ -1,0 +1,66 @@
+﻿@model LocationDistrictViewModel
+@{
+    ViewData["Title"] = "Silinen Şehir Lokasyonları Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["PermanentDeleteUrl"] = "~/Admin/LocationDistrict/PermanentDeleteDistrict";
+    ViewData["PermanentDeleteConfirmTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    @Html.AntiForgeryToken()
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Silinen Şehir Lokasyonları Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive" style="overflow-y: hidden;">
+            <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>İlçe Adı</th>
+                        <th>Oluşturulma Tarihi</th>
+                        <th>Silinme Tarihi</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DistrictViewList)
+                    {
+                        count++;
+                        <tr>
+                            <td>@count</td>
+                            <td>@item.DistrictName</td>
+                            <td>
+                                @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")<br />
+                                <small>@item.CreatedDate.ToLongDateString()</small>
+                            </td>
+                            <td>
+                                @item.DeletedDate?.ToString("dd.MM.yyyy HH:mm") <br />
+                                @item.DeletedDate?.ToString("dd MMMM yyyy dddd")
+                            </td>
+                            <td>
+                                <div class="d-flex flex-nowrap gap-2">
+                                    <form asp-action="UndoSoftDeletedDistrict" asp-controller="LocationDistrict" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn rounded-pill btn-success-100 text-success-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                            <span class="material-symbols-outlined me-1">undo</span> Geri Al
+                                        </button>
+                                    </form>
+                                    <button type="button"
+                                            class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn permanent-delete-btn"
+                                            data-id="@item.Id">
+                                        <span class="material-symbols-outlined me-1">delete_forever</span> Kalıcı Sil
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

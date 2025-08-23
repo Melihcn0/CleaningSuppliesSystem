@@ -46,7 +46,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             await _subCategoryRepository.CreateAsync(subCategory);
             return (true, "Ürün başarıyla oluşturuldu.", subCategory.Id);
         }
-
         public async Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateSubCategoryAsync(UpdateSubCategoryDto updateSubCategoryDto)
         {
             var validator = new UpdateSubCategoryValidator();
@@ -66,7 +65,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             await _subCategoryRepository.UpdateAsync(subCategory);
             return (true, "Alt kategori başarıyla güncellendi.", subCategory.Id);
         }
-
         public async Task<(bool IsSuccess, string Message, int SoftDeletedId)> TSoftDeleteSubCategoryAsync(int id)
         {
             var subCategory = await _subCategoryRepository.GetByIdAsync(id);
@@ -87,7 +85,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             await _subCategoryRepository.UpdateAsync(subCategory);
             return (true, "Alt kategori başarıyla silindi.", subCategory.Id);
         }
-
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteSubCategoryAsync(int id)
         {
             var subCategory = await _subCategoryRepository.GetByIdAsync(id);
@@ -123,7 +120,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             await _subCategoryRepository.DeleteAsync(subCategory.Id);
             return (true, "Alt kategori kalıcı olarak silindi.");
         }
-
         public async Task<List<ResultSubCategoryDto>> TGetActiveByTopCategoryIdAsync(int topCategoryId)
         {
             var entities = await _subCategoryRepository.GetActiveByTopCategoryIdAsync(topCategoryId);

@@ -21,6 +21,7 @@ using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
+using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -52,9 +53,29 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<UpdateFinanceDto, Finance>().ReverseMap();
 
             // Invoice
-            CreateMap<CreateInvoiceDto, Invoice>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore()) // Id'yi mapleme
-                .ReverseMap();
+            // Bireysel adres → Invoice
+            CreateMap<CustomerIndividualAddress, Invoice>()
+                .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => "Individual"))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.AppUser.LastName))
+                .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.AppUser.NationalId))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.AppUser.Email))
+                .ForMember(dest => dest.CompanyName, opt => opt.Ignore())
+                .ForMember(dest => dest.TaxOffice, opt => opt.Ignore())
+                .ForMember(dest => dest.TaxNumber, opt => opt.Ignore());
+
+            // Kurumsal adres → Invoice
+            CreateMap<CustomerCorporateAddress, Invoice>()
+                .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => "Corporate"))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyName))
+                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.TaxOffice))
+                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
+                .ForMember(dest => dest.FirstName, opt => opt.Ignore())
+                .ForMember(dest => dest.LastName, opt => opt.Ignore())
+                .ForMember(dest => dest.NationalId, opt => opt.Ignore())
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.AppUser.Email));
 
             // Order
             CreateMap<CreateOrderDto, Order>().ReverseMap();
@@ -145,13 +166,34 @@ namespace CleaningSuppliesSystem.API.Mapping
 
             CreateMap<UpdateCustomerProfileDto, AppUser>().ReverseMap();
 
-            CreateMap<CreateCustomerIndivivualAddressDto, CustomerIndivivualAddress>();
-            CreateMap<UpdateCustomerIndivivualAddressDto, CustomerIndivivualAddress>();
-            CreateMap<CustomerIndivivualAddress, CustomerIndivivualAddressDto>();
+            CreateMap<CreateCustomerIndividualAddressDto, CustomerIndividualAddress>().ReverseMap();
+            CreateMap<UpdateCustomerIndividualAddressDto, CustomerIndividualAddress>().ReverseMap();
+            CreateMap<CustomerIndividualAddress, CustomerIndividualAddressDto>()
+                .ForMember(dest => dest.CityId, opt => opt.MapFrom(src => src.CityId))
+                .ForMember(dest => dest.DistrictId, opt => opt.MapFrom(src => src.DistrictId))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
+                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.DistrictName));
 
-            CreateMap<CreateCustomerCorporateAddressDto, CustomerCorporateAddress>();
-            CreateMap<UpdateCustomerCorporateAddressDto, CustomerCorporateAddress>();
+
+            CreateMap<CreateCustomerCorporateAddressDto, CustomerCorporateAddress>().ReverseMap();
+            CreateMap<UpdateCustomerCorporateAddressDto, CustomerCorporateAddress>().ReverseMap();
             CreateMap<CustomerCorporateAddress, CustomerCorporateAddressDto>();
+
+            CreateMap<CreateLocationCityDto, LocationCity>().ReverseMap();
+            CreateMap<CreateLocationDistrictDto, LocationDistrict>().ReverseMap();
+
+            CreateMap<LocationDistrict, ResultLocationDistrictDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.DistrictId))
+                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.DistrictName))
+                .ForMember(dest => dest.CityId, opt => opt.MapFrom(src => src.CityId))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
+                .ForMember(dest => dest.DeletedDate, opt => opt.MapFrom(src => src.DeletedDate));
+
+            CreateMap<LocationCity, ResultLocationCityDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CityId))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
+                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
+                .ForMember(dest => dest.DeletedDate, opt => opt.MapFrom(src => src.DeletedDate));
 
 
         }

@@ -8,16 +8,22 @@ namespace CleaningSuppliesSystem.Entity.Entities
 {
     public class CustomerCorporateAddress
     {
-        public int Id { get; set; }                   // PK
-        public int AppUserId { get; set; }            // AppUser ilişkisi
-        public AppUser AppUser { get; set; }          // Navigation property
-        public string? CompanyName { get; set; }      // Şirket Adı
-        public string? TaxOffice { get; set; }        // Vergi Dairesi
-        public string? TaxNumber { get; set; }        // Vergi Numarası (KDV / KVKK için)  
-        public string? AddressTitle { get; set; }     // Adres Başlığı
-        public string? Address { get; set; }          // Adres Detayı
-        public string? City { get; set; }             // Şehir
-        public string? District { get; set; }         // İlçe
-        public bool IsDefault { get; set; } = false;  // Varsayılan adres mi
+        public int Id { get; set; }
+        public int AppUserId { get; set; }
+        public AppUser AppUser { get; set; }
+        public string? CompanyName { get; set; }
+        public string? TaxOffice { get; set; }
+        public string? TaxNumber { get; set; }
+        public string? AddressTitle { get; set; }
+        public string? Address { get; set; }
+
+        public int CityId { get; set; }           // <-- ekle
+        public string? CityName { get; set; }
+
+        public int DistrictId { get; set; }       // <-- ekle
+        public string? DistrictName { get; set; }
+
+        public bool IsDefault { get; set; } = false;
     }
+
 }

@@ -11,7 +11,7 @@
                 <label asp-for="FirstName" class="form-label fw-semibold text-primary-light text-sm mb-8">
                     Ad <span class="text-danger-600">*</span>
                 </label>
-                <input asp-for="FirstName" class="form-control radius-8" />
+                <input asp-for="FirstName" class="form-control radius-8" maxlength="50" required/>
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
         </div>
@@ -21,7 +21,7 @@
                 <label asp-for="LastName" class="form-label fw-semibold text-primary-light text-sm mb-8">
                     Soyad <span class="text-danger-600">*</span>
                 </label>
-                <input asp-for="LastName" class="form-control radius-8" />
+                <input asp-for="LastName" class="form-control radius-8" maxlength="50" required />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
         </div>
@@ -31,7 +31,7 @@
                 <label asp-for="UserName" class="form-label fw-semibold text-primary-light text-sm mb-8">
                     Kullanıcı Adı <span class="text-danger-600">*</span>
                 </label>
-                <input asp-for="UserName" class="form-control radius-8" />
+                <input asp-for="UserName" class="form-control radius-8" maxlength="30" required />
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
         </div>
@@ -41,7 +41,7 @@
                 <label asp-for="Email" class="form-label fw-semibold text-primary-light text-sm mb-8">
                     E-posta <span class="text-danger-600">*</span>
                 </label>
-                <input asp-for="Email" type="email" class="form-control radius-8" />
+                <input asp-for="Email" type="email" class="form-control radius-8" maxlength="100" required />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
         </div>

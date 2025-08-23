@@ -10,6 +10,7 @@ using static CleaningSuppliesSystem.Business.Validators.Validators;
 using CleaningSuppliesSystem.DataAccess.Concrete;
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
+using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 
 namespace CleaningSuppliesSystem.Business.Concrete
 {
@@ -117,46 +118,15 @@ namespace CleaningSuppliesSystem.Business.Concrete
             await _brandRepository.DeleteAsync(brand.Id);
             return (true, "Marka kalıcı olarak silindi.");
         }
-
-        public async Task<List<ResultBrandDto>> TGetDeletedBrandsAsync()
-        {
-            var brands = await _brandRepository.GetDeletedBrandsAsync();
-
-            return brands.Select(b => new ResultBrandDto
-            {
-                Id = b.Id,
-                Name = b.Name,
-                CategoryId = b.CategoryId,
-                CategoryName = b.Category.Name,
-                SubCategoryId = b.Category.SubCategoryId,
-                SubCategoryName = b.Category.SubCategory.Name,
-                TopCategoryId = b.Category.SubCategory.TopCategoryId,
-                TopCategoryName = b.Category.SubCategory.TopCategory.Name,
-                CreatedDate = b.CreatedDate,
-                UpdatedDate = b.UpdatedDate,
-                DeletedDate = b.DeletedDate,
-                IsDeleted = b.IsDeleted
-            }).ToList();
-        }
         public async Task<List<ResultBrandDto>> TGetActiveBrandsAsync()
         {
-            var brands = await _brandRepository.GetActiveBrandsAsync();
-
-            return brands.Select(b => new ResultBrandDto
-            {
-                Id = b.Id,
-                Name = b.Name,
-                CategoryId = b.CategoryId,
-                CategoryName = b.Category.Name,
-                SubCategoryId = b.Category.SubCategoryId,
-                SubCategoryName = b.Category.SubCategory.Name,
-                TopCategoryId = b.Category.SubCategory.TopCategoryId,
-                TopCategoryName = b.Category.SubCategory.TopCategory.Name,
-                CreatedDate = b.CreatedDate,
-                UpdatedDate = b.UpdatedDate,
-                DeletedDate = b.DeletedDate,
-                IsDeleted = b.IsDeleted
-            }).ToList();
+            var entities = await _brandRepository.GetActiveBrandsAsync();
+            return _mapper.Map<List<ResultBrandDto>>(entities);
+        }
+        public async Task<List<ResultBrandDto>> TGetDeletedBrandsAsync()
+        {
+            var entities = await _brandRepository.GetDeletedBrandsAsync();
+            return _mapper.Map<List<ResultBrandDto>>(entities);
         }
         public async Task<List<ResultBrandDto>> TGetActiveByCategoryIdAsync(int categoryId)
         {

@@ -1,38 +1,37 @@
-﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
+﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos
 @model CustomerProfileViewModel
 @{
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    var defaultAddress = Model.DefaultAddress;
 }
 
 <div class="dashboard-main-body">
     <div class="row gy-4">
+        <!-- Sol Panel -->
         <div class="col-lg-4">
             <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
                 <img src="~/images/image6.png" alt="" class="w-100 object-fit-cover">
-                <div class=" ms-16 mb-24 me-16 mt--100">
+                <div class="ms-16 mb-24 me-16 mt--100">
                     <div class="text-center border border-top-0 border-start-0 border-end-0">
                         <img src="~/images/image7.png" alt=""
                              class="border br-white border-width-2-px w-200-px h-200-px rounded-circle object-fit-cover">
                         <h6 class="mb-0 mt-16">
-                            @((!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) ||
-                                !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName))
+                            @(!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) || !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName)
                                 ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}" : "-")
                         </h6>
                         <span class="text-secondary-light mb-16">
-                            @(!string.IsNullOrWhiteSpace(Model.CustomerProfile.Email) ? Model.CustomerProfile.Email : "-")
+                            @(Model.CustomerProfile.Email ?? "-")
                         </span>
-
                     </div>
+
                     <div class="mt-24">
                         <h6 class="text-xl mb-16">Kişisel Bilgiler</h6>
                         <ul>
                             <li class="d-flex align-items-center gap-1 mb-12">
                                 <span class="w-30 text-md fw-semibold text-primary-light">Ad Soyad</span>
                                 <span class="w-70 text-secondary-light fw-medium">
-                                    : @((!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) ||
-                                      !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName))
-                                      ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}"
-                                      : "-")
+                                    : @(!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) || !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName)
+                                      ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}" : "-")
                                 </span>
                             </li>
                             <li class="d-flex align-items-center gap-1 mb-12">
@@ -55,57 +54,100 @@
                                       : "-")
                                 </span>
                             </li>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light">Adres Başlığı</span>
-                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.AddressTitle ?? "-")</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light">Açık Adres</span>
-                                <span class="w-70 text-secondary-light fw-medium">: @(Model.CustomerProfile.Address ?? "-")</span>
-                            </li>
+
+                            @if (Model.DefaultAddress is CustomerIndividualAddressDto ind)
+                            {
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Adres Başlığı</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @ind.AddressTitle</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Açık Adres</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @ind.Address</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Şehir</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @ind.CityName</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">İlçe</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @ind.DistrictName</span>
+                                </li>
+                            }
+                            else if (Model.DefaultAddress is CustomerCorporateAddressDto corp)
+                            {
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Şirket Adı</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.CompanyName</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Vergi Dairesi</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.TaxOffice</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Vergi No</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.TaxNumber</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Adres Başlığı</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.AddressTitle</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Açık Adres</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.Address</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Şehir</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.CityName</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">İlçe</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.DistrictName</span>
+                                </li>
+                            }
+
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Sağ Panel -->
         <div class="col-lg-8">
             <div class="card h-100">
                 <div class="card-body p-24">
+                    <!-- Tab Nav -->
                     <ul class="nav border-gradient-tab nav-pills mb-20 d-inline-flex" id="pills-tab" role="tablist">
+                        @* Bilgi Tab *@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link d-flex align-items-center px-24 @(ViewBag.ActiveTab?.ToString() == "pills-blank" ? "active" : "")"
-                                    id="pills-blank-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#pills-blank"
-                                    type="button"
-                                    role="tab"
+                                    id="pills-blank-tab" data-bs-toggle="pill"
+                                    data-bs-target="#pills-blank" type="button" role="tab"
                                     aria-controls="pills-blank"
                                     aria-selected="@(ViewBag.ActiveTab?.ToString() == "pills-blank" ? "true" : "false")">
+                                <iconify-icon icon="solar:home-smile-angle-outline" class="text-xl me-1"></iconify-icon>
                                 Bilgi
                             </button>
                         </li>
+                        @* Profilim Tab *@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link d-flex align-items-center px-24 @(ViewBag.ActiveTab?.ToString() == "pills-edit-profile" ? "active" : "")"
-                                    id="pills-edit-profile-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#pills-edit-profile"
-                                    type="button"
-                                    role="tab"
+                                    id="pills-edit-profile-tab" data-bs-toggle="pill"
+                                    data-bs-target="#pills-edit-profile" type="button" role="tab"
                                     aria-controls="pills-edit-profile"
                                     aria-selected="@(ViewBag.ActiveTab?.ToString() == "pills-edit-profile" ? "true" : "false")">
+                                <iconify-icon icon="iconamoon:profile" class="text-xl me-1"></iconify-icon>
                                 Profilim
                             </button>
                         </li>
+                        @* Adreslerim Tab *@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link d-flex align-items-center px-24 @(ViewBag.ActiveTab?.ToString() == "pills-list-address" ? "active" : "")"
-                                    id="pills-list-address-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#pills-list-address"
-                                    type="button"
-                                    role="tab"
+                                    id="pills-list-address-tab" data-bs-toggle="pill"
+                                    data-bs-target="#pills-list-address" type="button" role="tab"
                                     aria-controls="pills-list-address"
                                     aria-selected="@(ViewBag.ActiveTab?.ToString() == "pills-list-address" ? "true" : "false")">
+                                <iconify-icon icon="mdi:map-marker-outline" class="text-xl me-1"></iconify-icon>
                                 Adreslerim
                             </button>
                         </li>
@@ -121,19 +163,36 @@
                                 Adres Ekle
                             </button>
                         </li>
+@*                         <li class="nav-item d-none" role="presentation">
+                            <button class="nav-link px-24 @(ViewBag.ActiveTab?.ToString() == "pills-update-IndividualAddress" ? "active" : "")"
+                                    id="pills-update-IndividualAddress-tab" data-bs-toggle="pill"
+                                    data-bs-target="#pills-update-IndividualAddress" type="button" role="tab"
+                                    aria-controls="pills-update-IndividualAddress"
+                                    aria-selected="@(ViewBag.ActiveTab?.ToString() == "pills-update-IndividualAddress" ? "true" : "false")">
+                                Bireysel Adres Güncelleme
+                            </button>
+                        </li>
+                        <li class="nav-item d-none" role="presentation">
+                            <button class="nav-link px-24 @(ViewBag.ActiveTab?.ToString() == "pills-update-CorporateAddress" ? "active" : "")"
+                                    id="pills-update-CorporateAddress-tab" data-bs-toggle="pill"
+                                    data-bs-target="#pills-update-CorporateAddress" type="button" role="tab"
+                                    aria-controls="pills-update-CorporateAddress"
+                                    aria-selected="@(ViewBag.ActiveTab?.ToString() == "pills-update-CorporateAddress" ? "true" : "false")">
+                                Kurumsal Adres Güncelleme
+                            </button>
+                        </li> *@
                     </ul>
 
+                    <!-- Tab Content -->
                     <div class="tab-content" id="pills-tabContent">
                         <div class="tab-pane fade @(ViewBag.ActiveTab == "pills-edit-profile" ? "show active" : "")"
-                             id="pills-edit-profile"
-                             role="tabpanel"
+                             id="pills-edit-profile" role="tabpanel"
                              aria-labelledby="pills-edit-profile-tab">
                             @Html.Partial("_EditProfilePartial", Model.UpdateCustomerProfile)
                         </div>
 
                         <div class="tab-pane fade @(ViewBag.ActiveTab == "pills-list-address" ? "show active" : "")"
-                             id="pills-list-address"
-                             role="tabpanel"
+                             id="pills-list-address" role="tabpanel"
                              aria-labelledby="pills-list-address-tab">
                             @Html.Partial("_ResultAddressPartial", Model)
                         </div>
@@ -142,39 +201,39 @@
                              id="pills-add-address"
                              role="tabpanel"
                              aria-labelledby="pills-add-address-tab">
-                            @Html.Partial("_CreateAddressPartial", Model.CreateCustomerIndivivualProfile)
+                            @Html.Partial("_CreateAddressPartial", Model)
+                        </div>
+
+                        <div class="tab-pane fade @(ViewBag.ActiveTab == "pills-update-IndividualAddress" ? "show active" : "")"
+                             id="pills-update-IndividualAddress" role="tabpanel"
+                             aria-labelledby="pills-update-IndividualAddress-tab">
+                            @Html.Partial("_UpdateIndividualAddressPartial", Model.UpdateIndividualAddress)
+                        </div>
+                        
+                        <div class="tab-pane fade @(ViewBag.ActiveTab == "pills-update-CorporateAddress" ? "show active" : "")"
+                             id="pills-update-CorporateAddress" role="tabpanel"
+                             aria-labelledby="pills-update-CorporateAddress-tab">
+                            @Html.Partial("_UpdateCorporateAddressPartial", Model.UpdateCorporateAddress)
                         </div>
 
                         <div class="tab-pane fade @(ViewBag.ActiveTab == "pills-blank" ? "show active" : "")"
-                             id="pills-blank"
-                             role="tabpanel"
+                             id="pills-blank" role="tabpanel"
                              aria-labelledby="pills-blank-tab">
-
-                            <div class="w-100">
-                                <div class="p-16 bg-info-50 radius-8 border-start-width-3-px border-info border-top-0 border-end-0 border-bottom-0 mt-3 shadow-sm">
-                                    <h6 class="text-primary-light text-md mb-8">Hesap Bilgilendirmesi</h6>
-                                    <ul class="list-unstyled mb-0 space-y-2">
-                                        <li>Profil bilgilerinizi üstte bulunan bölümlerden doldurabilirsiniz.</li>
-                                        <li>Bilgileriniz tam doldurulmazsa sipariş veremezsiniz.</li>
-                                        <li>Sipariş verebilmek için lütfen tüm bilgilerinizi eksiksiz doldurun.</li>
-                                    </ul>
-                                </div>
+                            <div class="p-16 bg-info-50 radius-8 border-start-width-3-px border-info mt-3 shadow-sm">
+                                <h6 class="text-primary-light text-md mb-8">Hesap Bilgilendirmesi</h6>
+                                <ul class="list-unstyled mb-0 space-y-2">
+                                    <li>Profil bilgilerinizi üstteki bölümlerden doldurabilirsiniz.</li>
+                                    <li>Bilgileriniz tam doldurulmazsa sipariş veremezsiniz.</li>
+                                    <li>Sipariş verebilmek için lütfen tüm bilgilerinizi eksiksiz doldurun.</li>
+                                </ul>
                             </div>
-
                         </div>
-
-
-
-
                     </div>
-
-
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

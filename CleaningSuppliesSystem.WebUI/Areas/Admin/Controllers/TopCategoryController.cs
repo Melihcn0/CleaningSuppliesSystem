@@ -116,7 +116,12 @@ public class TopCategoryController : Controller
     public async Task<IActionResult> UndoSoftDeletedTopCategory(int id)
     {
         var response = await _client.PostAsync($"TopCategories/undosoftdelete/{id}", null);
-        TempData["SuccessMessage"] = response.IsSuccessStatusCode ? "Üst kategori geri alındı." : "Geri alma işlemi başarısız.";
+
+        if (response.IsSuccessStatusCode)
+            TempData["SuccessMessage"] = "Üst kategori geri alındı.";
+        else
+            TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+
         return RedirectToAction(nameof(DeletedTopCategory));
     }
 

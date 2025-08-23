@@ -11,8 +11,8 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
         int Id { get; }
         string AddressTitle { get; }
         string Address { get; }
-        string City { get; }
-        string District { get; }
+        string CityName { get; set; }
+        string DistrictName { get; set; }
         bool IsDefault { get; }
         AddressType Type { get; }
     }

@@ -46,7 +46,7 @@
                             text: msg,
                             icon: isSuccess ? "success" : "error",
                             confirmButtonText: "Tamam",
-                            confirmButtonColor: isSuccess ? "#3085d6" : "#d33",
+                            confirmButtonColor: "#d33",
                             customClass: {
                                 popup: getSwalClass()
                             }

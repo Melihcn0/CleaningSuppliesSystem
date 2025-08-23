@@ -1,0 +1,17 @@
+﻿@model CreateLocationCityDto
+@{
+    ViewData["Title"] = "Şehir Lokasyonu Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label for="CityName">Şehir Adı</label>
+        <input asp-for="CityName" class="form-control" />
+        <span asp-validation-for="CityName" class="text-danger"></span>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary-600">Kaydet</button>
+    <br />
+</form>

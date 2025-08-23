@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.Entity.Entities;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -8,10 +8,16 @@ using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Customer.CustomerIndivualAddressDto
 {
-    public class UpdateIndivivualAddressValidator : AbstractValidator<CustomerIndivivualAddress>
+    public class CreateIndividualAddressValidator : AbstractValidator<CreateCustomerIndividualAddressDto>
     {
-        public UpdateIndivivualAddressValidator()
+        public CreateIndividualAddressValidator()
         {
+            RuleFor(x => x.CityId)
+                .NotNull().WithMessage("Şehir seçmelisiniz.");
+
+            RuleFor(x => x.DistrictId)
+                .NotEmpty().WithMessage("İlçe seçmelisiniz.");
+
             RuleFor(x => x.AddressTitle)
                 .NotEmpty().WithMessage("Adres başlığı boş bırakılamaz.")
                 .MaximumLength(35).WithMessage("Adres başlığı en fazla 35 karakter olmalıdır.");
@@ -20,11 +26,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Customer.CustomerIndivua
                 .NotEmpty().WithMessage("Adres boş bırakılamaz.")
                 .MaximumLength(150).WithMessage("Adres en fazla 150 karakter olmalıdır.");
 
-            RuleFor(x => x.City)
-                .NotEmpty().WithMessage("Şehir boş bırakılamaz.");
-
-            RuleFor(x => x.District)
-                .NotEmpty().WithMessage("İlçe boş bırakılamaz.");
         }
     }
 }

@@ -174,9 +174,11 @@ public class SubCategoryController : Controller
         var content = await response.Content.ReadAsStringAsync();
 
         if (response.IsSuccessStatusCode)
-            return Ok(content);
+            TempData["SuccessMessage"] = "Alt Kategori başarıyla kalıcı silindi.";
         else
-            return BadRequest(content);
+            TempData["ErrorMessage"] = "Alt Kategori silinemedi.";
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]

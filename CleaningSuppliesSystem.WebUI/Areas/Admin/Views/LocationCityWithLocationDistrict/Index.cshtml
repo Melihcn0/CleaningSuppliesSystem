@@ -1,0 +1,45 @@
+﻿@model LocationCityViewModel
+@{
+    ViewData["Title"] = "Şehir ve İlçe Lokasyonları Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    @Html.AntiForgeryToken()
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Şehir ve İlçe Lokasyonları Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive" style="overflow-y: hidden;">
+            <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Şehir Adı</th>
+                        <th>İlçe Adı</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CityWithDistrictViewList)
+                    {
+                        count++;
+                        <tr>
+                            <td>@count</td>
+                            <td>@item.CityName</td>
+                            <td>
+                                @(item.Districts?.Any() == true
+                                    ? string.Join(", ", item.Districts)
+                                    : $"'{item.CityName}' için henüz ilçe ataması yapılmadı")
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

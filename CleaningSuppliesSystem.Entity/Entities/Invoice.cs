@@ -8,22 +8,33 @@ namespace CleaningSuppliesSystem.Entity.Entities
 {
     public class Invoice
     {
-        public int Id { get; set; }                        // PK
-        public int OrderId { get; set; }                   // Sipariş ilişkisi
-        public Order Order { get; set; }                   // Navigation property
-        public DateTime GeneratedAt { get; set; } = DateTime.Now; // Fatura tarihi
-        public decimal TotalAmount { get; set; }           // Fatura toplam tutarı
+        public int Id { get; set; }
+        public int OrderId { get; set; }
+        public Order Order { get; set; }
+        public DateTime GeneratedAt { get; set; } = DateTime.Now;
+        public decimal TotalAmount { get; set; }
 
-        // --- Address Snapshot ---
-        public string City { get; set; }
-        public string District { get; set; }
-        public string Neighborhood { get; set; }
-        public string Street { get; set; }
-        public string BuildingNumber { get; set; }
-        public string ApartmentNumber { get; set; }
-        public string PostalCode { get; set; }
+        // Fatura tipi (Individual / Corporate)
+        public string InvoiceType { get; set; }
+
+        // Bireysel için alanlar
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? NationalId { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Email { get; set; }
+
+        // Kurumsal için alanlar
+        public string? CompanyName { get; set; }
+        public string? TaxOffice { get; set; }
+        public string? TaxNumber { get; set; }
+
+        // Ortak adres bilgileri
         public string AddressTitle { get; set; }
-        public string RecipientName { get; set; }
+        public string Address { get; set; }
+        public string CityName { get; set; }
+        public string DistrictName { get; set; }
     }
+
 
 }

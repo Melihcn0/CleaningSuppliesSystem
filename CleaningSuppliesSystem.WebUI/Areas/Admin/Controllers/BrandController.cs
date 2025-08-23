@@ -156,9 +156,11 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                return Ok(msg);
+                TempData["SuccessMessage"] = "İlçe Lokasyonu başarıyla geri alındı.";
             else
-                return BadRequest(msg);
+                TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+
+            return RedirectToAction(nameof(DeletedBrands));
         }
 
         [HttpPost]

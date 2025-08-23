@@ -1,0 +1,25 @@
+﻿@model CreateLocationDistrictDto
+@{
+    ViewData["Title"] = "İlçe Lokasyonu Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label for="CityId">Şehir</label>
+        <select id="CityId" name="CityId" asp-items="ViewBag.cities" class="form-control">
+            <option value="" disabled selected>Şehir Lokasyonu Seçin</option>
+        </select>
+        <span asp-validation-for="CityId" class="text-danger"></span>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="DistrictName">İlçe Adı</label>
+        <input asp-for="DistrictName" class="form-control" />
+        <span asp-validation-for="DistrictName" class="text-danger"></span>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary-600">Kaydet</button>
+    <br />
+</form>

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.DataAccess.Abstract
 {
-    public interface ICustomerIndivivualAddressRepository : IRepository<CustomerIndivivualAddress>
+    public interface ICustomerIndividualAddressRepository : IRepository<CustomerIndividualAddress>
     {
         Task<bool> SetAsDefaultAsync(int addressId);
-        Task<List<CustomerIndivivualAddress>> GetAllByUserIdAsync(int userId);
+        Task<List<CustomerIndividualAddress>> GetAllByUserIdAsync(int userId);
     }
 }

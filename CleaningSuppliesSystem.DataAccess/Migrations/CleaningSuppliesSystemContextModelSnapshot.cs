@@ -297,7 +297,7 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerAddress", b =>
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerCorporateAddress", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -314,6 +314,66 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Property<int>("AppUserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DistrictName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TaxNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaxOffice")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("CustomerCorporateAddresses");
+                });
+
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerIndividualAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AppUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CityName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DistrictId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DistrictName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
 
@@ -321,7 +381,7 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("CustomerAddresses");
+                    b.ToTable("CustomerIndividualAddresses");
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Finance", b =>
@@ -368,46 +428,54 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("AddressTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ApartmentNumber")
+                    b.Property<string>("CityName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("BuildingNumber")
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DistrictName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("City")
-                        .IsRequired()
+                    b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("District")
-                        .IsRequired()
+                    b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("GeneratedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Neighborhood")
+                    b.Property<string>("InvoiceType")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NationalId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RecipientName")
-                        .IsRequired()
+                    b.Property<string>("TaxNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Street")
-                        .IsRequired()
+                    b.Property<string>("TaxOffice")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("TotalAmount")
@@ -419,6 +487,63 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.LocationCity", b =>
+                {
+                    b.Property<int>("CityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
+
+                    b.Property<string>("CityName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CityId");
+
+                    b.ToTable("LocationCitys");
+                });
+
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.LocationDistrict", b =>
+                {
+                    b.Property<int>("DistrictId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DistrictId"));
+
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DistrictName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("DistrictId");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("LocationDistricts");
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Order", b =>
@@ -902,7 +1027,18 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Navigation("TopCategory");
                 });
 
-            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerAddress", b =>
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerCorporateAddress", b =>
+                {
+                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerIndividualAddress", b =>
                 {
                     b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppUser", "AppUser")
                         .WithMany("CustomerAddresses")
@@ -922,6 +1058,17 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.LocationDistrict", b =>
+                {
+                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.LocationCity", "City")
+                        .WithMany("Districts")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Order", b =>
@@ -1053,6 +1200,11 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Category", b =>
                 {
                     b.Navigation("Brands");
+                });
+
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.LocationCity", b =>
+                {
+                    b.Navigation("Districts");
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.Order", b =>

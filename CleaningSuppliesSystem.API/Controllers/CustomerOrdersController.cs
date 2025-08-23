@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
+using CleaningSuppliesSystem.Business.Concrete;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
@@ -18,13 +19,15 @@ namespace CleaningSuppliesSystem.API.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IOrderItemService _orderItemService;
+        private readonly IInvoiceService _invoiceService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CustomerOrdersController(IOrderService orderService, IOrderItemService orderItemService,IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public CustomerOrdersController(IOrderService orderService, IOrderItemService orderItemService, IInvoiceService invoiceService , IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _orderService = orderService;
             _orderItemService = orderItemService;
+            _invoiceService = invoiceService;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -79,8 +82,12 @@ namespace CleaningSuppliesSystem.API.Controllers
             var newOrder = _mapper.Map<Order>(createOrderDto);
 
             await _orderService.TCreateAsync(newOrder);
+            // Fatura oluştur
+            var invoice = await _invoiceService.TCreateInvoiceAsync(newOrder.Id);
 
-            return CreatedAtAction(nameof(GetOrderById), new { id = newOrder.Id }, newOrder);
+            return CreatedAtAction(nameof(GetOrderById),
+                                   new { id = newOrder.Id },
+                                   new { Order = newOrder, Invoice = invoice });
         }
 
 

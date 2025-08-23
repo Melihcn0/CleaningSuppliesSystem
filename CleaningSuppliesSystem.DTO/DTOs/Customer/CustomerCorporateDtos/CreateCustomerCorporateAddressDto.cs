@@ -15,7 +15,9 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos
         public string TaxNumber { get; set; }        // Vergi Numarası (KDV / KVKK için)  
         public string AddressTitle { get; set; }     // Adres Başlığı
         public string Address { get; set; }          // Adres Detayı
-        public string City { get; set; }             // Şehir
-        public string District { get; set; }         // İlçe
+        public string CityName { get; set; }             // Şehir
+        public string DistrictName { get; set; }         // İlçe
+        public int? CityId { get; set; }       // Şehir Id
+        public int DistrictId { get; set; }   // İlçe Id
     }
 }

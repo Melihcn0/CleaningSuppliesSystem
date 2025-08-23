@@ -145,6 +145,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("Roles", new OpenApiInfo { Title = "Role Management", Version = "v1" });
     c.SwaggerDoc("Home", new OpenApiInfo { Title = "Home Management", Version = "v1" });
     c.SwaggerDoc("Customer", new OpenApiInfo { Title = "Customer Management", Version = "v1" });
+    c.SwaggerDoc("Location", new OpenApiInfo { Title = "Location Management", Version = "v1" });
 
     // Sadece eþleþen GroupName'leri dahil et
     c.DocInclusionPredicate((docName, apiDesc) =>
@@ -177,6 +178,7 @@ if (app.Environment.IsDevelopment())
         x.SwaggerEndpoint("/swagger/Roles/swagger.json", "Role Management");
         x.SwaggerEndpoint("/swagger/Home/swagger.json", "Home Management");
         x.SwaggerEndpoint("/swagger/Customer/swagger.json", "Customer Management");
+        x.SwaggerEndpoint("/swagger/Location/swagger.json", "Location Management");
 
         x.RoutePrefix = "docs";
     });

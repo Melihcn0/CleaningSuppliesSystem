@@ -1,4 +1,5 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
+using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,6 +11,6 @@ namespace CleaningSuppliesSystem.Business.Abstract
         Task<CustomerCorporateAddressDto> TGetAddressByIdAsync(int id);
         Task<(bool IsSuccess, string Message, int CreatedId)> TCreateCustomerCorporateAddressAsync(CreateCustomerCorporateAddressDto createCustomerCorporateAddressDto);
         Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateCustomerCorporateAddressAsync(UpdateCustomerCorporateAddressDto updateCustomerCorporateAddressDto);
-        Task<bool> TToggleCustomerCorporateAddressStatusAsync(int addressId, bool newStatus);
+        Task<(bool IsSuccess, string Message)> TPermanentDeleteCustomerCorporateAsync(int id);
     }
 }

@@ -1,0 +1,131 @@
+﻿@model UpdateCustomerCorporateAddressDto
+
+<!-- Adres Türü Seçimi -->
+<div class="mb-3">
+    <div class="d-flex flex-column align-items-center">
+        <label class="form-label fw-semibold text-primary-light text-sm mb-2">Adres Türü</label>
+        <div class="d-flex align-items-center gap-4">
+            <div class="form-check form-check-inline">
+                <input type="radio" id="individual" name="AddressType" value="Individual" class="form-check-input" checked />
+                <label class="form-check-label ms-1" for="individual">Bireysel</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="radio" id="corporate" name="AddressType" value="Corporate" class="form-check-input" />
+                <label class="form-check-label ms-1" for="corporate">Kurumsal</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kurumsal Adres Formu -->
+<form id="corporateForm" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="UpdateCorporateAddressPartial">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div id="corporateFields">
+        <div class="col-6">
+            <label asp-for="CompanyName" class="form-label fw-semibold text-primary-light text-sm">Şirket Adı <span class="text-danger">*</span></label>
+            <input asp-for="CompanyName" class="form-control radius-8" />
+            <span asp-validation-for="CompanyName" class="text-danger text-sm"></span>
+        </div>
+        <div class="col-6">
+            <label asp-for="TaxNumber" class="form-label fw-semibold text-primary-light text-sm">Vergi No <span class="text-danger">*</span></label>
+            <input asp-for="TaxNumber" class="form-control radius-8" />
+            <span asp-validation-for="TaxNumber" class="text-danger text-sm"></span>
+        </div>
+        <div class="col-6">
+            <label asp-for="TaxOffice" class="form-label fw-semibold text-primary-light text-sm">Vergi Dairesi <span class="text-danger">*</span></label>
+            <input asp-for="TaxOffice" class="form-control radius-8" />
+            <span asp-validation-for="TaxOffice" class="text-danger text-sm"></span>
+        </div>
+        <div class="col-6">
+            <label asp-for="AddressTitle" class="form-label fw-semibold text-primary-light text-sm">Adres Başlığı <span class="text-danger">*</span></label>
+            <input asp-for="AddressTitle" class="form-control radius-8" />
+            <span asp-validation-for="AddressTitle" class="text-danger text-sm"></span>
+        </div>
+
+        <!-- Şehir ve İlçe -->
+        <div class="row">
+            <div class="col-md-6">
+                <label asp-for="CityId" class="form-label fw-semibold text-primary-light text-sm">Şehir <span class="text-danger">*</span></label>
+                <select id="corporateCity" asp-for="CityId" class="form-control radius-8">
+                    <option value="" selected hidden>Seçiniz...</option>
+                    @if (ViewBag.Cities != null)
+                    {
+                        foreach (var city in ViewBag.Cities as List<SelectListItem>)
+                        {
+                            <option value="@city.Value">@city.Text</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CityId" class="text-danger text-sm"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DistrictId" class="form-label fw-semibold text-primary-light text-sm">İlçe <span class="text-danger">*</span></label>
+                <select id="corporateDistrict" asp-for="DistrictId" class="form-control radius-8">
+                    <option value="" selected hidden>Önce Şehir seçiniz...</option>
+                </select>
+                <span asp-validation-for="DistrictId" class="text-danger text-sm"></span>
+            </div>
+        </div>
+
+        <!-- Açık Adres -->
+        <div class="col-12 mt-3">
+            <label asp-for="Address" class="form-label fw-semibold text-primary-light text-sm">Açık Adres <span class="text-danger">*</span></label>
+            <textarea asp-for="Address" class="form-control radius-8" rows="3"></textarea>
+            <span asp-validation-for="Address" class="text-danger text-sm"></span>
+        </div>
+
+        <br />
+        <button type="submit" class="btn btn-warning-600">Kaydet</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const corporateForm = document.getElementById("corporateForm");
+            const radios = document.querySelectorAll('input[name="AddressType"]');
+
+            // --- Form toggle ---
+            function toggleForms() {
+                const selected = document.querySelector('input[name="AddressType"]:checked')?.value;
+                if (!selected) return;
+                corporateForm && (corporateForm.style.display = selected === "Corporate" ? "block" : "none");
+            }
+            radios.forEach(radio => radio.addEventListener("change", toggleForms));
+            toggleForms();
+
+            // --- Dinamik Şehir → İlçe ---
+            const citySelect = document.getElementById("corporateCity");
+            const districtSelect = document.getElementById("corporateDistrict");
+
+            async function loadDistricts(cityId) {
+                districtSelect.innerHTML = '<option value="" selected hidden>Yükleniyor...</option>';
+                if (!cityId) {
+                    districtSelect.innerHTML = '<option value="" selected hidden>Önce Şehir seçiniz...</option>';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/CustomerProfile/GetByCity?cityId=${cityId}`);
+                    if (!response.ok) throw new Error("İstek başarısız");
+                    const districts = await response.json();
+                    districtSelect.innerHTML = '<option value="" selected hidden>İlçe seçiniz...</option>';
+                    districts.forEach(d => {
+                        const opt = document.createElement("option");
+                        opt.value = d.id || d.name || d.districtName;
+                        opt.textContent = d.districtName || d.name || d.id;
+                        districtSelect.appendChild(opt);
+                    });
+                } catch (err) {
+                    console.error(err);
+                    districtSelect.innerHTML = '<option value="" selected hidden>İlçe yüklenemedi</option>';
+                }
+            }
+
+            citySelect?.addEventListener("change", () => loadDistricts(citySelect.value));
+            if (citySelect?.value) loadDistricts(citySelect.value);
+        });
+    </script>
+}

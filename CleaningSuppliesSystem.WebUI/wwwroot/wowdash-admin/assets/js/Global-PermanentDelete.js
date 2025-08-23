@@ -64,6 +64,8 @@
                             title: ok ? "Başarılı!" : "Hata!",
                             text: msg || (ok ? "Silme işlemi başarılı." : "Beklenmeyen bir hata oluştu."),
                             icon: ok ? "success" : "error",
+                            confirmButtonColor: "#d33",
+                            confirmButtonText: "Tamam",
                             background: bgColor,
                             color: textColor
                         }).then(() => {

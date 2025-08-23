@@ -1,51 +1,241 @@
-﻿@model CreateCustomerIndivivualAddressDto
+﻿@model CustomerProfileViewModel
+@{
+    var addressType = ViewBag.AddressType as string ?? "Individual";
+}
+<div class="mb-3">
+    <div class="d-flex flex-column align-items-center">
+        <label class="form-label fw-semibold text-primary-light text-sm mb-2">Adres Türü</label>
+        <div class="d-flex align-items-center gap-4">
+            <div class="form-check form-check-inline">
+                <input type="radio" id="individual" name="AddressType" value="Individual" class="form-check-input" @(addressType == "Individual" ? "checked=\"checked\"" : "") />
+                <!-- <input type="radio" id="individual" name="AddressType" value="Individual" class="form-check-input" checked /> -->
+                <label class="form-check-label ms-1" for="individual">Bireysel</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="radio" id="corporate" name="AddressType" value="Corporate" class="form-check-input" @(ViewBag.AddressType == "Corporate" ? "checked" : "") />
+                <!-- <input type="radio" id="corporate" name="AddressType" value="Corporate" class="form-check-input" /> -->
+                <label class="form-check-label ms-1" for="corporate">Kurumsal</label>
+            </div>
+        </div>
+    </div>
+</div>
 
-<form id="createAddressForm" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="CreateCustomerAddress">
+<!-- Bireysel Form -->
+<form id="individualForm" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="CreateIndividualAddress">
     @Html.AntiForgeryToken()
-    <div class="row g-3">
+    <div id="individualFields">
         <!-- Adres Başlığı -->
-        <div class="col-12">
-            <label asp-for="AddressTitle" class="form-label fw-semibold text-primary-light text-sm">
-                Adres Başlığı <span class="text-danger">*</span>
+        <div class="col-md-6 mb-3">
+            <label asp-for="CreateIndividualAddress.AddressTitle" class="form-label">
+                Bu adrese bir isim verin <span class="text-danger">*</span>
             </label>
-            <input asp-for="AddressTitle" class="form-control radius-8" />
-            <span asp-validation-for="AddressTitle" class="text-danger text-sm"></span>
+            <input asp-for="CreateIndividualAddress.AddressTitle" class="form-control" maxlength="35" required/>
+            <span asp-validation-for="CreateIndividualAddress.AddressTitle" class="text-danger"></span>
         </div>
 
-        <!-- Şehir ve İlçe (yan yana) -->
-        <div class="col-md-6">
-            <label asp-for="City" class="form-label fw-semibold text-primary-light text-sm">
-                Şehir <span class="text-danger">*</span>
-            </label>
-            <input asp-for="City" class="form-control radius-8" />
-            <span asp-validation-for="City" class="text-danger text-sm"></span>
-        </div>
-
-        <div class="col-md-6">
-            <label asp-for="District" class="form-label fw-semibold text-primary-light text-sm">
-                İlçe <span class="text-danger">*</span>
-            </label>
-            <input asp-for="District" class="form-control radius-8" />
-            <span asp-validation-for="District" class="text-danger text-sm"></span>
+        <!-- Şehir ve İlçe -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="CreateIndividualAddress.CityId">Şehir <span class="text-danger">*</span></label>
+                <select asp-for="CreateIndividualAddress.CityId" id="individualCity" class="form-control" required>
+                    <option value="" selected hidden>Şehir seçin</option>
+                    @if (ViewBag.Cities != null)
+                    {
+                        foreach (var city in ViewBag.Cities as List<SelectListItem>)
+                        {
+                            <option value="@city.Value">@city.Text</option>
+                        }
+                    }
+                </select>
+                <input type="hidden" name="CreateIndividualAddress.CityName" id="individualCityName" />
+                <span asp-validation-for="CreateIndividualAddress.CityId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="CreateIndividualAddress.DistrictId">İlçe <span class="text-danger">*</span></label>
+                <select asp-for="CreateIndividualAddress.DistrictId" id="individualDistrict" class="form-control" required>
+                    <option value="" selected hidden>Önce Şehir seçiniz...</option>
+                </select>
+                <input type="hidden" name="CreateIndividualAddress.DistrictName" id="individualDistrictName" />
+                <span asp-validation-for="CreateIndividualAddress.DistrictId" class="text-danger"></span>
+            </div>
         </div>
 
         <!-- Açık Adres -->
-        <div class="col-12">
-            <label asp-for="Address" class="form-label fw-semibold text-primary-light text-sm">
-                Açık Adres <span class="text-danger">*</span>
-            </label>
-            <textarea asp-for="Address" class="form-control radius-8" rows="3"></textarea>
-            <span asp-validation-for="Address" class="text-danger text-sm"></span>
+        <div class="col-12 mt-3">
+            <label asp-for="CreateIndividualAddress.Address" class="form-label">Açık Adres <span class="text-danger">*</span></label>
+            <textarea asp-for="CreateIndividualAddress.Address" class="form-control" rows="3" maxlength="150" required></textarea>
+            <span asp-validation-for="CreateIndividualAddress.Address" class="text-danger"></span>
         </div>
 
-        <!-- Butonlar -->
-        <div class="col-12 d-flex justify-content-center gap-3 mt-4">
-            <a href="@Url.Action("Index", "CustomerProfile")" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8">
-                İptal
-            </a>
-            <button type="submit" class="btn btn-primary px-5 py-2 radius-8">
-                Kaydet
-            </button>
-        </div>
+        <button type="submit" class="btn btn-primary mt-3">Kaydet</button>
     </div>
 </form>
+
+<!-- Kurumsal Form -->
+<form id="corporateForm" class="d-none" method="post" asp-area="Customer" asp-controller="CustomerProfile" asp-action="CreateCorporateAddress">
+    @Html.AntiForgeryToken()
+    <div id="corporateFields">
+        <!-- Şirket Adı -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="CreateCorporateAddress.CompanyName" class="form-label">Şirket Adı <span class="text-danger">*</span></label>
+            <input asp-for="CreateCorporateAddress.CompanyName" class="form-control" maxlength="100" required/>
+            <span asp-validation-for="CreateCorporateAddress.CompanyName" class="text-danger"></span>
+        </div>
+
+        <!-- Vergi Dairesi -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="CreateCorporateAddress.TaxOffice" class="form-label">Vergi Dairesi <span class="text-danger">*</span></label>
+            <input asp-for="CreateCorporateAddress.TaxOffice" class="form-control" maxlength="100" required />
+            <span asp-validation-for="CreateCorporateAddress.TaxOffice" class="text-danger"></span>
+        </div>
+
+        <!-- Vergi Numarası -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="CreateCorporateAddress.TaxNumber" class="form-label">Vergi Numarası <span class="text-danger">*</span></label>
+            <input asp-for="CreateCorporateAddress.TaxNumber" class="form-control" minlength="10" maxlength="11" />
+            <span asp-validation-for="CreateCorporateAddress.TaxNumber" class="text-danger"></span>
+        </div>
+
+        <!-- Adres Başlığı -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="CreateCorporateAddress.AddressTitle" class="form-label">Bu adrese bir isim verin <span class="text-danger">*</span></label>
+            <input asp-for="CreateCorporateAddress.AddressTitle" class="form-control" maxlength="35" required/>
+            <span asp-validation-for="CreateCorporateAddress.AddressTitle" class="text-danger"></span>
+        </div>
+
+        <!-- Şehir ve İlçe -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="CreateCorporateAddress.CityId">Şehir <span class="text-danger">*</span></label>
+                <select asp-for="CreateCorporateAddress.CityId" id="corporateCity" class="form-control" required>
+                    <option value="" selected disabled>Şehir seçin</option>
+                    @if (ViewBag.Cities != null)
+                    {
+                        foreach (var city in ViewBag.Cities as List<SelectListItem>)
+                        {
+                            <option value="@city.Value">@city.Text</option>
+                        }
+                    }
+                </select>
+                <input type="hidden" name="CreateCorporateAddress.CityName" id="corporateCityName" />
+                <span asp-validation-for="CreateCorporateAddress.CityId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="CreateCorporateAddress.DistrictId">İlçe <span class="text-danger">*</span></label>
+                <select asp-for="CreateCorporateAddress.DistrictId" id="corporateDistrict" class="form-control" required>
+                    <option value="" selected hidden>Önce Şehir seçiniz...</option>
+                </select>
+                <input type="hidden" name="CreateCorporateAddress.DistrictName" id="corporateDistrictName" />
+                <span asp-validation-for="CreateCorporateAddress.DistrictId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Açık Adres -->
+        <div class="col-12 mt-3">
+            <label asp-for="CreateCorporateAddress.Address" class="form-label">Açık Adres <span class="text-danger">*</span></label>
+            <textarea asp-for="CreateCorporateAddress.Address" class="form-control" rows="3" maxlength="150" required></textarea>
+            <span asp-validation-for="CreateCorporateAddress.Address" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Kaydet</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            const individualForm = document.getElementById("individualForm");
+            const corporateForm = document.getElementById("corporateForm");
+
+            // Radio toggle fonksiyonu
+            function toggleForm(){
+                const selected = document.querySelector('input[name="AddressType"]:checked')?.value;
+                if(selected==="Individual"){
+                    individualForm.classList.remove("d-none");
+                    corporateForm.classList.add("d-none");
+                } else if(selected==="Corporate"){
+                    individualForm.classList.add("d-none");
+                    corporateForm.classList.remove("d-none");
+                }
+            }
+
+            // **Sayfa yüklendiğinde toggleForm çağırıyoruz**
+            toggleForm();
+
+            // Radio değişince toggle
+            document.querySelectorAll('input[name="AddressType"]').forEach(r=>{
+                r.addEventListener("change", toggleForm);
+            });
+
+            // Şehir/İlçe dropdown setup
+            const forms = [
+                {cityId:"individualCity", districtId:"individualDistrict", cityNameId:"individualCityName", districtNameId:"individualDistrictName", selectedCityId:'@(Model.CreateIndividualAddress?.CityId)', selectedDistrictId:'@(Model.CreateIndividualAddress?.DistrictId)'},
+                {cityId:"corporateCity", districtId:"corporateDistrict", cityNameId:"corporateCityName", districtNameId:"corporateDistrictName", selectedCityId:'@(Model.CreateCorporateAddress?.CityId)', selectedDistrictId:'@(Model.CreateCorporateAddress?.DistrictId)'}
+            ];
+
+            forms.forEach(f=>{
+                const city = document.getElementById(f.cityId);
+                const district = document.getElementById(f.districtId);
+                const cityName = document.getElementById(f.cityNameId);
+                const districtName = document.getElementById(f.districtNameId);
+                if(!city || !district) return;
+
+                // Placeholder ekle
+                if(!f.selectedCityId && !city.querySelector('option[value=""]')){
+                    const ph = document.createElement("option");
+                    ph.value=""; ph.disabled=true; ph.selected=true; ph.textContent="Şehir seçin";
+                    city.insertBefore(ph, city.firstChild);
+                }
+
+                async function loadDistricts(cityId, selectedDistrict=null){
+                    district.innerHTML='<option value="" disabled selected>Yükleniyor...</option>';
+                    if(!cityId){
+                        district.innerHTML='<option value="" disabled selected>Önce Şehir seçiniz...</option>';
+                        if(districtName) districtName.value="";
+                        return;
+                    }
+                    try{
+                        const res = await fetch('@Url.Action("GetByCity", "CustomerProfile")?cityId='+cityId);
+                        if(!res.ok) throw new Error("İstek başarısız");
+                        const data = await res.json();
+                        district.innerHTML='<option value="" disabled selected>İlçe seçiniz...</option>';
+                        data.forEach(d=>{
+                            const opt=document.createElement("option");
+                            opt.value=d.id; opt.textContent=d.districtName;
+                            if(selectedDistrict && selectedDistrict==d.id){
+                                opt.selected=true;
+                                if(districtName) districtName.value=d.districtName;
+                            }
+                            district.appendChild(opt);
+                        });
+                    }catch(e){
+                        district.innerHTML='<option value="" disabled selected>İlçe yüklenemedi</option>';
+                        if(districtName) districtName.value="";
+                        console.error("İlçe yükleme hatası", e);
+                    }
+                }
+
+                // Şehir değişince
+                city.addEventListener("change", function(){
+                    if(cityName) cityName.value=this.options[this.selectedIndex].text;
+                    loadDistricts(this.value);
+                });
+
+                // İlçe değişince
+                district.addEventListener("change", function(){
+                    if(districtName) districtName.value=this.options[this.selectedIndex].text;
+                });
+
+                // Başlangıçta seçili değer varsa uygula
+                if(f.selectedCityId){
+                    city.value=f.selectedCityId;
+                    if(cityName) cityName.value=city.options[city.selectedIndex].text;
+                    loadDistricts(f.selectedCityId, f.selectedDistrictId);
+                } else {
+                    district.innerHTML='<option value="" disabled selected>Önce Şehir seçiniz...</option>';
+                }
+            });
+        });
+    </script>
+
+}

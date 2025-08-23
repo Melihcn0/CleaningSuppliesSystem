@@ -115,8 +115,6 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok("Marka kalıcı olarak silindi.");
         }
 
-
-
         [HttpGet("GetBrands/{categoryId}")]
         public async Task<IActionResult> GetByCategory(int categoryId)
         {
