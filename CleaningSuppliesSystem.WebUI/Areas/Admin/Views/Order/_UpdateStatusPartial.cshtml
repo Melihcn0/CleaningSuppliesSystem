@@ -142,11 +142,7 @@
                 return;
             }
 
-            if (disabledNormalized.includes(val)) {
-                $(this).prop('disabled', true);
-            } else {
-                $(this).prop('disabled', false);
-            }
+            $(this).prop('disabled', disabledNormalized.includes(val));
         });
 
         $('#updateStatusForm').on('submit', function (e) {
@@ -172,18 +168,14 @@
                     window.location.reload();
                 },
                 error: function (xhr) {
-                    if (xhr.status === 401) {
-                        alert('Yetkilendirme hatası oluştu. Lütfen tekrar giriş yapın.');
-                    } else if (xhr.status === 404) {
-                        alert('Sipariş bulunamadı.');
-                    } else {
-                        alert('Durum güncellenirken hata oluştu.');
-                    }
+                    let msg = xhr.responseText || 'Durum güncellenirken hata oluştu.';
+                    alert('Hata: ' + msg);
                 }
             });
         });
     });
 </script>
+
 
 @functions {
     public string GetStatusClass(string status)

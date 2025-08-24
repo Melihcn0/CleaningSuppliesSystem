@@ -4,7 +4,6 @@ using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
-using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.RegisterDtos;
 using CleaningSuppliesSystem.DTO.DTOs.RoleDtos;
@@ -22,6 +21,7 @@ using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
+using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -53,6 +53,25 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<UpdateFinanceDto, Finance>().ReverseMap();
 
             // Invoice
+            CreateMap<Invoice, InvoiceDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+                .ForMember(dest => dest.GeneratedAt, opt => opt.MapFrom(src => src.GeneratedAt))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => src.InvoiceType))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.NationalId))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyName))
+                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.TaxOffice))
+                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
+                .ForMember(dest => dest.AddressTitle, opt => opt.MapFrom(src => src.AddressTitle))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
+                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.DistrictName));
+
             // Bireysel adres → Invoice
             CreateMap<CustomerIndividualAddress, Invoice>()
                 .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => "Individual"))
@@ -83,7 +102,7 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.AppUser.LastName))
                 .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems))
-                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Invoice));
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice : null));
 
 
             CreateMap<UpdateOrderDto, Order>().ReverseMap();
@@ -143,26 +162,36 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.IconUrl, opt => opt.MapFrom(src => src.ServiceIcon.IconUrl));
 
             CreateMap<AppUser, CustomerProfileDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
-            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
-            .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.NationalId))
-            .ForMember(dest => dest.LastLogoutAt, opt => opt.MapFrom(src => src.LastLogoutAt))
-            .AfterMap((src, dest) =>
-            {
-                if (src.CustomerAddresses != null)
-                {
-                    var defaultAddress = src.CustomerAddresses.FirstOrDefault(a => a.IsDefault);
-                    if (defaultAddress != null)
-                    {
-                        dest.Address = defaultAddress.Address;
-                        dest.AddressTitle = defaultAddress.AddressTitle;
-                    }
-                }
-            });
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+                 .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.NationalId))
+                 .ForMember(dest => dest.LastLogoutAt, opt => opt.MapFrom(src => src.LastLogoutAt))
+                 .AfterMap((src, dest) =>
+                 {
+                     // Önce bireysel adresi kontrol et
+                     var defaultIndividual = src.CustomerIndividualAddresses?.FirstOrDefault(a => a.IsDefault);
+                     if (defaultIndividual != null)
+                     {
+                         dest.Address = defaultIndividual.Address;
+                         dest.AddressTitle = defaultIndividual.AddressTitle;
+                         return; // Bireysel adres varsa kurumsal kontrolüne gerek yok
+                     }
+
+                     // Bireysel adres yoksa kurumsal adresi kontrol et
+                     var defaultCorporate = src.CustomerCorporateAddresses?.FirstOrDefault(a => a.IsDefault);
+                     if (defaultCorporate != null)
+                     {
+                         dest.Address = defaultCorporate.Address;
+                         dest.AddressTitle = defaultCorporate.AddressTitle;
+                     }
+                 });
+
+
+
 
             CreateMap<UpdateCustomerProfileDto, AppUser>().ReverseMap();
 
@@ -177,7 +206,14 @@ namespace CleaningSuppliesSystem.API.Mapping
 
             CreateMap<CreateCustomerCorporateAddressDto, CustomerCorporateAddress>().ReverseMap();
             CreateMap<UpdateCustomerCorporateAddressDto, CustomerCorporateAddress>().ReverseMap();
-            CreateMap<CustomerCorporateAddress, CustomerCorporateAddressDto>();
+            CreateMap<CustomerCorporateAddress, CustomerCorporateAddressDto>()
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyName))
+                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.TaxOffice))
+                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
+                .ForMember(dest => dest.AddressTitle, opt => opt.MapFrom(src => src.AddressTitle))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
+                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.DistrictName));
 
             CreateMap<CreateLocationCityDto, LocationCity>().ReverseMap();
             CreateMap<CreateLocationDistrictDto, LocationDistrict>().ReverseMap();

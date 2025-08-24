@@ -18,7 +18,7 @@
             public string LastName { get; set; }   // Kullanıcının soyadı
             public string OrderNumber { get; set; }
             public ICollection<ResultOrderItemDto> OrderItems { get; set; }
-            public InvoiceDto Invoice { get; set; }
+            public InvoiceDto? Invoice { get; set; }
             public DateTime CreatedDate { get; set; }
             public DateTime? ApprovedDate { get; set; }       // Onaylandı
             public DateTime? PreparingDate { get; set; }       // Hazırlanıyor

@@ -17,7 +17,8 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public bool WantsNewsletter { get; set; } = false; // Bülten aboneliği
         public DateTime? LastLogoutAt { get; set; }
         public ICollection<Order> Orders { get; set; }   // Kullanıcının siparişleri
-        public ICollection<CustomerIndividualAddress> CustomerAddresses { get; set; } // Teslimat adresleri (birden fazla olabilir)
+        public ICollection<CustomerIndividualAddress> CustomerIndividualAddresses { get; set; }
+        public ICollection<CustomerCorporateAddress> CustomerCorporateAddresses { get; set; }
         public string PreferredTheme { get; set; } = "light"; // "light" veya "dark"
     }
 }

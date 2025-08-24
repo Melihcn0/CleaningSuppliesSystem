@@ -57,21 +57,22 @@ namespace CleaningSuppliesSystem.Business.Concrete
             if (existingInvoice != null)
                 return existingInvoice;
 
+            // Toplam tutar, indirimli fiyat varsa onu kullan
+            decimal totalAmount = order.OrderItems.Sum(x => x.Quantity * ((x.Product?.DiscountedPrice > 0 ? x.Product.DiscountedPrice : x.Product?.UnitPrice) ?? 0));
+
             Invoice invoice = new Invoice
             {
                 OrderId = order.Id,
                 GeneratedAt = DateTime.Now,
-                TotalAmount = order.OrderItems.Sum(x => x.Quantity * (x.Product?.UnitPrice ?? 0))
+                TotalAmount = totalAmount
             };
 
-            // Kullanıcının default adresini al
-            var individualAddress = order.AppUser.CustomerAddresses
-                .OfType<CustomerIndividualAddress>()
-                .FirstOrDefault(x => x.IsDefault);
+            // Default adresleri kontrol et
+            var individualAddress = order.AppUser.CustomerIndividualAddresses
+                .FirstOrDefault(a => a.IsDefault);
 
-            var corporateAddress = order.AppUser.CustomerAddresses
-                .OfType<CustomerCorporateAddress>()
-                .FirstOrDefault(x => x.IsDefault);
+            var corporateAddress = order.AppUser.CustomerCorporateAddresses
+                .FirstOrDefault(a => a.IsDefault);
 
             if (individualAddress != null)
             {
@@ -79,8 +80,8 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 invoice.FirstName = order.AppUser.FirstName;
                 invoice.LastName = order.AppUser.LastName;
                 invoice.NationalId = order.AppUser.NationalId;
-                invoice.PhoneNumber = order.AppUser.PhoneNumber;
                 invoice.Email = order.AppUser.Email;
+                invoice.PhoneNumber = order.AppUser.PhoneNumber;
 
                 invoice.AddressTitle = individualAddress.AddressTitle;
                 invoice.Address = individualAddress.Address;
@@ -90,6 +91,12 @@ namespace CleaningSuppliesSystem.Business.Concrete
             else if (corporateAddress != null)
             {
                 invoice.InvoiceType = "Corporate";
+                invoice.FirstName = order.AppUser.FirstName;
+                invoice.LastName = order.AppUser.LastName;
+                invoice.NationalId = order.AppUser.NationalId;
+                invoice.Email = order.AppUser.Email;
+                invoice.PhoneNumber = order.AppUser.PhoneNumber;
+
                 invoice.CompanyName = corporateAddress.CompanyName;
                 invoice.TaxOffice = corporateAddress.TaxOffice;
                 invoice.TaxNumber = corporateAddress.TaxNumber;
@@ -101,13 +108,13 @@ namespace CleaningSuppliesSystem.Business.Concrete
             }
             else
             {
+                // Kullanıcının hiç default adresi yoksa hata fırlat
                 throw new Exception("Kullanıcının default bir adresi bulunamadı.");
             }
 
             await _ınvoiceRepository.CreateAsync(invoice);
             return invoice;
         }
-
 
 
 
@@ -190,19 +197,23 @@ namespace CleaningSuppliesSystem.Business.Concrete
                             });
 
                             // Orta - Logo
-                            row.ConstantColumn(120).AlignCenter().Column(col =>
+                            row.ConstantColumn(130).Column(col =>
                             {
                                 if (logoData.Length > 0)
                                 {
-                                    col.Item().Height(80).AlignCenter()
+                                    col.Item().Height(100)
+                                        .PaddingRight(30)
+                                        .AlignCenter()
                                         .Image(logoData, ImageScaling.FitHeight);
                                 }
                                 else
                                 {
-                                    col.Item().Height(80).AlignCenter()
+                                    col.Item().Height(100)
+                                        .PaddingRight(30)
+                                        .AlignCenter()
                                         .Background(Colors.Grey.Lighten3)
                                         .Border(1).BorderColor(Colors.Grey.Lighten1)
-                                        .AlignCenter().Text("LOGO").FontSize(12).FontColor(Colors.Grey.Darken1);
+                                        .Text("LOGO").FontSize(12).FontColor(Colors.Grey.Darken1);
                                 }
                             });
 
@@ -210,7 +221,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                             // Sağ taraf - Fatura Bilgileri
                             row.RelativeColumn().Column(col =>
                             {
-                                col.Item().AlignRight().Text("FATURA").FontSize(12).SemiBold(); // Başlık değişti
+                                col.Item().AlignRight().Text("İRSALİYELİ FATURA").FontSize(12).SemiBold();
 
                                 col.Item().PaddingTop(10).Border(1).BorderColor(Colors.Grey.Darken1)
                                     .Padding(8).Column(innerCol =>
@@ -239,27 +250,63 @@ namespace CleaningSuppliesSystem.Business.Concrete
                         // === CUSTOMER INFO ===
                         column.Item().PaddingTop(20).Column(col =>
                         {
-                            col.Item().Text("Alıcı (Şube):").FontSize(8).SemiBold();
-                            col.Item().Text($"{order.AppUser?.FirstName} {order.AppUser?.LastName}").FontSize(10).SemiBold();
+                            var invoice = order.Invoice;
+                            if (invoice == null)
+                            {
+                                col.Item().Text("Alıcı bilgisi bulunamadı.").FontSize(8);
+                                return;
+                            }
 
-                            col.Item().PaddingTop(2).Text("Adres:").FontSize(8).SemiBold();
-                            col.Item().Text("Aydenevler Mh. Samatya Cd. Mendirlek Sk. No: 3 Orka Plaza")
-                                .FontSize(8);
-                            col.Item().Text("Maltepe, İstanbul, TÜRKİYE").FontSize(8);
+                            col.Item().Text("Alıcı:").FontSize(8).SemiBold();
+
+                            if (string.IsNullOrEmpty(invoice.CompanyName))
+                            {
+                                // Bireysel kullanıcı
+                                col.Item().Text($"{invoice.FirstName} {invoice.LastName}").FontSize(8).SemiBold();
+                            }
+                            else
+                            {
+                                // Kurumsal kullanıcı
+                                col.Item().Text($"Alıcı Şirket: {invoice.CompanyName}").FontSize(8).SemiBold();
+                                col.Item().Text($"Alıcı Ad Soyad: {invoice.FirstName} {invoice.LastName}").FontSize(8);
+                            }
+
+                            col.Item().Text("Adres Adı: ").FontSize(8).SemiBold();
+                            col.Item().Text($"{invoice.AddressTitle ?? ""}").FontSize(8);
+
+                            col.Item().Text("Açık Adres: ").FontSize(8).SemiBold();
+                            col.Item().Text($"{invoice.Address ?? ""}").FontSize(8);
+
+                            col.Item().Text($"{invoice.DistrictName ?? ""}, {invoice.CityName ?? ""}, TÜRKİYE").FontSize(8);
 
                             col.Item().PaddingTop(2).Row(r =>
                             {
                                 r.RelativeColumn().Column(c =>
                                 {
-                                    c.Item().Text("Telefon / Faks:").FontSize(8).SemiBold();
-                                    c.Item().Text("2162130061").FontSize(8);
+                                    c.Item().Text("Telefon:").FontSize(8).SemiBold();
+                                    c.Item().Text($"{invoice.PhoneNumber ?? "-"}").FontSize(8);
 
-                                    c.Item().PaddingTop(1).Text("Vergi No / Dairesi:").FontSize(8).SemiBold();
-                                    c.Item().Text($"{order.AppUser?.UserName ?? "11111111111"}").FontSize(8);
+                                    if (string.IsNullOrEmpty(invoice.CompanyName))
+                                    {
+                                        // Bireysel kullanıcı → T.C. Kimlik No göster
+                                        c.Item().PaddingTop(1).Text("T.C. Kimlik No:").FontSize(8).SemiBold();
+                                        c.Item().Text($"{invoice.NationalId ?? "-"}").FontSize(8);
+                                    }
+                                    else
+                                    {
+                                        // Kurumsal kullanıcı → Vergi bilgileri göster
+                                        c.Item().PaddingTop(1).Text("Vergi Dairesi:").FontSize(8).SemiBold();
+                                        c.Item().Text($"{invoice.TaxOffice ?? "-"}").FontSize(8);
+
+                                        c.Item().PaddingTop(1).Text("Vergi No:").FontSize(8).SemiBold();
+                                        c.Item().Text($"{invoice.TaxNumber ?? "-"}").FontSize(8);
+                                    }
                                 });
                             });
                         });
-                       
+
+
+
                         foreach (var item in order.OrderItems)
                         {
                             var quantity = item.Quantity;
@@ -275,23 +322,22 @@ namespace CleaningSuppliesSystem.Business.Concrete
                             subtotal += totalExclVat;
                             totalVat += vatAmountTotal;
                         }
-
                         // === PRODUCTS TABLE ===
                         column.Item().PaddingTop(20).Table(table =>
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.ConstantColumn(25);   // Sıra No
-                                columns.RelativeColumn(4);    // Ürün Adı
-                                columns.ConstantColumn(50);   // Miktar
-                                columns.ConstantColumn(60);   // Birim
-                                columns.ConstantColumn(70);   // Birim Fiyat
-                                columns.ConstantColumn(50);   // Brüt Fiyat
-                                columns.ConstantColumn(45);   // KDV Oranı
-                                columns.ConstantColumn(70);   // KDV Tutarı
-                                columns.ConstantColumn(70);   // Diğer Vergiler
-                                columns.ConstantColumn(70);   // Ürün Tutarı
+                                columns.ConstantColumn(30);   // Sıra No
+                                columns.RelativeColumn(100);     // Ürün Adı
+                                columns.ConstantColumn(30);   // Miktar
+                                columns.ConstantColumn(30);   // Birim
+                                columns.ConstantColumn(60);   // Birim Fiyat
+                                columns.ConstantColumn(60);   // Brüt Fiyat
+                                columns.ConstantColumn(30);   // KDV Oranı
+                                columns.ConstantColumn(60);   // KDV Tutarı
+                                columns.ConstantColumn(60);   // Ürün Tutarı
                             });
+
 
                             var headerStyle = TextStyle.Default.SemiBold().FontSize(8);
                             var borderColor = Colors.Black;
@@ -303,7 +349,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("Sıra No").AlignCenter().Style(headerStyle);
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
-                                    .Text("Ürün / Hizmet Adı").AlignCenter().Style(headerStyle);
+                                    .Text("Ürün / Hizmet Adı").AlignCenter().Style(headerStyle).WrapAnywhere();
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("Miktar").AlignCenter().Style(headerStyle);
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
@@ -311,11 +357,11 @@ namespace CleaningSuppliesSystem.Business.Concrete
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("Birim Fiyat").AlignCenter().Style(headerStyle);
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text("Brüt Fiyat").AlignCenter().Style(headerStyle);
+                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("K.D.V. Oranı").AlignCenter().Style(headerStyle);
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("K.D.V. Tutarı").AlignCenter().Style(headerStyle);
-                                header.Cell().Border(1).BorderColor(borderColor).Padding(2)
-                                    .Text("Diğer Vergiler").AlignCenter().Style(headerStyle);
                                 header.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("Ürün / Hizmet Tutarı").AlignCenter().Style(headerStyle);
                             });
@@ -331,14 +377,14 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
                                 var unitPriceExclVat = unitPriceInclVat / (1 + vatRate / 100);
                                 var vatAmountPerUnit = unitPriceInclVat - unitPriceExclVat;
-                                decimal totalExclVat = unitPriceExclVat * quantity;
-                                decimal vatAmountTotal = vatAmountPerUnit * quantity;
                                 decimal totalInclVat = unitPriceInclVat * quantity;
+                                decimal vatAmountTotal = vatAmountPerUnit * quantity;
+                                decimal grossPrice = unitPriceInclVat * quantity;
 
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text(count.ToString()).AlignCenter().Style(cellStyle);
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
-                                    .Text(productName).AlignLeft().Style(cellStyle);
+                                    .Text(productName).AlignLeft().Style(cellStyle).WrapAnywhere();
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text($"{quantity:N0}").AlignCenter().Style(cellStyle);
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
@@ -346,17 +392,17 @@ namespace CleaningSuppliesSystem.Business.Concrete
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text(unitPriceExclVat.ToString("N2") + " TL").AlignRight().Style(cellStyle);
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
+                                    .Text(grossPrice.ToString("N2") + " TL").AlignRight().Style(cellStyle);
+                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text("%" + vatRate.ToString("N0")).AlignCenter().Style(cellStyle);
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text(vatAmountTotal.ToString("N2") + " TL").AlignRight().Style(cellStyle);
                                 table.Cell().Border(1).BorderColor(borderColor).Padding(2)
-                                    .Text("-").AlignCenter().Style(cellStyle);
-                                table.Cell().Border(1).BorderColor(borderColor).Padding(2)
                                     .Text(totalInclVat.ToString("N2") + " TL").AlignRight().Style(cellStyle);
-
                                 count++;
                             }
                         });
+
 
                         // === TOTALS SECTION ===
                         column.Item().PaddingTop(10).Column(col =>
@@ -380,47 +426,47 @@ namespace CleaningSuppliesSystem.Business.Concrete
                                 row.RelativeColumn().Column(totalsCol =>
                                 {
                                     // Ürün/Hizmet Toplam Tutarı
-                                    totalsCol.Item().Row(r =>
+                                    totalsCol.Item().PaddingBottom(3).Row(r =>
                                     {
-                                        r.RelativeColumn().Text("Ürün / Hizmet Toplam Tutarı:").FontSize(9).SemiBold();
-                                        r.ConstantColumn(80).AlignRight().Text(subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                        r.RelativeColumn(150).Text("Ürün / Hizmet Toplam Tutarı:").FontSize(9).SemiBold();
+                                        r.ConstantColumn(60).AlignRight().Text(subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
                                     });
 
                                     // KDV Oranlarına Göre Matrah ve KDV Tutarları
                                     foreach (var group in vatRateGroups)
                                     {
-                                        totalsCol.Item().Row(r =>
+                                        totalsCol.Item().PaddingBottom(3).Row(r =>
                                         {
-                                            r.RelativeColumn().Text($"K.D.V. Matrahı (%{group.VatRate}):").FontSize(9).SemiBold();
-                                            r.ConstantColumn(80).AlignRight().Text(group.Subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                            r.RelativeColumn(150).Text($"K.D.V. Matrahı (%{group.VatRate}):").FontSize(9).SemiBold();
+                                            r.ConstantColumn(60).AlignRight().Text(group.Subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
                                         });
 
-                                        totalsCol.Item().Row(r =>
+                                        totalsCol.Item().PaddingBottom(3).Row(r =>
                                         {
-                                            r.RelativeColumn().Text($"Hesaplanan K.D.V. (%{group.VatRate}):").FontSize(9).SemiBold();
-                                            r.ConstantColumn(80).AlignRight().Text(group.TotalVat.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                            r.RelativeColumn(150).Text($"Hesaplanan K.D.V. (%{group.VatRate}):").FontSize(9).SemiBold();
+                                            r.ConstantColumn(60).AlignRight().Text(group.TotalVat.ToString("N2") + " TL").FontSize(9).SemiBold();
                                         });
                                     }
 
                                     // Vergiler Dahil Toplam Tutar
-                                    totalsCol.Item().Row(r =>
+                                    totalsCol.Item().PaddingBottom(3).Row(r =>
                                     {
-                                        r.RelativeColumn().Text("Vergiler Dahil Toplam Tutar:").FontSize(9).SemiBold();
-                                        r.ConstantColumn(80).AlignRight().Text(finalTotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                        r.RelativeColumn(150).Text("K.D.V Dahil Toplam Tutar:").FontSize(9).SemiBold();
+                                        r.ConstantColumn(60).AlignRight().Text(finalTotal.ToString("N2") + " TL").FontSize(9).SemiBold();
                                     });
 
                                     // Vergiler Hariç Toplam Tutar
-                                    totalsCol.Item().Row(r =>
+                                    totalsCol.Item().PaddingBottom(3).Row(r =>
                                     {
-                                        r.RelativeColumn().Text("Vergiler Hariç Toplam Tutar:").FontSize(9).SemiBold();
-                                        r.ConstantColumn(80).AlignRight().Text(subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
+                                        r.RelativeColumn(150).Text("K.D.V Hariç Toplam Tutar:").FontSize(9).SemiBold();
+                                        r.ConstantColumn(60).AlignRight().Text(subtotal.ToString("N2") + " TL").FontSize(9).SemiBold();
                                     });
 
                                     // Ödenecek Tutar
-                                    totalsCol.Item().Border(1).BorderColor(Colors.Black).Padding(3).Row(r =>
+                                    totalsCol.Item().BorderBottom(1).BorderColor(Colors.Black).Padding(4).Row(r =>
                                     {
-                                        r.RelativeColumn().Text("ÖDENECEK TUTAR:").FontSize(10).SemiBold();
-                                        r.ConstantColumn(80).AlignRight().Text(finalTotal.ToString("N2") + " TL").FontSize(10).SemiBold();
+                                        r.RelativeColumn(150).Text("ÖDENECEK TUTAR:").FontSize(10).SemiBold();
+                                        r.ConstantColumn(60).AlignRight().Text(finalTotal.ToString("N2") + " TL").FontSize(10).SemiBold();
                                     });
                                 });
                             });
@@ -430,9 +476,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                         column.Item().PaddingTop(20).Column(col =>
                         {
                             col.Item().Text("Notlar:").FontSize(9).SemiBold();
-                            // Bu ibare, belgenin sevk irsaliyesi yerine geçtiğini belirtir.
                             col.Item().Text("İŞBU BELGE SEVK İRSALİYESİ YERİNE GEÇER.").FontSize(8).SemiBold();
-                            col.Item().Text("Yalnız: " + NumberToWords(subtotal + totalVat) + " TL").FontSize(8);
                             col.Item().PaddingTop(5).Text("Sipariş Notu: " +
                                 (!string.IsNullOrEmpty(order.OrderNote) ? order.OrderNote : "Sipariş notu bulunmamaktadır."))
                                 .FontSize(8);

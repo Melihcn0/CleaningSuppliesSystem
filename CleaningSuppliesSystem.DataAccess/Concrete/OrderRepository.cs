@@ -24,6 +24,9 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
             return await _cleaningSuppliesContext.Orders
                 .Where(o => o.Status != "Teslim Edildi" && o.Status != "İptal Edildi")
                 .Include(o => o.AppUser)
+                    .ThenInclude(u => u.CustomerIndividualAddresses) // bireysel
+                .Include(o => o.AppUser)
+                    .ThenInclude(u => u.CustomerCorporateAddresses) // kurumsal
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Brand)
@@ -36,10 +39,14 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         }
 
 
+
         public async Task<Order> GetByIdAsyncWithAppUserandOrderItemsandInvoice(int id)
         {
             return await _cleaningSuppliesContext.Orders
                 .Include(o => o.AppUser)
+                    .ThenInclude(u => u.CustomerIndividualAddresses)
+                .Include(o => o.AppUser)
+                    .ThenInclude(u => u.CustomerCorporateAddresses)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                         .ThenInclude(p => p.Brand)
@@ -49,6 +56,8 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 .Include(o => o.Invoice)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
+
+
         public async Task<List<Order>> GetCompletedOrdersAsync()
         {
             return await _cleaningSuppliesContext.Orders
@@ -166,7 +175,7 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.Invoice)
-                .OrderByDescending(o => o.CreatedDate)
+                .OrderByDescending(o => o.CreatedDate) //customer addres felan yok sorun olabilir
                 .ToListAsync();
         }
 
@@ -192,6 +201,12 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 case "Hazırlanıyor":
                     order.PreparingDate = DateTime.Now;
                     order.ShippedDate = null;
+                    var invoiceRepo = new GenericRepository<Invoice>(_cleaningSuppliesContext);
+                    var invoice = await invoiceRepo.GetByFilterAsync(i => i.OrderId == order.Id);
+                    if (invoice != null)
+                    {
+                        await invoiceRepo.DeleteAsync(invoice.Id);
+                    }
                     break;
                 case "Kargoya Verildi":
                     order.ShippedDate = DateTime.Now;

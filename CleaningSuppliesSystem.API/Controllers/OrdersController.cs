@@ -83,16 +83,28 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Geçersiz veri.");
 
-            var result = await _orderService.UpdateStatusAsync(dto.Id, dto.Status);
+            try
+            {
+                var result = await _orderService.UpdateStatusAsync(dto.Id, dto.Status);
 
-            if (result == null)
-                return NotFound("Sipariş bulunamadı.");
+                if (result == null)
+                    return NotFound("Sipariş bulunamadı.");
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var errorDetail = new
+                {
+                    Message = "Bir hata oluştu.",
+                    ExceptionMessage = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    InnerException = ex.InnerException?.Message
+                };
+
+                return StatusCode(500, errorDetail);
+            }
         }
-
-
-
 
 
     }

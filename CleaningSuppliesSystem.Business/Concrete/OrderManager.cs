@@ -44,7 +44,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return _orderRepository.GetCancelledOrdersAsync();
         }
 
-
         public async Task<Order?> TGetPendingOrderByUserIdAsync(int userId)
         {
             return await _orderRepository.GetPendingOrderByUserIdAsync(userId);
@@ -56,13 +55,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
         }
         public async Task<List<ResultOrderDto>> TGetOrdersWithItemsAsync()
         {
-            // Asenkron metodu await ile çağırarak sonucun gelmesini bekliyoruz.
             var orders = await _orderRepository.GetOrdersWithItemsAsync();
-
-            // Gelen List<Order> nesnesini haritalıyoruz.
             return _mapper.Map<List<ResultOrderDto>>(orders);
         }
-                                                
+
         public async Task<List<ResultOrderDto>> TGetOrdersWithItemsByUserIdAsync(int userId)
         {
             var orders = await _orderRepository.GetOrdersWithItemsByUserIdAsync(userId);
@@ -75,23 +71,47 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 Status = o.Status,
                 CreatedDate = o.CreatedDate,
                 UpdatedDate = o.UpdatedDate,
+
                 Invoice = o.Invoice == null ? null : new InvoiceDto
                 {
-                    // Dilersen burada mapping detaylarını ekle
+                    Id = o.Invoice.Id,
+                    OrderId = o.Invoice.OrderId,
+                    GeneratedAt = o.Invoice.GeneratedAt,
+                    TotalAmount = o.Invoice.TotalAmount,
+                    InvoiceType = o.Invoice.InvoiceType,
+
+                    FirstName = o.Invoice.FirstName,
+                    LastName = o.Invoice.LastName,
+                    NationalId = o.Invoice.NationalId,
+                    PhoneNumber = o.Invoice.PhoneNumber,
+                    Email = o.Invoice.Email,
+
+                    CompanyName = o.Invoice.CompanyName,
+                    TaxOffice = o.Invoice.TaxOffice,
+                    TaxNumber = o.Invoice.TaxNumber,
+
+                    AddressTitle = o.Invoice.AddressTitle,
+                    Address = o.Invoice.Address,
+                    CityName = o.Invoice.CityName,
+                    DistrictName = o.Invoice.DistrictName
                 },
-                OrderItems = o.OrderItems.Select(oi => new ResultOrderItemDto
-                {
-                    Id = oi.Id,
-                    OrderId = oi.OrderId,
-                    ProductId = oi.ProductId,
-                    Quantity = oi.Quantity,
-                    UnitPrice = oi.UnitPrice,
-                    Product = oi.Product == null ? null : new ResultProductDto
+
+                OrderItems = o.OrderItems?
+                    .Select(oi => new ResultOrderItemDto
                     {
-                        Name = oi.Product.Name,
-                        // Ek alanlar varsa buraya ekle
-                    }
-                }).ToList()
+                        Id = oi.Id,
+                        OrderId = oi.OrderId,
+                        ProductId = oi.ProductId,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+
+                        Product = oi.Product == null ? null : new ResultProductDto
+                        {
+                            Name = oi.Product.Name
+                            // Eğer ileride ek alanlar gelecekse buraya ekle
+                        }
+                    })
+                    .ToList()
             }).ToList();
         }
 
@@ -102,8 +122,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             if (order == null)
                 throw new Exception("Sipariş bulunamadı veya güncellenemedi.");
 
-            // Durum 'Hazırlanıyor' ise fatura oluştur
-            if (status == "Hazırlanıyor")
+            if (status.Equals("Hazırlanıyor", StringComparison.OrdinalIgnoreCase) && order.Invoice == null)
             {
                 await _ınvoiceService.TCreateInvoiceAsync(orderId);
             }
