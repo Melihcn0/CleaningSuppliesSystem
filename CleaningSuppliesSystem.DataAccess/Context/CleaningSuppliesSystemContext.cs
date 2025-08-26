@@ -27,6 +27,7 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         public DbSet<CustomerCorporateAddress> CustomerCorporateAddresses { get; set; }
         public DbSet<LocationCity> LocationCitys { get; set; }
         public DbSet<LocationDistrict> LocationDistricts { get; set; }
+        public DbSet<CompanyAddress> CompanyAddresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -102,6 +102,12 @@ namespace CleaningSuppliesSystem.API.Extensions
             services.AddScoped<ILocationDistrictService, LocationDistrictManager>();
             services.AddScoped<ILocationDistrictRepository, LocationDistrictRepository>();
 
+            services.AddScoped<IAdminProfileService, AdminProfileManager>();
+            services.AddScoped<IAdminProfileRepository, AdminProfileRepository>();
+
+            services.AddScoped<ICompanyAddressService, CompanyAddressManager>();
+            services.AddScoped<ICompanyAddressRepository, CompanyAddressRepository>();
+
             services.AddHttpClient();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

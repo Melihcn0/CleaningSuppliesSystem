@@ -1,4 +1,5 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
@@ -847,6 +848,65 @@ namespace CleaningSuppliesSystem.Business.Validators
                 RuleFor(x => x.DistrictName)
                     .NotEmpty().WithMessage("İlçe adı boş bırakılamaz.")
                     .MaximumLength(25).WithMessage("İlçe adı en fazla 25 karakter olmalıdır.");
+            }
+        }
+        public class UpdateCompanyAddressValidator : AbstractValidator<UpdateCompanyAddressDto>
+        {
+            public UpdateCompanyAddressValidator()
+            {
+                RuleFor(x => x.CompanyName)
+                    .NotEmpty().WithMessage("Şirket adı boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Şirket adı en fazla 100 karakter olmalıdır.");
+
+                RuleFor(x => x.TaxOffice)
+                    .NotEmpty().WithMessage("Vergi dairesi boş bırakılamaz.");
+
+                RuleFor(x => x.TaxNumber)
+                    .NotEmpty().WithMessage("Vergi numarası boş bırakılamaz.")
+                    .Length(11).WithMessage("Vergi numarası 11 karakter olmalıdır.");
+
+                RuleFor(x => x.Address)
+                    .NotEmpty().WithMessage("Adres boş bırakılamaz.")
+                    .MaximumLength(150).WithMessage("Adres en fazla 150 karakter olmalıdır.");
+
+                RuleFor(x => x.CityName)
+                    .NotEmpty().WithMessage("Şehir adı boş bırakılamaz.")
+                    .MaximumLength(15).WithMessage("Şehir adı en fazla 15 karakter olmalıdır.");
+
+                RuleFor(x => x.DistrictName)
+                    .NotEmpty().WithMessage("İlçe adı boş bırakılamaz.")
+                    .MaximumLength(25).WithMessage("İlçe adı en fazla 25 karakter olmalıdır.");
+            }
+        }
+
+        public class UpdateAdminProfileValidator : AbstractValidator<UpdateCustomerProfileDto>
+        {
+            public UpdateAdminProfileValidator()
+            {
+                RuleFor(x => x.FirstName)
+                    .NotEmpty().WithMessage("Ad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Ad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.LastName)
+                    .NotEmpty().WithMessage("Soyad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Soyad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.UserName)
+                    .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
+                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.");
+
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("E-posta boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir e-posta giriniz.")
+                    .MaximumLength(100).WithMessage("E-posta en fazla 100 karakter olabilir.");
+
+                RuleFor(x => x.PhoneNumber)
+                    .NotEmpty().WithMessage("Telefon numarası boş bırakılamaz.")
+                    .MaximumLength(17).WithMessage("Telefon numarası en fazla 17 karakter olmalıdır.");
+
+                RuleFor(x => x.NationalId)
+                    .NotEmpty().WithMessage("Kimlik numarası boş bırakılamaz.")
+                    .MaximumLength(11).WithMessage("Kimlik numarası en fazla 11 karakter olmalıdır.");
             }
         }
     }

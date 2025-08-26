@@ -1,6 +1,5 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;

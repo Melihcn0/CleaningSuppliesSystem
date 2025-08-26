@@ -1,12 +1,13 @@
-﻿using System;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
+namespace CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos
 {
-    public class CustomerProfileDto
+    public class AdminProfileDto
     {
         public int Id { get; set; }                     // Profil Id
         public string? NationalId { get; set; }         // Kimlik Numarası
@@ -16,8 +17,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos
         public string Email { get; set; }               // E-posta
         public string? PhoneNumber { get; set; }        // Telefon
         public DateTime LastLogoutAt { get; set; }      // Son çıkış zamanı
-        public string? Address { get; set; }            // Sokak
-        public string? AddressTitle { get; set; }       // Adres başlığı
-
+        public CompanyAddressDto? CompanyAddress { get; set; }
     }
 }

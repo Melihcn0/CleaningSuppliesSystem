@@ -148,7 +148,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
             // 🔁 Role’a göre yönlendirme
             return role switch
             {
-                "Admin" => RedirectToAction("Index", "LocationCity", new { area = "Admin" }),
+                "Admin" => RedirectToAction("Index", "AdminProfile", new { area = "Admin" }),
                 "Customer" => RedirectToAction("Index", "Home"),
                 _ => RedirectToAction("AccessDenied", "ErrorPage")
             };

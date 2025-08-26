@@ -1,5 +1,4 @@
-﻿@using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos
-@model CustomerProfileViewModel
+﻿@model CustomerProfileViewModel
 @{
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
     var defaultAddress = Model.DefaultAddress;
@@ -66,12 +65,8 @@
                                     <span class="w-70 text-secondary-light fw-medium">: @ind.Address</span>
                                 </li>
                                 <li class="d-flex align-items-center gap-1 mb-12">
-                                    <span class="w-30 text-md fw-semibold text-primary-light">Şehir</span>
-                                    <span class="w-70 text-secondary-light fw-medium">: @ind.CityName</span>
-                                </li>
-                                <li class="d-flex align-items-center gap-1 mb-12">
-                                    <span class="w-30 text-md fw-semibold text-primary-light">İlçe</span>
-                                    <span class="w-70 text-secondary-light fw-medium">: @ind.DistrictName</span>
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Şehir / İlçe</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @ind.CityName / @ind.DistrictName</span>
                                 </li>
                             }
                             else if (Model.DefaultAddress is CustomerCorporateAddressDto corp)
@@ -93,16 +88,12 @@
                                     <span class="w-70 text-secondary-light fw-medium">: @corp.AddressTitle</span>
                                 </li>
                                 <li class="d-flex align-items-center gap-1 mb-12">
+                                    <span class="w-30 text-md fw-semibold text-primary-light">Şehir / İlçe</span>
+                                    <span class="w-70 text-secondary-light fw-medium">: @corp.CityName / @corp.DistrictName</span>
+                                </li>
+                                <li class="d-flex align-items-center gap-1 mb-12">
                                     <span class="w-30 text-md fw-semibold text-primary-light">Açık Adres</span>
                                     <span class="w-70 text-secondary-light fw-medium">: @corp.Address</span>
-                                </li>
-                                <li class="d-flex align-items-center gap-1 mb-12">
-                                    <span class="w-30 text-md fw-semibold text-primary-light">Şehir</span>
-                                    <span class="w-70 text-secondary-light fw-medium">: @corp.CityName</span>
-                                </li>
-                                <li class="d-flex align-items-center gap-1 mb-12">
-                                    <span class="w-30 text-md fw-semibold text-primary-light">İlçe</span>
-                                    <span class="w-70 text-secondary-light fw-medium">: @corp.DistrictName</span>
                                 </li>
                             }
 

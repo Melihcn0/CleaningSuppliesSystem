@@ -262,7 +262,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                             if (string.IsNullOrEmpty(invoice.CompanyName))
                             {
                                 // Bireysel kullanıcı
-                                col.Item().Text($"{invoice.FirstName} {invoice.LastName}").FontSize(8).SemiBold();
+                                col.Item().Text($"{invoice.FirstName} {invoice.LastName}").FontSize(9).SemiBold();
                             }
                             else
                             {

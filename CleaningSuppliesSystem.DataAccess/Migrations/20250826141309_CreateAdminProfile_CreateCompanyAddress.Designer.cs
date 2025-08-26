@@ -4,6 +4,7 @@ using CleaningSuppliesSystem.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleaningSuppliesSystem.DataAccess.Migrations
 {
     [DbContext(typeof(CleaningSuppliesSystemContext))]
-    partial class CleaningSuppliesSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250826141309_CreateAdminProfile_CreateCompanyAddress")]
+    partial class CreateAdminProfile_CreateCompanyAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -306,6 +309,9 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressTitle")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AppUserId")

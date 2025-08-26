@@ -2,7 +2,6 @@
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DataAccess.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using CleaningSuppliesSystem.Entity.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

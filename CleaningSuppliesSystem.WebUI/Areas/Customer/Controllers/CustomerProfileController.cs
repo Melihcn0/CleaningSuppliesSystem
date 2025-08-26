@@ -1,20 +1,13 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
-using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Customer.CustomerCorporateAddressDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Customer.CustomerIndivualAddressDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CustomerProfileValidatorDto;
-using CleaningSuppliesSystem.WebUI.Areas.Customer.Models;
-using FluentValidation;
-using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.IdentityModel.Tokens;
-using System.Net.Http.Json;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
 {
@@ -195,7 +188,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             return View("Index", failedVm);
         }
 
-
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> UpdateIndividualAddress(CustomerProfileViewModel model)
@@ -292,7 +284,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             failedVm.CreateCorporateAddress = dto;
             return View("Index", failedVm);
         }
-
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]

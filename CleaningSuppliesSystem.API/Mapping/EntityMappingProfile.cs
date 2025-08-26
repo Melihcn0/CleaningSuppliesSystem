@@ -16,12 +16,13 @@ using CleaningSuppliesSystem.DTO.DTOs.Home.BannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -172,16 +173,13 @@ namespace CleaningSuppliesSystem.API.Mapping
                  .ForMember(dest => dest.LastLogoutAt, opt => opt.MapFrom(src => src.LastLogoutAt))
                  .AfterMap((src, dest) =>
                  {
-                     // Önce bireysel adresi kontrol et
                      var defaultIndividual = src.CustomerIndividualAddresses?.FirstOrDefault(a => a.IsDefault);
                      if (defaultIndividual != null)
                      {
                          dest.Address = defaultIndividual.Address;
                          dest.AddressTitle = defaultIndividual.AddressTitle;
-                         return; // Bireysel adres varsa kurumsal kontrolüne gerek yok
+                         return;
                      }
-
-                     // Bireysel adres yoksa kurumsal adresi kontrol et
                      var defaultCorporate = src.CustomerCorporateAddresses?.FirstOrDefault(a => a.IsDefault);
                      if (defaultCorporate != null)
                      {
@@ -230,6 +228,31 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
                 .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
                 .ForMember(dest => dest.DeletedDate, opt => opt.MapFrom(src => src.DeletedDate));
+
+            CreateMap<LocationCity, ResultLocationCityWithLocationDistrictDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CityId))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
+                .ForMember(dest => dest.Districts, opt => opt.MapFrom(src =>
+                    src.Districts != null
+                        ? src.Districts.Select(d => d.DistrictName).ToList()
+                        : new List<string>()));
+
+            CreateMap<CompanyAddress, CompanyAddressDto>().ReverseMap();
+            CreateMap<AppUser, UpdateAdminProfileDto>().ReverseMap();
+            CreateMap<CompanyAddress, UpdateCompanyAddressDto>().ReverseMap();
+
+            CreateMap<AppUser, UpdateCompanyAddressDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompanyAddress.Id))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyAddress.CompanyName))
+                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.CompanyAddress.TaxOffice))
+                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.CompanyAddress.TaxNumber))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.CompanyAddress.Address))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CompanyAddress.CityName))
+                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.CompanyAddress.DistrictName));
+
+
+            CreateMap<AdminProfileDto, AppUser>().ReverseMap();
+
 
 
         }

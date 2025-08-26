@@ -1,7 +1,6 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.UserProfileDtos;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 public class CustomerProfileViewModel
