@@ -75,13 +75,13 @@ public class InvoicesController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await _invoiceService.TCreateInvoiceAsync(createInvoiceDto.OrderId);
+        await _invoiceService.TCreateAdminInvoiceAsync(createInvoiceDto.OrderId);
         return Ok($"Yeni Fatura Oluşturuldu. Sipariş ID={createInvoiceDto.OrderId}");
     }
 
-    [HttpGet("{id}/pdf")]
-    [Authorize(Roles = "Admin,Customer")]
-    public async Task<IActionResult> DownloadPdf(int id)
+    [HttpGet("{id}/deliveryNoteInvoice")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DownloadDeliveryNoteInvoicePdf(int id)
     {
         var invoice = await _invoiceService.TGetByIdAsyncWithOrder(id);
 
@@ -95,20 +95,43 @@ public class InvoicesController : ControllerBase
                 return Forbid("Bu faturayı indirme yetkiniz yok.");
         }
 
-        var pdfBytes = await _invoiceService.TGenerateInvoicePdfAsync(invoice.OrderId);
+        var pdfBytes = await _invoiceService.TGenerateAdminDeliveryNoteInvoicePdfAsync(invoice.OrderId);
         // Kullanıcı adı ve soyadını dosya adına ekle
-        var firstName = invoice.Order?.AppUser?.FirstName;
-        var lastName = invoice.Order?.AppUser?.LastName;
-        var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
+        var firstName = invoice.Order?.AppUser?.FirstName ?? "Bilinmiyor";
+        var lastName = invoice.Order?.AppUser?.LastName ?? "Bilinmiyor";
+        var safeFileName = $"{firstName}_{lastName}_İrsaliyeli_Fatura.pdf";
 
         return File(pdfBytes, "application/pdf", safeFileName);
     }
-    [HttpGet("byorder/{orderId}")]
-    [Authorize(Roles = "Admin,Customer")]
-    public async Task<IActionResult> GetPdfByOrderId(int orderId)
+
+    [HttpGet("{id}/invoice")]
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> DownloadInvoicePdf(int id)
+    {
+        var invoice = await _invoiceService.TGetByIdAsyncWithOrder(id);
+
+        if (User.IsInRole("Customer") && User.IsInRole("Admin"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdString, out int userId))
+                return Unauthorized();
+
+            if (invoice.Order == null || invoice.Order.AppUserId != userId)
+                return Forbid("Bu faturayı indirme yetkiniz yok.");
+        }
+
+        var pdfBytes = await _invoiceService.TGenerateCustomerInvoicePdfAsync(invoice.OrderId);
+        var firstName = invoice.Order?.AppUser?.FirstName ?? "Bilinmiyor";
+        var lastName = invoice.Order?.AppUser?.LastName ?? "Bilinmiyor";
+        var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
+        return File(pdfBytes, "application/pdf", safeFileName);
+    }
+
+    [HttpGet("byorderAdmin/{orderId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAdminPdfByOrderId(int orderId)
     {
         var invoice = await _invoiceService.TGetInvoiceByOrderIdAsync(orderId);
-
         if (invoice == null)
             return NotFound();
 
@@ -122,16 +145,36 @@ public class InvoicesController : ControllerBase
                 return Forbid("Bu faturayı indirme yetkiniz yok.");
         }
 
-        var pdfBytes = await _invoiceService.TGenerateInvoicePdfAsync(invoice.OrderId);
-        var firstName = invoice.Order?.AppUser?.FirstName ?? "Unknown";
-        var lastName = invoice.Order?.AppUser?.LastName ?? "User";
-
-        var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
-
-        // File() metodu zaten Content-Disposition header'ını ayarlıyor, elle eklemeye gerek yok
+        var pdfBytes = await _invoiceService.TGenerateAdminDeliveryNoteInvoicePdfAsync(invoice.OrderId);
+        var firstName = invoice.Order?.AppUser?.FirstName ?? "Bilinmiyor";
+        var lastName = invoice.Order?.AppUser?.LastName ?? "Bilinmiyor";
+        var safeFileName = $"{firstName}_{lastName}_İrsaliyeli_Fatura.pdf";
         return File(pdfBytes, "application/pdf", safeFileName);
     }
 
+    [HttpGet("byorderCustomer/{orderId}")]
+    [Authorize(Roles = "Admin,Customer")]
+    public async Task<IActionResult> GetCustomerPdfByOrderId(int orderId)
+    {
+        var invoice = await _invoiceService.TGetInvoiceByOrderIdAsync(orderId);
+        if (invoice == null)
+            return NotFound();
+
+        if (User.IsInRole("Customer") && User.IsInRole("Admin"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
+                return Unauthorized();
+
+            if (invoice.Order == null || invoice.Order.AppUserId.ToString() != userIdString)
+                return Forbid("Bu faturayı indirme yetkiniz yok.");
+        }
+        var pdfBytes = await _invoiceService.TGenerateCustomerInvoicePdfAsync(invoice.OrderId);
+        var firstName = invoice.Order?.AppUser?.FirstName ?? "Bilinmiyor";
+        var lastName = invoice.Order?.AppUser?.LastName ?? "Bilinmiyor";
+        var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
+        return File(pdfBytes, "application/pdf", safeFileName);
+    }
 
 
 

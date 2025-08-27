@@ -72,12 +72,13 @@ public class OrderController : Controller
         return PartialView("_OrderDetailPartial", order);
     }
 
-
+    // WebUI Katmanı
     [HttpPost]
-    [ValidateAntiForgeryToken]  
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(int id)
     {
-        var response = await _client.DeleteAsync($"customerOrders/{id}");
+        // API'nin URL formatına uygun şekilde id'yi URL'ye ekle
+        var response = await _client.PostAsync($"customerOrders/cancelOrder/{id}", null);
 
         if (response.StatusCode == HttpStatusCode.Forbidden)
             return BadRequest("Bu siparişi iptal etme yetkiniz yok.");
@@ -87,7 +88,6 @@ public class OrderController : Controller
 
         return Ok();
     }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -125,17 +125,14 @@ public class OrderController : Controller
 
     public async Task<IActionResult> DownloadInvoice(int orderId)
     {
-        var pdfResponse = await _client.GetAsync($"invoices/byorder/{orderId}");
+        var pdfResponse = await _client.GetAsync($"invoices/byorderCustomer/{orderId}");
         if (!pdfResponse.IsSuccessStatusCode)
             return RedirectToAction("Index");
 
         var pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync();
-
         var contentDisposition = pdfResponse.Content.Headers.ContentDisposition;
         string fileName = contentDisposition?.FileNameStar ?? contentDisposition?.FileName;
-
         fileName = fileName?.Trim('"');
-
         return File(pdfBytes, "application/pdf", fileName);
     }
 

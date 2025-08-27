@@ -9,5 +9,6 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
 {
     public interface IAdminProfileRepository : IRepository<AppUser>
     {
+        Task<AppUser> GetAdminWithCompanyAddressAsync(int adminId);
     }
 }

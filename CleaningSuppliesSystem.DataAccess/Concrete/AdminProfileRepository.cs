@@ -2,6 +2,7 @@
 using CleaningSuppliesSystem.DataAccess.Context;
 using CleaningSuppliesSystem.DataAccess.Repositories;
 using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,12 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         public AdminProfileRepository(CleaningSuppliesSystemContext context) : base(context)
         {
             _context = context;
+        }
+        public async Task<AppUser> GetAdminWithCompanyAddressAsync(int adminId)
+        {
+            return await _context.Users
+                .Include(u => u.CompanyAddress)
+                .FirstOrDefaultAsync(u => u.Id == adminId);
         }
     }
 }

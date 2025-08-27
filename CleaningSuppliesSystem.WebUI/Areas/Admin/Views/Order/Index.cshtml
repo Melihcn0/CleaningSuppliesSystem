@@ -67,10 +67,16 @@
                                     <a href="#" class="btn rounded-pill btn-warning-100 text-warning-600 radius-8 d-inline-flex align-items-center btn-sm js-show-update-status" data-order-id="@item.Id" title="Sipariş Durumu Güncelle">
                                         <span class="material-symbols-outlined menu-icon">app_badging</span> Sipariş Durum Güncelle
                                     </a>
+                                    @if (item.Status == "Kargoya Verildi" || item.Status == "Teslim Edildi")
+                                    {
+                                        <a asp-controller="Order" asp-action="DownloadDeliveryNoteInvoice" asp-route-orderId="@item.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
+                                            <span class="material-symbols-outlined me-1">download</span> İrsaliyeli Faturayı İndir
+                                        </a>
+                                    }
                                     @if (item.Status != "Onay Bekleniyor" && item.Status != "Onaylandı")
                                     {
-                                        <a href="@Url.Action("DownloadInvoice", "Order", new { orderId = item.Id })" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
-                                            <span class="material-symbols-outlined menu-icon">download</span> Faturayı İndir
+                                        <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-orderId="@item.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
+                                            <span class="material-symbols-outlined me-1">download</span> Faturayı İndir
                                         </a>
                                     }
                                 </div>

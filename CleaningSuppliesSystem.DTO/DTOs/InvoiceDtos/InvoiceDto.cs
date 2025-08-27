@@ -1,10 +1,4 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
-using CleaningSuppliesSystem.Entity.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos;
 
 namespace CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos
 {
@@ -16,22 +10,38 @@ namespace CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos
         public decimal TotalAmount { get; set; }
         public string InvoiceType { get; set; }
 
-        // Bireysel için alanlar
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? NationalId { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Email { get; set; }
+        // 📌 Bireysel müşteri bilgileri
+        public string? CustomerFirstName { get; set; }
+        public string? CustomerLastName { get; set; }
+        public string? CustomerNationalId { get; set; }
+        public string? CustomerPhoneNumber { get; set; }
+        public string? CustomerEmail { get; set; }
 
-        // Kurumsal için alanlar
-        public string? CompanyName { get; set; }
-        public string? TaxOffice { get; set; }
-        public string? TaxNumber { get; set; }
+        // 📌 Kurumsal müşteri bilgileri
+        public string? CustomerCompanyName { get; set; }
+        public string? CustomerTaxOffice { get; set; }
+        public string? CustomerTaxNumber { get; set; }
 
-        // Ortak adres bilgileri
-        public string? AddressTitle { get; set; }
-        public string? Address { get; set; }
-        public string? CityName { get; set; }
-        public string? DistrictName { get; set; }
+        // 📌 Ortak adres bilgileri
+        public string? CustomerAddressTitle { get; set; }
+        public string? CustomerAddress { get; set; }
+        public string? CustomerCityName { get; set; }
+        public string? CustomerDistrictName { get; set; }
+
+        // 📌 Yetkili (Admin) snapshot bilgileri
+        public string? AdminFirstName { get; set; }
+        public string? AdminLastName { get; set; }
+        public string? AdminPhoneNumber { get; set; }
+
+        // 📌 Şirket snapshot bilgileri
+        public string? InvoiceCompanyName { get; set; }
+        public string? InvoiceCompanyTaxOffice { get; set; }
+        public string? InvoiceCompanyTaxNumber { get; set; }
+        public string? InvoiceCompanyAddress { get; set; }
+        public string? InvoiceCompanyCityName { get; set; }
+        public string? InvoiceCompanyDistrictName { get; set; }
+
+        // 📌 Fatura satırları
+        public ICollection<InvoiceItemDto>? InvoiceItems { get; set; }
     }
 }

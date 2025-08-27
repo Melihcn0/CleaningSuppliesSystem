@@ -23,6 +23,7 @@ using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -54,48 +55,69 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<UpdateFinanceDto, Finance>().ReverseMap();
 
             // Invoice
+            // Invoice → InvoiceDto
             CreateMap<Invoice, InvoiceDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
                 .ForMember(dest => dest.GeneratedAt, opt => opt.MapFrom(src => src.GeneratedAt))
                 .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
                 .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => src.InvoiceType))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
-                .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.NationalId))
-                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyName))
-                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.TaxOffice))
-                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
-                .ForMember(dest => dest.AddressTitle, opt => opt.MapFrom(src => src.AddressTitle))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CityName))
-                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.DistrictName));
+                .ForMember(dest => dest.CustomerFirstName, opt => opt.MapFrom(src => src.CustomerFirstName))
+                .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.CustomerLastName))
+                .ForMember(dest => dest.CustomerNationalId, opt => opt.MapFrom(src => src.CustomerNationalId))
+                .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => src.CustomerPhoneNumber))
+                .ForMember(dest => dest.CustomerCompanyName, opt => opt.MapFrom(src => src.CustomerCompanyName))
+                .ForMember(dest => dest.CustomerTaxOffice, opt => opt.MapFrom(src => src.CustomerTaxOffice))
+                .ForMember(dest => dest.CustomerTaxNumber, opt => opt.MapFrom(src => src.CustomerTaxNumber))
+                .ForMember(dest => dest.CustomerAddressTitle, opt => opt.MapFrom(src => src.CustomerAddressTitle))
+                .ForMember(dest => dest.CustomerAddress, opt => opt.MapFrom(src => src.CustomerAddress))
+                .ForMember(dest => dest.CustomerCityName, opt => opt.MapFrom(src => src.CustomerCityName))
+                .ForMember(dest => dest.CustomerDistrictName, opt => opt.MapFrom(src => src.CustomerDistrictName))
+                .ForMember(dest => dest.AdminFirstName, opt => opt.MapFrom(src => src.AdminFirstName))
+                .ForMember(dest => dest.AdminLastName, opt => opt.MapFrom(src => src.AdminLastName))
+                .ForMember(dest => dest.AdminPhoneNumber, opt => opt.MapFrom(src => src.AdminPhoneNumber))
+                .ForMember(dest => dest.InvoiceCompanyName, opt => opt.MapFrom(src => src.InvoiceCompanyName))
+                .ForMember(dest => dest.InvoiceCompanyTaxOffice, opt => opt.MapFrom(src => src.InvoiceCompanyTaxOffice))
+                .ForMember(dest => dest.InvoiceCompanyTaxNumber, opt => opt.MapFrom(src => src.InvoiceCompanyTaxNumber))
+                .ForMember(dest => dest.InvoiceCompanyAddress, opt => opt.MapFrom(src => src.InvoiceCompanyAddress))
+                .ForMember(dest => dest.InvoiceCompanyCityName, opt => opt.MapFrom(src => src.InvoiceCompanyCityName))
+                .ForMember(dest => dest.InvoiceCompanyDistrictName, opt => opt.MapFrom(src => src.InvoiceCompanyDistrictName))
+                .ForMember(dest => dest.InvoiceItems, opt => opt.MapFrom(src => src.InvoiceItems));
+
+            // InvoiceItem → InvoiceItemDto
+            CreateMap<InvoiceItem, InvoiceItemDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductName))
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
+                .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.VatRate))
+                .ForMember(dest => dest.VatAmount, opt => opt.MapFrom(src => src.VatAmount))
+                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
 
             // Bireysel adres → Invoice
             CreateMap<CustomerIndividualAddress, Invoice>()
                 .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => "Individual"))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.AppUser.LastName))
-                .ForMember(dest => dest.NationalId, opt => opt.MapFrom(src => src.AppUser.NationalId))
-                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.AppUser.Email))
-                .ForMember(dest => dest.CompanyName, opt => opt.Ignore())
-                .ForMember(dest => dest.TaxOffice, opt => opt.Ignore())
-                .ForMember(dest => dest.TaxNumber, opt => opt.Ignore());
+                .ForMember(dest => dest.CustomerFirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
+                .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.AppUser.LastName))
+                .ForMember(dest => dest.CustomerNationalId, opt => opt.MapFrom(src => src.AppUser.NationalId))
+                .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
+                .ForMember(dest => dest.CustomerCompanyName, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerTaxOffice, opt => opt.Ignore())
+                .ForMember(dest => dest.CustomerTaxNumber, opt => opt.Ignore())
+                .ForMember(dest => dest.InvoiceItems, opt => opt.Ignore()); // ürünleri manuel ekle
 
             // Kurumsal adres → Invoice
             CreateMap<CustomerCorporateAddress, Invoice>()
                 .ForMember(dest => dest.InvoiceType, opt => opt.MapFrom(src => "Corporate"))
-                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyName))
-                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.TaxOffice))
-                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
-                .ForMember(dest => dest.FirstName, opt => opt.Ignore())
-                .ForMember(dest => dest.LastName, opt => opt.Ignore())
-                .ForMember(dest => dest.NationalId, opt => opt.Ignore())
-                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.AppUser.Email));
+                .ForMember(dest => dest.CustomerCompanyName, opt => opt.MapFrom(src => src.CompanyName))
+                .ForMember(dest => dest.CustomerTaxOffice, opt => opt.MapFrom(src => src.TaxOffice))
+                .ForMember(dest => dest.CustomerTaxNumber, opt => opt.MapFrom(src => src.TaxNumber))
+                .ForMember(dest => dest.CustomerFirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
+                .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.AppUser.LastName))
+                .ForMember(dest => dest.CustomerNationalId, opt => opt.MapFrom(src => src.AppUser.NationalId))
+                .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
+                .ForMember(dest => dest.InvoiceItems, opt => opt.Ignore()); // ürünleri manuel ekle
+
 
             // Order
             CreateMap<CreateOrderDto, Order>().ReverseMap();

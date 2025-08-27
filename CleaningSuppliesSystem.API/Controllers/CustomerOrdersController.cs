@@ -54,7 +54,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
-            var order = await _orderService.TGetByIdAsyncWithAppUserandOrderItemsandInvoice(id);
+            var order = await _orderService.TGetOrderByIdWithDetailsAsync(id);
 
             if (order == null)
                 return NotFound();
@@ -83,7 +83,7 @@ namespace CleaningSuppliesSystem.API.Controllers
 
             await _orderService.TCreateAsync(newOrder);
             // Fatura oluştur
-            var invoice = await _invoiceService.TCreateInvoiceAsync(newOrder.Id);
+            var invoice = await _invoiceService.TCreateAdminInvoiceAsync(newOrder.Id);
 
             return CreatedAtAction(nameof(GetOrderById),
                                    new { id = newOrder.Id },
@@ -92,8 +92,8 @@ namespace CleaningSuppliesSystem.API.Controllers
 
 
         // Müşteri sipariş iptal etmek isterse (duruma göre)
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> CancelOrder(int id)
+        [HttpPost("cancelOrder/{id}")]
+        public async Task<IActionResult> Cancel(int id)
         {
             var order = await _orderService.TGetByIdAsync(id);
 

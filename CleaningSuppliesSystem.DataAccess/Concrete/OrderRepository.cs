@@ -19,28 +19,28 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
             _cleaningSuppliesContext = _context;
         }
 
-        public async Task<List<Order>> GetOrderItemWithAppUserandOrderItemsandInvoiceAsync()
-        {
-            return await _cleaningSuppliesContext.Orders
-                .Where(o => o.Status != "Teslim Edildi" && o.Status != "İptal Edildi")
-                .Include(o => o.AppUser)
-                    .ThenInclude(u => u.CustomerIndividualAddresses) // bireysel
-                .Include(o => o.AppUser)
-                    .ThenInclude(u => u.CustomerCorporateAddresses) // kurumsal
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
-                        .ThenInclude(p => p.Brand)
-                            .ThenInclude(b => b.Category)
-                                .ThenInclude(c => c.SubCategory)
-                                    .ThenInclude(sc => sc.TopCategory)
-                .Include(o => o.Invoice)
-                .OrderByDescending(o => o.CreatedDate)
-                .ToListAsync();
-        }
+            public async Task<List<Order>> GetActiveOrdersWithDetailsAsync()
+            {
+                return await _cleaningSuppliesContext.Orders
+                    .Where(o => o.Status != "Teslim Edildi" && o.Status != "İptal Edildi")
+                    .Include(o => o.AppUser)
+                        .ThenInclude(u => u.CustomerIndividualAddresses) // bireysel
+                    .Include(o => o.AppUser)
+                        .ThenInclude(u => u.CustomerCorporateAddresses) // kurumsal
+                    .Include(o => o.OrderItems)
+                        .ThenInclude(oi => oi.Product)
+                            .ThenInclude(p => p.Brand)
+                                .ThenInclude(b => b.Category)
+                                    .ThenInclude(c => c.SubCategory)
+                                        .ThenInclude(sc => sc.TopCategory)
+                    .Include(o => o.Invoice)
+                    .OrderByDescending(o => o.CreatedDate)
+                    .ToListAsync();
+            }
 
 
 
-        public async Task<Order> GetByIdAsyncWithAppUserandOrderItemsandInvoice(int id)
+        public async Task<Order> GetOrderByIdWithDetailsAsync(int id)
         {
             return await _cleaningSuppliesContext.Orders
                 .Include(o => o.AppUser)
@@ -54,8 +54,10 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                                 .ThenInclude(c => c.SubCategory)
                                     .ThenInclude(sc => sc.TopCategory)
                 .Include(o => o.Invoice)
+                    .ThenInclude(i => i.InvoiceItems)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
+
 
 
         public async Task<List<Order>> GetCompletedOrdersAsync()
@@ -100,7 +102,7 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         public async Task AddToPendingOrderAsync(int userId, int productId, int quantity)
         {
             if (quantity <= 0)
-                throw new ArgumentException("Quantity must be greater than zero");
+                throw new ArgumentException("Miktar 0'dan küçük olamaz.");
 
             var order = await GetPendingOrderByUserIdAsync(userId);
 
@@ -118,7 +120,6 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 await _cleaningSuppliesContext.Orders.AddAsync(order);
                 await _cleaningSuppliesContext.SaveChangesAsync();
 
-                // Siparişi ve ilişkili OrderItems'ı yeniden yükle
                 order = await _cleaningSuppliesContext.Orders
                     .Include(o => o.OrderItems)
                     .FirstOrDefaultAsync(o => o.Id == order.Id);
@@ -126,7 +127,7 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
 
             var product = await _cleaningSuppliesContext.Products.FindAsync(productId);
             if (product == null)
-                throw new Exception("Product not found");
+                throw new Exception("Ürün bulunamadı.");
 
             var unitPrice = product.DiscountedPrice > 0 ? product.DiscountedPrice : product.UnitPrice;
 
@@ -168,27 +169,24 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 .ToListAsync();
         }
 
-        public async Task<List<Order>> GetOrdersWithItemsByUserIdAsync(int userId)
+        public async Task<List<Order>> GetOrdersByUserIdWithDetailsAsync(int userId)
         {
             return await _cleaningSuppliesContext.Orders
                 .Where(o => o.AppUserId == userId)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.Invoice)
-                .OrderByDescending(o => o.CreatedDate) //customer addres felan yok sorun olabilir
+                .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
 
         public async Task<Order> UpdateStatusAsync(int orderId, string status)
         {
             var order = await _cleaningSuppliesContext.Set<Order>().FindAsync(orderId);
-            if (order == null)
-                return null;
+            if (order == null) return null;
 
             order.Status = status;
             order.UpdatedDate = DateTime.Now;
-
-            // Yeni duruma göre sadece ilgili tarih set ediliyor
             switch (status)
             {
                 case "Onay Bekleniyor":
@@ -227,7 +225,6 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
 
             _cleaningSuppliesContext.Update(order);
             await _cleaningSuppliesContext.SaveChangesAsync();
-
             return order;
         }
 

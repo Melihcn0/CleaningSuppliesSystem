@@ -11,7 +11,7 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
     {
         Task<List<Invoice>> GetInvoiceWithOrderAsync();
         Task<Invoice?> GetByIdAsyncWithOrder(int id);
-        Task<Invoice?> GetInvoiceByOrderIdAsync(int orderId);
+        Task<Invoice?> GetInvoiceByOrderIdAsync(int orderId); // siparişe göre faturayı getir
         Task<List<Invoice>> GetInvoicesByUserIdAsync(int userId);
     }
 }

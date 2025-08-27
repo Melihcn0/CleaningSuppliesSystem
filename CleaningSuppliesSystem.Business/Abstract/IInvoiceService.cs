@@ -11,9 +11,10 @@ namespace CleaningSuppliesSystem.Business.Abstract
     {
         Task<List<Invoice>> TGetInvoiceWithOrderAsync();
         Task<Invoice> TGetByIdAsyncWithOrder(int orderId);
-        Task<byte[]> TGenerateInvoicePdfAsync(int orderId);
+        Task<byte[]> TGenerateAdminDeliveryNoteInvoicePdfAsync(int orderId);
+        Task<byte[]> TGenerateCustomerInvoicePdfAsync(int orderId);
         Task<Invoice> TGetInvoiceByOrderIdAsync(int orderId);
-        Task<Invoice> TCreateInvoiceAsync(int orderId);
+        Task<Invoice> TCreateAdminInvoiceAsync(int orderId);
         Task<List<Invoice>> TGetInvoicesByUserIdAsync(int userId);
 
 

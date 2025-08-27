@@ -31,7 +31,7 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         public async Task<Invoice> GetInvoiceByOrderIdAsync(int orderId)
         {
             return await _cleaningSuppliesContext.Invoices
-                .Include(i => i.Order)   // Burada Order'ı dahil et
+                .Include(i => i.Order)
                 .FirstOrDefaultAsync(i => i.OrderId == orderId);
         }
 

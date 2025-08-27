@@ -112,7 +112,6 @@
         }
     </div>
 </div>
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -192,10 +191,17 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        // AJAX isteği için verileri hazırlama
+                        var requestData = {
+                            id: orderId,
+                            // Anti-forgery token'ı otomatik olarak al ve veriye ekle
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        };
+
                         $.ajax({
                             url: '/Customer/Order/Cancel',
                             type: 'POST',
-                            data: { id: orderId },
+                            data: requestData,
                             success: function () {
                                 Swal.fire({
                                     title: 'İptal Edildi!',
@@ -220,4 +226,3 @@
         });
     </script>
 }
-

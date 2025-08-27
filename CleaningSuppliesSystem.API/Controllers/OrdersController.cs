@@ -23,7 +23,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var values = await _orderService.TGetOrderItemWithAppUserandOrderItemsandInvoiceAsync();
+            var values = await _orderService.TGetActiveOrdersWithDetailsAsync();
             var orders = _mapper.Map<List<ResultOrderDto>>(values);
             return Ok(orders);
         }
@@ -46,7 +46,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var value = await _orderService.TGetByIdAsyncWithAppUserandOrderItemsandInvoice(id);
+            var value = await _orderService.TGetOrderByIdWithDetailsAsync(id);
             if (value == null)
                 return NotFound();
 

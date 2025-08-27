@@ -2,14 +2,9 @@
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DataAccess.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
-using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
-using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.Entity.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.Business.Concrete
 {
@@ -26,14 +21,14 @@ namespace CleaningSuppliesSystem.Business.Concrete
             _mapper = mapper;
         }
 
-        public Task<List<Order>> TGetOrderItemWithAppUserandOrderItemsandInvoiceAsync()
+        public Task<List<Order>> TGetActiveOrdersWithDetailsAsync()
         {
-            return _orderRepository.GetOrderItemWithAppUserandOrderItemsandInvoiceAsync();
+            return _orderRepository.GetActiveOrdersWithDetailsAsync();
         }
 
-        public Task<Order> TGetByIdAsyncWithAppUserandOrderItemsandInvoice(int id)
+        public Task<Order> TGetOrderByIdWithDetailsAsync(int id)
         {
-            return _orderRepository.GetByIdAsyncWithAppUserandOrderItemsandInvoice(id);
+            return _orderRepository.GetOrderByIdWithDetailsAsync(id);
         }
         public Task<List<Order>> TGetCompletedOrdersAsync()
         {
@@ -58,10 +53,9 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var orders = await _orderRepository.GetOrdersWithItemsAsync();
             return _mapper.Map<List<ResultOrderDto>>(orders);
         }
-
-        public async Task<List<ResultOrderDto>> TGetOrdersWithItemsByUserIdAsync(int userId)
+        public async Task<List<ResultOrderDto>> TGetOrdersByUserIdWithDetailsAsync(int userId)
         {
-            var orders = await _orderRepository.GetOrdersWithItemsByUserIdAsync(userId);
+            var orders = await _orderRepository.GetOrdersByUserIdWithDetailsAsync(userId);
 
             return orders.Select(o => new ResultOrderDto
             {
@@ -72,7 +66,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 CreatedDate = o.CreatedDate,
                 UpdatedDate = o.UpdatedDate,
 
-                Invoice = o.Invoice == null ? null : new InvoiceDto
+                Invoice = o.Invoice != null ? new InvoiceDto
                 {
                     Id = o.Invoice.Id,
                     OrderId = o.Invoice.OrderId,
@@ -80,40 +74,53 @@ namespace CleaningSuppliesSystem.Business.Concrete
                     TotalAmount = o.Invoice.TotalAmount,
                     InvoiceType = o.Invoice.InvoiceType,
 
-                    FirstName = o.Invoice.FirstName,
-                    LastName = o.Invoice.LastName,
-                    NationalId = o.Invoice.NationalId,
-                    PhoneNumber = o.Invoice.PhoneNumber,
-                    Email = o.Invoice.Email,
+                    // Customer alanları
+                    CustomerFirstName = o.Invoice.CustomerFirstName,
+                    CustomerLastName = o.Invoice.CustomerLastName,
+                    CustomerNationalId = o.Invoice.CustomerNationalId,
+                    CustomerPhoneNumber = o.Invoice.CustomerPhoneNumber,
 
-                    CompanyName = o.Invoice.CompanyName,
-                    TaxOffice = o.Invoice.TaxOffice,
-                    TaxNumber = o.Invoice.TaxNumber,
+                    CustomerCompanyName = o.Invoice.CustomerCompanyName,
+                    CustomerTaxOffice = o.Invoice.CustomerTaxOffice,
+                    CustomerTaxNumber = o.Invoice.CustomerTaxNumber,
 
-                    AddressTitle = o.Invoice.AddressTitle,
-                    Address = o.Invoice.Address,
-                    CityName = o.Invoice.CityName,
-                    DistrictName = o.Invoice.DistrictName
-                },
+                    CustomerAddressTitle = o.Invoice.CustomerAddressTitle,
+                    CustomerAddress = o.Invoice.CustomerAddress,
+                    CustomerCityName = o.Invoice.CustomerCityName,
+                    CustomerDistrictName = o.Invoice.CustomerDistrictName,
 
-                OrderItems = o.OrderItems?
-                    .Select(oi => new ResultOrderItemDto
+                    // Admin snapshot
+                    AdminFirstName = o.Invoice.AdminFirstName,
+                    AdminLastName = o.Invoice.AdminLastName,
+                    AdminPhoneNumber = o.Invoice.AdminPhoneNumber,
+
+                    // Şirket snapshot
+                    InvoiceCompanyName = o.Invoice.InvoiceCompanyName,
+                    InvoiceCompanyTaxOffice = o.Invoice.InvoiceCompanyTaxOffice,
+                    InvoiceCompanyTaxNumber = o.Invoice.InvoiceCompanyTaxNumber,
+                    InvoiceCompanyAddress = o.Invoice.InvoiceCompanyAddress,
+                    InvoiceCompanyCityName = o.Invoice.InvoiceCompanyCityName,
+                    InvoiceCompanyDistrictName = o.Invoice.InvoiceCompanyDistrictName,
+
+                    // Fatura satırları
+                    InvoiceItems = o.Invoice.InvoiceItems?.Select(ii => new InvoiceItemDto
                     {
-                        Id = oi.Id,
-                        OrderId = oi.OrderId,
-                        ProductId = oi.ProductId,
-                        Quantity = oi.Quantity,
-                        UnitPrice = oi.UnitPrice,
+                        Id = ii.Id,
+                        InvoiceId = ii.InvoiceId,
+                        ProductName = ii.ProductName,
+                        Quantity = ii.Quantity,
+                        Unit = ii.Unit,
+                        UnitPrice = ii.UnitPrice,
+                        VatRate = ii.VatRate,
+                        VatAmount = ii.VatAmount,
+                        Total = ii.Total
+                    }).ToList() ?? new List<InvoiceItemDto>()
 
-                        Product = oi.Product == null ? null : new ResultProductDto
-                        {
-                            Name = oi.Product.Name
-                            // Eğer ileride ek alanlar gelecekse buraya ekle
-                        }
-                    })
-                    .ToList()
+                } : null
+
             }).ToList();
         }
+
 
         public async Task<OrderStatusUpdateDto> UpdateStatusAsync(int orderId, string status)
         {
@@ -124,7 +131,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             if (status.Equals("Hazırlanıyor", StringComparison.OrdinalIgnoreCase) && order.Invoice == null)
             {
-                await _ınvoiceService.TCreateInvoiceAsync(orderId);
+                await _ınvoiceService.TCreateAdminInvoiceAsync(orderId);
             }
 
             return _mapper.Map<OrderStatusUpdateDto>(order);

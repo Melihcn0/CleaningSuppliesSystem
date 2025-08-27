@@ -120,6 +120,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
         public async Task<IActionResult> CreateStockOperation()
         {
             var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active");
+            ViewBag.ShowBackButton = true;
             ViewBag.topCategories = topCategories.Select(x => new SelectListItem
             {
                 Text = x.Name,

@@ -16,6 +16,7 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         public DbSet<Category> Categories { get; set; }
         public DbSet<Finance> Finances { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<TopCategory> TopCategories { get; set; }
         public DbSet<SubCategory> SubCategories { get; set; }
         public DbSet<Brand> Brands { get; set; }

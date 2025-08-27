@@ -130,23 +130,18 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             return Json(updatedOrder);
         }
-        public async Task<IActionResult> DownloadInvoice(int orderId)
+        public async Task<IActionResult> DownloadDeliveryNoteInvoice(int orderId)
         {
-            var pdfResponse = await _client.GetAsync($"invoices/byorder/{orderId}");
+            var pdfResponse = await _client.GetAsync($"invoices/byorderAdmin/{orderId}");
             if (!pdfResponse.IsSuccessStatusCode)
                 return RedirectToAction("Index");
 
             var pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync();
-
             var contentDisposition = pdfResponse.Content.Headers.ContentDisposition;
             string fileName = contentDisposition?.FileNameStar ?? contentDisposition?.FileName;
-
             fileName = fileName?.Trim('"');
-
             return File(pdfBytes, "application/pdf", fileName);
         }
-
-
 
     }
 }

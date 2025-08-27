@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.Entity.Entities
 {
@@ -13,28 +10,38 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public Order Order { get; set; }
         public DateTime GeneratedAt { get; set; } = DateTime.Now;
         public decimal TotalAmount { get; set; }
-
-        // Fatura tipi (Individual / Corporate)
         public string InvoiceType { get; set; }
 
-        // Bireysel için alanlar
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? NationalId { get; set; }
-        public string? PhoneNumber { get; set; }
-        public string? Email { get; set; }
+        // Müşteri bilgileri
+        public string? CustomerFirstName { get; set; }
+        public string? CustomerLastName { get; set; }
+        public string? CustomerNationalId { get; set; }
+        public string? CustomerPhoneNumber { get; set; }
 
-        // Kurumsal için alanlar
-        public string? CompanyName { get; set; }
-        public string? TaxOffice { get; set; }
-        public string? TaxNumber { get; set; }
+        public string? CustomerCompanyName { get; set; }
+        public string? CustomerTaxOffice { get; set; }
+        public string? CustomerTaxNumber { get; set; }
 
-        // Ortak adres bilgileri
-        public string AddressTitle { get; set; }
-        public string Address { get; set; }
-        public string CityName { get; set; }
-        public string DistrictName { get; set; }
+        public string CustomerAddressTitle { get; set; }
+        public string CustomerAddress { get; set; }
+        public string CustomerCityName { get; set; }
+        public string CustomerDistrictName { get; set; }
+
+        // Admin bilgileri
+        public int AdminId { get; set; }
+        public string AdminFirstName { get; set; }
+        public string AdminLastName { get; set; }
+        public string AdminPhoneNumber { get; set; }
+
+        // Şirket bilgileri
+        public string InvoiceCompanyName { get; set; }
+        public string InvoiceCompanyTaxOffice { get; set; }
+        public string InvoiceCompanyTaxNumber { get; set; }
+        public string InvoiceCompanyAddress { get; set; }
+        public string InvoiceCompanyCityName { get; set; }
+        public string InvoiceCompanyDistrictName { get; set; }
+
+        // Fatura satırları
+        public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
     }
-
-
 }
