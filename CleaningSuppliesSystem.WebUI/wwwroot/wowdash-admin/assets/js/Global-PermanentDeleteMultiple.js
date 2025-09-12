@@ -1,9 +1,9 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
+    const theme = document.documentElement.getAttribute("data-theme") || "light";
     const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
     const token = tokenEl ? tokenEl.value : "";
-    const theme = document.documentElement.getAttribute("data-theme") || "light";
 
-    function massPermanentDelete(endpoint, confirmTitle) {
+    function massDelete(endpoint, confirmTitle) {
         const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked'))
             .map(cb => parseInt(cb.dataset.id))
             .filter(id => !isNaN(id));
@@ -20,24 +20,43 @@
             return;
         }
 
-        if (!token || !endpoint) {
-            console.warn("Token veya endpoint eksik!");
-            return;
-        }
+        if (!token || !endpoint) return;
 
         Swal.fire({
             title: confirmTitle,
-            text: "Bu işlemi geri alamazsınız!",
+            text: "Bu işlem geri alınamaz!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Evet",
-            cancelButtonText: "İptal",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Evet, Sil",
+            cancelButtonText: "Hayır, İptal",
             background: theme === "dark" ? "#1e1e2f" : "#fff",
             color: theme === "dark" ? "#fff" : "#000",
+            reverseButtons: true,
             allowOutsideClick: false,
-            allowEscapeKey: false
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
+            }
         }).then(result => {
             if (!result.isConfirmed) return;
 
@@ -57,12 +76,21 @@
                         title: isSuccess ? "Başarılı!" : "Hata!",
                         text: msg,
                         icon: isSuccess ? "success" : "error",
-                        confirmButtonText: "Tamam",
-                        confirmButtonColor: "#d33",
+                        showConfirmButton: false,
+                        timer: isSuccess ? 1250 : 2500,
+                        timerProgressBar: true,
                         background: theme === "dark" ? "#1e1e2f" : "#fff",
-                        color: theme === "dark" ? "#fff" : "#000"
-                    }).then(() => {
-                        if (isSuccess) window.location.reload();
+                        color: theme === "dark" ? "#fff" : "#000",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                        didOpen: () => {
+                            const pb = Swal.getPopup().querySelector('.swal2-timer-progress-bar');
+                            if (pb) pb.style.backgroundColor = isSuccess ? "#28a745" : "#dc3545";
+                        },
+                        willClose: () => {
+                            if (isSuccess) window.location.reload();
+                        }
                     });
                 })
                 .catch(() => {
@@ -70,28 +98,30 @@
                         title: "Sunucuya ulaşılamadı!",
                         text: "Lütfen tekrar deneyin.",
                         icon: "error",
-                        confirmButtonText: "Tamam",
-                        confirmButtonColor: "#d33",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
                         background: theme === "dark" ? "#1e1e2f" : "#fff",
-                        color: theme === "dark" ? "#fff" : "#000"
+                        color: theme === "dark" ? "#fff" : "#000",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                        didOpen: () => {
+                            const pb = Swal.getPopup().querySelector('.swal2-timer-progress-bar');
+                            if (pb) pb.style.backgroundColor = "#dc3545";
+                        }
                     });
                 });
         });
     }
 
-    const permDeleteBtn = document.getElementById("permanentdeleteSelectedBtn");
-    if (!permDeleteBtn) {
-        console.warn("Kalıcı silme butonu bulunamadı.");
-        return;
-    }
+    const permanentdeleteBtn = document.getElementById("permanentdeleteSelectedBtn");
+    if (!permanentdeleteBtn) return;
 
-    permDeleteBtn.addEventListener("click", () => {
+    permanentdeleteBtn.addEventListener("click", () => {
         const config = window.permanentDeleteMultipleConfig;
-        if (!config || !config.url || !config.confirmTitle) {
-            console.warn("permanentDeleteMultipleConfig eksik.");
-            return;
-        }
+        if (!config || !config.url || !config.confirmTitle) return;
 
-        massPermanentDelete(config.url, config.confirmTitle);
+        massDelete(config.url, config.confirmTitle);
     });
 });

@@ -4,30 +4,37 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<form method="post" id="updateCategoryForm">
+<form method="post" id="updateBrandForm">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <div class="form-group">
-        <label for="CategoryId">Ürün Grubu / Kategori</label>
-        <select id="CategoryId" name="CategoryId" asp-for="CategoryId" asp-items="ViewBag.categories" class="form-control">
+        <label asp-for="CategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Ürün Grubu / Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select id="CategoryId" name="CategoryId" asp-for="CategoryId" asp-items="ViewBag.categories" class="form-control" required>
             <option value="" disabled selected>Ürün Grubu / Kategori Seçiniz</option>
         </select>
         <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
     <br />
     <div class="form-group">
-        <label for="Name">Marka Adı</label>
-        <input asp-for="Name" class="form-control" />
+        <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Marka Adı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Name" class="form-control" minlenght="2" maxlength="50" required/>
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <br />
-    <button type="button" onclick="updateCategory()" class="btn btn-warning-600">Güncelle</button>
+    <button type="button" class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="updatebrand()">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">update</span>
+        Güncelle
+    </button>
 </form>
 
 @section Scripts {
     <script>
-        function updateCategory() {
-            const form = document.getElementById("updateCategoryForm");
+        function updatebrand() {
+            const form = document.getElementById("updateBrandForm");
             const theme = document.documentElement.getAttribute("data-theme");
             if (!form.checkValidity()) {
                 form.reportValidity();
@@ -44,9 +51,30 @@
                 cancelButtonText: "İptal",
                 background: theme === "dark" ? "#1e1e2f" : "#fff",
                 color: theme === "dark" ? "#fff" : "#000",
+                reverseButtons: true,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
-                allowEnterKey: false
+                allowEnterKey: false,
+                didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
+            }
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

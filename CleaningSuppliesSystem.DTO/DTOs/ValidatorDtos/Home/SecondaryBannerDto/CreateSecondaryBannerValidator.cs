@@ -14,15 +14,15 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.SecondaryBannerDto
         {
             RuleFor(x => x.Title1)
                 .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
-                .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+                .MaximumLength(15).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
 
             RuleFor(x => x.Title2)
                 .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
-                .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+                .MaximumLength(15).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
 
             RuleFor(x => x.Title3)
                 .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
-                .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+                .MaximumLength(15).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
 
             RuleFor(x => x.Description1)
                 .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")
@@ -47,6 +47,18 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.SecondaryBannerDto
             RuleFor(x => x.ButtonTitle3)
                 .NotEmpty().WithMessage("İkincil banner buton adı boş olamaz.")
                 .MaximumLength(10).WithMessage("İkincil banner butonunun adı en fazla 10 karakter olabilir.");
+
+            RuleFor(x => x.ImageFile1)
+                .Must((dto, file) => file != null || !string.IsNullOrWhiteSpace(dto.ImageUrl1))
+                .WithMessage("İkincil banner fotoğrafı gereklidir.");
+
+            RuleFor(x => x.ImageFile2)
+                .Must((dto, file) => file != null || !string.IsNullOrWhiteSpace(dto.ImageUrl2))
+                .WithMessage("İkincil banner fotoğrafı gereklidir.");
+
+            RuleFor(x => x.ImageFile3)
+                .Must((dto, file) => file != null || !string.IsNullOrWhiteSpace(dto.ImageUrl3))
+                .WithMessage("İkincil banner fotoğrafı gereklidir.");
         }
     }
 }

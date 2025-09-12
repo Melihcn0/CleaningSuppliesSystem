@@ -36,11 +36,32 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
             _env = env;
         }
-        private async Task LoadBrandsDropdownAsync(int? selectedBrandId = null)
+        private async Task LoadCategoriesAndBrandsAsync(int? selectedCategoryId = null, int? selectedBrandId = null)
         {
-            var brands = await _client.GetFromJsonAsync<List<ResultBrandDto>>("brands/active");
-            ViewBag.brands = new SelectList(brands, "Id", "Name", selectedBrandId);
+            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active")
+                             ?? new List<ResultCategoryDto>();
+            ViewBag.Categories = new SelectList(categories, "Id", "Name", selectedCategoryId);
+
+            if (selectedCategoryId.HasValue)
+            {
+                var brands = await _client.GetFromJsonAsync<List<ResultBrandDto>>($"brands/bycategory/{selectedCategoryId}")
+                             ?? new List<ResultBrandDto>();
+                ViewBag.brands = new SelectList(brands, "Id", "Name", selectedBrandId);
+            }
+            else
+            {
+                ViewBag.brands = new SelectList(new List<ResultBrandDto>(), "Id", "Name");
+            }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetBrandsByCategory(int categoryId)
+        {
+            var brands = await _client.GetFromJsonAsync<List<ResultBrandDto>>($"brands/bycategory/{categoryId}")
+                         ?? new List<ResultBrandDto>();
+            return Json(brands);
+        }
+
         public async Task<IActionResult> Index()
         {
             var resultDtos = await _client.GetFromJsonAsync<List<ResultProductDto>>("products/active");
@@ -69,10 +90,9 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> CreateProduct()
         {
             ViewBag.ShowBackButton = true;
-            await LoadBrandsDropdownAsync();
+            await LoadCategoriesAndBrandsAsync();
             return View();
         }
-
 
         public async Task<string> SaveImageAsWebPAsync(IFormFile imageFile)
         {
@@ -114,45 +134,63 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductDto dto)
         {
-            var validator = new CreateProductValidator();
-            var result = await validator.ValidateAsync(dto);
-            if (!result.IsValid)
+            try
             {
-                foreach (var error in result.Errors)
+                var validator = new CreateProductValidator();
+                var result = await validator.ValidateAsync(dto);
+
+                if (!result.IsValid)
                 {
-                    ModelState.Remove(error.PropertyName);
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.Remove(error.PropertyName);
+                        ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    }
+
+                    // Dropdownları yeniden doldur
+                    await LoadCategoriesAndBrandsAsync(dto.CategoryId, dto.BrandId);
+
+                    return View(dto);
                 }
-                await LoadBrandsDropdownAsync(dto.BrandId);
+
+                // Resim varsa kaydet
+                if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+                    dto.ImageUrl = await SaveImageAsWebPAsync(dto.ImageFile);
+
+                // FormData ile API'ye gönder
+                using var form = new MultipartFormDataContent
+                {
+                    { new StringContent(dto.Name ?? ""), "Name" },
+                    { new StringContent(dto.BrandId.ToString()), "BrandId" },
+                    { new StringContent(dto.CategoryId.ToString()), "CategoryId" },
+                    { new StringContent(dto.UnitPrice.ToString()), "UnitPrice" },
+                    { new StringContent(dto.VatRate.ToString()), "VatRate" },
+                    { new StringContent(dto.ImageUrl ?? ""), "ImageUrl" }
+                };
+
+                var response = await _client.PostAsync("products", form);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var apiError = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError("", $"Ürün oluşturulurken API hatası: {apiError}");
+                    await LoadCategoriesAndBrandsAsync(dto.CategoryId, dto.BrandId);
+                    return View(dto);
+                }
+
+                TempData["SuccessMessage"] = "Ürün başarıyla oluşturuldu.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // Hata mesajını ModelState ile kullanıcıya göster
+                ModelState.AddModelError("", $"Beklenmedik bir hata oluştu: {ex.Message}");
+
+                // Dropdownları tekrar doldur ki form düzgün gözükür
+                await LoadCategoriesAndBrandsAsync(dto.CategoryId, dto.BrandId);
+
                 return View(dto);
             }
-
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
-            {
-                string imageUrl = await SaveImageAsWebPAsync(dto.ImageFile);
-                dto.ImageUrl = imageUrl;
-            }
-
-            using var form = new MultipartFormDataContent();
-            form.Add(new StringContent(dto.Name ?? ""), "Name");
-            form.Add(new StringContent(dto.BrandId.ToString()), "BrandId");
-            form.Add(new StringContent(dto.UnitPrice.ToString()), "UnitPrice");
-            form.Add(new StringContent(dto.VatRate.ToString()), "VatRate");
-            form.Add(new StringContent(dto.ImageUrl ?? ""), "ImageUrl");
-
-            var response = await _client.PostAsync("products", form);
-            if (!response.IsSuccessStatusCode)
-            {
-                ModelState.AddModelError("", "Ürün oluşturulurken bir hata oluştu.");
-                await LoadBrandsDropdownAsync(dto.BrandId);
-                return View(dto);
-            }
-
-            TempData["SuccessMessage"] = "Ürün başarıyla oluşturuldu.";
-            return RedirectToAction(nameof(Index));
         }
-
-
         public async Task<IActionResult> UpdateProduct(int id)
         {
             ViewBag.ShowBackButton = true;
@@ -161,8 +199,16 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             if (product == null)
                 return NotFound();
 
-            await LoadBrandsDropdownAsync(product.BrandId);
+            if (product.CategoryId == 0 && product.BrandId > 0)
+            {
+                var brand = await _client.GetFromJsonAsync<ResultBrandDto>($"Brands/{product.BrandId}");
+                if (brand != null)
+                {
+                    product.CategoryId = brand.CategoryId;
+                }
+            }
 
+            await LoadCategoriesAndBrandsAsync(product.CategoryId, product.BrandId);
             ViewBag.ExistingImageUrl = product.ImageUrl;
 
             return View(product);
@@ -175,6 +221,10 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var validator = new UpdateProductValidator();
             var validationResult = await validator.ValidateAsync(dto);
 
+            ViewBag.ExistingImageUrl = existingImageUrl;
+
+            await LoadCategoriesAndBrandsAsync(dto.CategoryId, dto.BrandId);
+
             if (!validationResult.IsValid)
             {
                 foreach (var error in validationResult.Errors)
@@ -182,15 +232,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                     ModelState.Remove(error.PropertyName);
                     ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
-
-                ViewBag.ExistingImageUrl = existingImageUrl;
-                await LoadBrandsDropdownAsync(dto.BrandId);
+                ViewBag.ShowBackButton = true;
                 return View(dto);
             }
 
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
-                // ✅ Eski görseli sil
                 if (!string.IsNullOrWhiteSpace(existingImageUrl))
                 {
                     var oldPath = Path.Combine(_env.WebRootPath, existingImageUrl.TrimStart('/'));
@@ -198,7 +245,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                         System.IO.File.Delete(oldPath);
                 }
 
-                // ✅ Yeni görseli WebP olarak kaydet
                 var folderPath = Path.Combine(_env.WebRootPath, "images", "products");
                 Directory.CreateDirectory(folderPath);
 
@@ -216,21 +262,22 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
                 await image.SaveAsync(newFilePath, new WebpEncoder { Quality = 75 });
                 dto.ImageUrl = "/images/products/" + newFileName;
+
+                ViewBag.ExistingImageUrl = dto.ImageUrl;
             }
             else
             {
-                // 📌 Yeni resim yoksa mevcut görseli koru
                 dto.ImageUrl = existingImageUrl;
             }
 
-            // ✅ API'ye gönderim
             var form = new MultipartFormDataContent
             {
                 { new StringContent(dto.Id.ToString()), "Id" },
                 { new StringContent(dto.Name ?? ""), "Name" },
                 { new StringContent(dto.BrandId.ToString()), "BrandId" },
+                { new StringContent(dto.CategoryId.ToString()), "CategoryId" },
                 { new StringContent(dto.UnitPrice.ToString()), "UnitPrice" },
-                { new StringContent(dto.VatRate.ToString()), "VatRate" },
+                { new StringContent(dto.VatRate.ToString()), "VatRate" }
             };
 
             if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
@@ -246,16 +293,16 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             var errorMsg = await response.Content.ReadAsStringAsync();
             TempData["ErrorMessage"] = $"Ürün güncellenemedi: {errorMsg}";
-            ViewBag.ExistingImageUrl = dto.ImageUrl;
-            await LoadBrandsDropdownAsync(dto.BrandId);
+
             return View(dto);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedProduct(int id)
         {
-            var response = await _client.PostAsync($"Products/softdelete/{id}", null);
+            var response = await _client.PostAsync($"products/softdelete/{id}", null);
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
@@ -268,8 +315,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedProduct(int id)
         {
-            var response = await _client.PostAsync($"Products/undosoftdelete/{id}", null);
-            TempData["SuccessMessage"] = response.IsSuccessStatusCode ? "Üst kategori geri alındı." : "Geri alma işlemi başarısız.";
+            var response = await _client.PostAsync($"products/undosoftdelete/{id}", null);
+
+            if (response.IsSuccessStatusCode)
+                TempData["SuccessMessage"] = "Ürün çöp kutusundan başarıyla geri alındı.";
+            else
+                TempData["ErrorMessage"] = "Ürünün çöp kutusundan geri alma işlemi başarısız.";
+
             return RedirectToAction(nameof(DeletedProduct));
         }
 

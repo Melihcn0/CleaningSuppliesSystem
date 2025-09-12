@@ -64,10 +64,10 @@ namespace CleaningSuppliesSystem.API.Controllers
         {
             var product = await _productService.TGetByIdAsync(id);
             if (product == null)
-                return NotFound("Ürün bulunamadı.");
+                return NotFound();
 
-            var productDto = _mapper.Map<ResultProductDto>(product);
-            return Ok(productDto);
+            var dto = _mapper.Map<ResultProductDto>(product);
+            return Ok(dto);
         }
 
         [HttpPost]
@@ -80,7 +80,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(new { message });
             }
 
-            return Ok(new { message = "Ürün başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "Ürün başarıyla eklendi.", id = createdId });
         }
 
         [HttpPut]
@@ -96,26 +96,18 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok(new { message = "Ürün başarıyla güncellendi.", id = updatedId });
         }
 
-
-        // Soft Delete
         [HttpPost("softdelete/{id}")]
         public async Task<IActionResult> SoftDelete(int id)
         {
-            var (IsSuccess, Message, _) = await _productService.TSoftDeleteProductAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            var result = await _productService.TSoftDeleteProductAsync(id);
+            return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
-        // Undo Soft Delete
         [HttpPost("undosoftdelete/{id}")]
         public async Task<IActionResult> UndoSoftDelete(int id)
         {
-            var product = await _productService.TGetByIdAsync(id);
-            var (IsSuccess, Message, UndoSoftDeleteId) = await _productService.TUndoSoftDeleteProductAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            var result = await _productService.TUndoSoftDeleteProductAsync(id);
+            return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
         [HttpDelete("permanent/{id}")]
@@ -126,7 +118,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("Ürün bulunamadı.");
 
             if (!product.IsDeleted)
-                return BadRequest("Ürün soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("Ürün silinmiş değil. Önce silmeniz gerekir.");
 
             // Kalıcı silme işlemini yap
             var (isSuccess, message) = await _productService.TPermanentDeleteProductAsync(id);
@@ -152,7 +144,6 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok(message);
         }
 
-
         [HttpGet("discountproduct/{id}")]
         public async Task<IActionResult> GetDiscountProduct(int id)
         {
@@ -160,12 +151,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (product == null)
                 return NotFound();
 
-            var dto = new UpdateDiscountDto
-            {
-                Id = product.Id,
-                UnitPrice = product.UnitPrice,
-                DiscountRate = product.DiscountRate
-            };
+            var dto = _mapper.Map<UpdateDiscountDto>(product);
 
             return Ok(dto);
         }
@@ -185,7 +171,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(errors);
             }
 
-            return Ok(new { message = "İndirim başarıyla uygulandı." });
+            return Ok(new { message = "Ürüne indirim başarıyla uygulandı." });
         }
 
 
@@ -209,7 +195,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         public async Task<IActionResult> SoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek kategori bulunamadı.");
+                return BadRequest("Silinecek ürünler bulunamadı.");
 
             var results = await _productService.TSoftDeleteRangeProductAsync(ids);
 
@@ -220,14 +206,14 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm kategoriler başarıyla silindi.");
+            return Ok("Seçili ürünler başarıyla çöp kutusuna taşındı.");
         }
 
         [HttpPost("UndoSoftDeleteMultiple")]
         public async Task<IActionResult> UndoSoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Geri alınacak kategori bulunamadı.");
+                return BadRequest("Geri alınacak ürün bulunamadı.");
 
             var results = await _productService.TUndoSoftDeleteRangeProductAsync(ids);
 
@@ -238,16 +224,17 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm kategoriler başarıyla geri alındı.");
+            return Ok("Seçili ürünler başarıyla geri alındı.");
         }
+
         [HttpPost("PermanentDeleteMultiple")]
         public async Task<IActionResult> PermanentDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek kategoriler bulunamadı.");
+                return BadRequest("Silinecek ürünler bulunamadı.");
 
             await _productService.TPermanentDeleteRangeProductAsync(ids);
-            return Ok("Kategoriler başarıyla silindi.");
+            return Ok("Seçili ürünler çöp kutusundan kalıcı olarak silindi.");
         }
     }
 }

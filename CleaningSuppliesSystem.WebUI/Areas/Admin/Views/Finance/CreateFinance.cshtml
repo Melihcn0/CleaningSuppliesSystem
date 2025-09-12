@@ -6,21 +6,37 @@
 
 <form method="post">
     @Html.AntiForgeryToken()
-    <label>Finans Adı</label>
-    <input type="text" asp-for="Title" class="form-control" />
-    <span asp-validation-for="Title" class="text-danger"></span>
-    <br />
-    <label>Finans Tipi</label>
-    <select asp-for="Type" class="form-control">
+    <div class="mb-3">
+    <label asp-for="Type" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Finans Tipi <span class="text-danger-600">*</span>
+    </label>
+    <select asp-for="Type" class="form-control" required>
         <option value="" disabled selected>Finans Tipi Seçin</option>
         <option value="Income">Gelir</option>
         <option value="Expense">Gider</option>
     </select>
     <span asp-validation-for="Type" class="text-danger"></span>
-    <br />
-    <label>Finans Miktarı</label>
-    <input type="text" asp-for="Amount" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+    <label asp-for="Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Finans Adı <span class="text-danger-600">*</span>
+    </label>
+    <input type="text" asp-for="Title" class="form-control" maxlength="40" required/>
+    <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+    <label asp-for="Amount" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Finans Miktarı <span class="text-danger-600">*</span>
+    </label>
+    <input type="number" asp-for="Amount" class="form-control" min="0" max="50000"
+            oninput="if(this.value > 50000) this.value = 50000;" required />
     <span asp-validation-for="Amount" class="text-danger"></span>
-    <br />
-    <button class="btn btn-primary-600">Kaydet</button>
+    </div>
+
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
 </form>

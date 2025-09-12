@@ -1,4 +1,4 @@
-﻿@model List<ResultOrderDto>
+﻿@model List<AdminResultOrderDto>
 
 @{
     ViewData["Title"] = "Teslim Edilen Siparişler";
@@ -16,49 +16,50 @@
         {
             <div class="table-responsive" style="overflow-y: hidden;">
                 <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-                    <thead class="table-light">
+                    <thead>
                         <tr>
                             <th>#</th>
-                            <th>Sipariş Numarası</th>
-                            <th>Sipariş Veren</th>
-                            <th>Sipariş Tarihi</th>
+                            <th>Sipariş Numarası | Sipariş Veren</th>
+                            <th>Sipariş Tarihi | Teslim Tarihi</th>
                             <th>Durum</th>
-                            <th>Teslim Tarihi</th>
                             <th>İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
+                            if (item.Status != "Teslim Edildi") continue;
                             count++;
 
                             var statusClass = "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white";
 
                             <tr>
                                 <td>@count</td>
-                                <td><strong>#@item.OrderNumber</strong></td>
-                                <td>@($"{item.FirstName} {item.LastName}")</td>
+                                <td><b><u>#@item.OrderNumber</u></b> - <b><u>@($"{item.FirstName} {item.LastName}")</u></b></td>
                                 <td>
-                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                                    @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                                    <div class="d-flex flex-column gap-1">
+                                        <span class="d-flex align-items-center">
+                                            <span class="rounded-circle bg-primary me-2" style="width:12px; height:12px; display:inline-block;"></span>
+                                            <b>Sipariş Tarihi:</b> @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                        </span>
+                                        <span class="d-flex align-items-center">
+                                            <span class="rounded-circle bg-success me-2" style="width:12px; height:12px; display:inline-block;"></span>
+                                            <b>Teslim Tarihi:</b> @(item.DeliveredDate != null
+                                            ? item.DeliveredDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                            : "Henüz teslim edilmedi")
+                                        </span>
+                                    </div>
                                 </td>
+
                                 <td><span class="@statusClass">@item.Status</span></td>
                                 <td>
-                                    @if (item.DeliveredDate != null)
-                                    {
-                                        <text>@item.DeliveredDate.Value.ToString("dd.MM.yyyy HH:mm")<br /></text>
-                                        <text>@item.DeliveredDate.Value.ToString("dd MMMM yyyy dddd")</text>
-                                    }
-                                    else
-                                    {
-                                        <text>-</text>
-                                    }
-                                </td>
-                                <td>
-                                    <a asp-area="Admin" asp-controller="Order" asp-action="Details" asp-route-id="@item.Id"
-                                       class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center me-2 js-show-order-detail" data-order-id="@item.Id">
+                                    <a href="#" class="btn rounded-pill btn-lilac-600 radius-8 d-inline-flex align-items-center me-2 js-show-readonly-order" data-order-id="@item.Id">
+                                        <span class="material-symbols-outlined me-1" style="font-size: 18px;">read_more</span>
                                         Daha Fazla...
                                     </a>
+                                        <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-orderId="@item.Id" class="btn rounded-pill btn-light-600 text-dark radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">download</span> Faturayı İndir
+                                        </a>
                                 </td>
                             </tr>
                         }
@@ -66,9 +67,9 @@
                 </table>
             </div>
 
-            <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal fade" id="orderReadOnlyModal" tabindex="-1" aria-labelledby="orderReadOnlyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content" id="orderDetailModalContent">
+                    <div class="modal-content" id="orderReadOnlyModalContent">
                     </div>
                 </div>
             </div>
@@ -76,71 +77,67 @@
         else
         {
             <div class="text-center py-5">
-                <div class="text-muted">
                     <i class="fas fa-shopping-cart fa-3x mb-3 opacity-25"></i>
                     <h5>Hiç sipariş bulunamadı</h5>
                     <p>Henüz teslim edilen bir sipariş yok.</p>
-                </div>
             </div>
         }
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        $(document).ready(function () {
-            $('.js-show-order-detail').on('click', function (e) {
-                e.preventDefault();
+        $(function(){
+            let currentOrderId = null;
+            const detailModalEl = $('#orderReadOnlyModal');
+            const detailModalContent = $('#orderReadOnlyModalContent');
+            const bsDetailModal = new bootstrap.Modal(detailModalEl[0], {backdrop:'static', keyboard:false});
+            const getToken = () => $('input[name="__RequestVerificationToken"]').val();
 
-                var orderId = $(this).data('order-id');
-                var modal = $('#orderDetailModal');
-                var modalContent = $('#orderDetailModalContent');
-
-                modalContent.html(`
+            function showLoading(content){
+                content.html(`
                     <div class="modal-header">
                         <h5 class="modal-title">Yükleniyor...</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body text-center p-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Yükleniyor...</span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                        <div class="spinner-border text-primary" role="status"></div>
                     </div>
                 `);
+            }
 
-                modal.modal('show');
+            function showError(content, message){
+                content.html(`
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">Hata</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body"><div class="alert alert-danger">${message}</div></div>
+                `);
+            }
 
-                $.ajax({
-                    url: '/Admin/Order/Details/' + orderId,
-                    type: 'GET',
-                    success: function (data) {
-                        modalContent.html(data);
-                    },
-                    error: function (xhr) {
-                        var errorMessage = "Sipariş detayı yüklenirken bir sorun oluştu.";
-                        if (xhr.status === 403) {
-                            errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
-                        } else if (xhr.status === 404) {
-                            errorMessage = "Belirtilen sipariş bulunamadı.";
-                        }
+            function loadOrderDetail(orderId){
+                showLoading(detailModalContent);
+                bsDetailModal.show();
 
-                        modalContent.html(`
-                            <div class="modal-header">
-                                <h5 class="modal-title text-danger">Hata</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="alert alert-danger">${errorMessage}</div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                            </div>
-                        `);
-                    }
+                $.get('/Admin/Order/ReadOnlyDetails/' + orderId)
+                .done(function(data){
+                    if($(data).find('tbody tr').length === 0) location.reload();
+                    else detailModalContent.html(data);
+                    initReadOnlyOrderDataTable();
+                })
+                .fail(function(xhr){
+                    let msg = xhr.status===403 ? "Bu siparişi görüntüleme yetkiniz yok." :
+                              xhr.status===404 ? "Sipariş bulunamadı." : "Sipariş detayı yüklenemedi.";
+                    showError(detailModalContent, msg);
                 });
+            }
+
+            $(document).on('click', '.js-show-readonly-order', function(e){
+                e.preventDefault();
+                currentOrderId = $(this).data('order-id');
+                loadOrderDetail(currentOrderId);
             });
         });
     </script>

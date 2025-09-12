@@ -52,12 +52,12 @@ namespace CleaningSuppliesSystem.Business.Concrete
             // Ürünlerde kullanım kontrolü (varsa)
             var isUsedInDistricts = await _locationCityRepository.AnyAsync(x => x.CityId == id);
             if (isUsedInDistricts)
-                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Soft silme yapılamaz.", LocationDistrict.DistrictId);
+                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Silme yapılamaz.", LocationDistrict.DistrictId);
 
             LocationDistrict.DeletedDate = DateTime.Now;
             LocationDistrict.IsDeleted = true;
             await _locationDistrictRepository.UpdateAsync(LocationDistrict);
-            return (true, "İlçe lokasyonu başarıyla soft silindi.", LocationDistrict.DistrictId);
+            return (true, "İlçe lokasyonu çöp kutusuna başarıyla taşındı.", LocationDistrict.DistrictId);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteLocationDistrictAsync(int id)
@@ -80,7 +80,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             LocationDistrict.DeletedDate = null;
             LocationDistrict.IsDeleted = false;
             await _locationDistrictRepository.UpdateAsync(LocationDistrict);
-            return (true, "İlçe lokasyonu başarıyla geri getirildi.", LocationDistrict.DistrictId);
+            return (true, "İlçe lokasyonu çöp kutusundan başarıyla geri getirildi.", LocationDistrict.DistrictId);
         }
 
         public async Task<(bool IsSuccess, string Message)> TPermanentDeleteLocationDistrictAsync(int id)
@@ -90,10 +90,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "İlçe lokasyonu bulunamadı.");
 
             if (!LocationDistrict.IsDeleted)
-                return (false, "İlçe lokasyonu soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "İlçe lokasyonu silinmemiş. Önce silmeniz gerekir.");
 
             await _locationDistrictRepository.DeleteAsync(LocationDistrict.DistrictId);
-            return (true, "İlçe lokasyonu kalıcı olarak silindi.");
+            return (true, "İlçe lokasyonu çöp kutusundan kalıcı olarak silindi.");
         }
 
         public async Task<List<ResultLocationDistrictDto>> TGetDeletedLocationDistrictsAsync()

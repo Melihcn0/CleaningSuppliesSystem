@@ -22,7 +22,8 @@
                                     hx-get="@Url.Action("GetSubCategoriesByTopCategory", "Category")"
                                     hx-target="#SubCategoryId"
                                     hx-trigger="change"
-                                    hx-include="#TopCategoryId">
+                                    hx-include="#TopCategoryId"
+                                    required>
                                 <option value="" selected disabled>Üst Kategori Seçin</option>
                             </select>
                             <span asp-validation-for="TopCategoryId" class="text-danger"></span>
@@ -34,7 +35,8 @@
                                     id="SubCategoryId"
                                     class="form-control"
                                     asp-items="ViewBag.subCategories"
-                                    hx-swap="outerHTML">
+                                    hx-swap="outerHTML"
+                                    required>
                                 <option value="" selected disabled>Alt kategori seçin</option>
                             </select>
                             <span asp-validation-for="SubCategoryId" class="text-danger"></span>
@@ -42,22 +44,24 @@
 
                         <div class="mb-3">
                             <label for="Name">Kategori Adı</label>
-                            <input asp-for="Name" class="form-control" />
+                            <input asp-for="Name" class="form-control" maxlength="50" required/>
                             <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="ImageFile">Kategori Görseli</label>
-                            <input asp-for="ImageFile"
-                                   type="file"
-                                   id="ImageFile"
-                                   class="form-control"
-                                   accept="image/*"
-                                   onchange="previewImage(event)" 
-                                   />
-                        </div>
+                    <div class="mb-3">
+                        <label for="basic-upload"
+                               class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50">
+                            <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
+                            Görsel Yükle
+                            <input asp-for="ImageFile" type="file" accept="image/*" class="visually-hidden" id="basic-upload" onchange="previewImage(event)" required />
+                        </label>
+                        <span asp-validation-for="ImageFile" class="text-danger"></span>
+                    </div>
 
-                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+                        Ekle
+                    </button>
                     </div>
 
                     <!-- Görsel Önizleme Alanı -->

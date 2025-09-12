@@ -7,10 +7,10 @@
 }
 <div class="card basic-data-table">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Stok Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="CreateStockOperation" asp-controller="Stock" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 btn-sm d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1">add</span> Stok Yönetimi
+        <h5 class="card-title mb-0 mt-1">Stok Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto md-0 mt-1">
+            <a asp-action="CreateStockOperation" asp-controller="Stock" asp-area="Admin" class="btn rounded-pill btn-info-600 btn-sm d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span> Stok Yönetimi
             </a>
         </div>
     </div>
@@ -19,13 +19,12 @@
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
-                    <th>#</th>
+                    <th class="text-start">
+                        <input type="checkbox" id="selectAll" class="form-check-input" /> #
+                    </th>
                     <th>Ürün Fotoğrafı</th>
-                    <th>Üst Kategori Adı</th>
-                    <th>Alt Kategori Adı</th>
-                    <th>Ürün Grubu</th>
-                    <th>Marka Adı</th>
-                    <th>Ürün Adı</th>
+                    <th>Üst Kategori | Alt Kategori | Ürün Grubu | Marka | Ürün Adı</th>
+                    <th>Stok Yönetimi</th>
                     <th>Stok Sayısı</th>
                 </tr>
             </thead>
@@ -35,34 +34,62 @@
                     count++;
                     <tr>
                         <td>@count</td>
-                        <td class="text-center">
-                            <img src="@Url.Content(item.ImageUrl)" alt="Ürün görseli" style="width: 75px; height: 75px; object-fit: cover;" />
-                        </td>
-                        <td>@item.TopCategoryName</td>
-                        <td>@item.SubCategoryName</td>
-                        <td>@item.CategoryName</td>
-                        <td>@item.BrandName</td>
-                        <td>@item.ProductName</td>
+                            <td class="text-center">
+                                <!-- Thumbnail -->
+                                <div class="shadow-4 hover-scale-img border radius-16 overflow-hidden p-8 d-inline-flex align-items-center" style="width:100px; height:100px;">
+                                    <a href="@Url.Content(item.ImageUrl)"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#imageModal_@item.Id"
+                                       class="w-100 h-100 d-flex radius-12 overflow-hidden">
+                                        <img src="@Url.Content(item.ImageUrl)"
+                                             class="card-img-top shadow-lg w-100 h-100 object-fit-cover cursor-pointer hover-scale-img__img"
+                                             alt="Ürün Fotoğrafı" />
+                                    </a>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="imageModal_@item.Id" tabindex="-1" aria-hidden="true"
+                                     data-bs-backdrop="true" data-bs-keyboard="true" style="background-color: rgba(0,0,0,0.6);">
+                                    <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                        <div class="modal-content bg-transparent border-0">
+                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center position-relative">
+                                                <img src="@Url.Content(item.ImageUrl)" class="img-fluid rounded" alt="Preview" />
+                                                <button type="button"
+                                                        class="btn-close position-absolute"
+                                                        data-bs-dismiss="modal" aria-label="Close"
+                                                        style="top: 1rem; right: 2rem; width: 2.5rem; height: 2.5rem;"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        <td>@item.TopCategoryName - @item.SubCategoryName - @item.CategoryName - @item.BrandName - <b><u>@item.ProductName</u></b></td>
+                            <td>
+                                <button type="button" class="btn btn-sm rounded-pill btn-primary-600 radius-8 me-2 d-inline-flex align-items-center js-quick-stock" data-product-id="@item.Id" data-product-name="@item.ProductName">
+                                    <span class="material-symbols-outlined me-1">speed</span>
+                                    Hızlı Stok
+                                </button>
+                            </td>
                         <td>
                             @if (item.StockQuantity == 0)
                             {
-                                <button type="button" class="badge text-sm fw-semibold bg-danger-600 px-16 py-9 radius-4 text-white d-flex align-items-center gap-2">
+                                <button type="button" class="badge text-sm fw-semibold bg-danger-600 px-16 py-9 radius-4 text-white d-flex align-items-center">
                                     Stok kalmamıştır
-                                    <span class="badge bg-white text-danger-700 radius-5 text-xs">0</span>
+                                    <span class="badge bg-white text-danger-600 radius-8 text-xs ms-1">0</span>
                                 </button>
                             }
                             else if (item.StockQuantity <= 30)
                             {
-                                <button type="button" class="badge text-sm fw-semibold bg-warning-600 px-16 py-9 radius-4 text-white d-flex align-items-center gap-2">
+                                <button type="button" class="badge text-sm fw-semibold bg-warning-600 px-16 py-9 radius-4 text-white d-flex align-items-center">
                                     Tükenmek üzere
-                                    <span class="badge bg-white text-warning-800 radius-5 text-xs">@item.StockQuantity</span>
+                                    <span class="badge bg-white text-warning-600 radius-8 text-xs ms-1">@item.StockQuantity</span>
                                 </button>
                             }
                             else
                             {
-                                <button type="button" class="badge text-sm fw-semibold bg-success-600 px-16 py-9 radius-4 text-white d-flex align-items-center gap-2">
+                                <button type="button" class="badge text-sm fw-semibold bg-success-600 px-16 py-9 radius-4 text-white d-flex align-items-center">
                                     Stok yeterli
-                                    <span class="badge bg-white text-success-800 radius-5 text-xs">@item.StockQuantity</span>
+                                    <span class="badge bg-white text-success-600 radius-8 text-xs ms-1">@item.StockQuantity</span>
                                 </button>
                             }
                         </td>
@@ -74,23 +101,145 @@
     </div>
 </div>
 
+<div class="modal fade" id="quickStockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center">
+                <h5 class="modal-title text-center">Hızlı Stok İşlemi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickStockForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="quickProductId" name="ProductId" />
+
+                    <div class="mb-3 text-center">
+                        <label for="quickQuantity" class="form-label">Miktar</label>
+                        <input type="number" class="form-control mx-auto" id="quickQuantity" name="Quantity" min="1" value="1" style="max-width: 150px;" />
+                    </div>
+
+                    <div class="mb-2 text-center">
+                        <label class="form-label d-block">İşlem Türü</label>
+                        <div class="btn-group d-inline-flex align-items-center" role="group" aria-label="İşlem Türü">
+                            <input type="radio" class="btn-check" name="TransactionType" id="quickEntry" value="true" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary" for="quickEntry">Stok Girişi</label>
+
+                            <input type="radio" class="btn-check" name="TransactionType" id="quickExit" value="false" autocomplete="off">
+                            <label class="btn btn-outline-danger" for="quickExit">Stok Çıkışı</label>
+                        </div>
+                    </div>
+                    <br />
+                    <button type="submit" class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">check</span>
+                        Stok İşlemi Yap
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const modalContent = document.getElementById("modalThemeBox");
+        $(document).ready(function() {
+            // Hızlı stok modal açma
+            $(document).on('click', '.js-quick-stock', function() {
+                const productId = $(this).data('product-id');
+                const productName = $(this).data('product-name');
 
-            document.getElementById("stockDetailModal").addEventListener("show.bs.modal", () => {
-                const theme = document.documentElement.getAttribute("data-theme");
+                // Formu sıfırla
+                const form = $('#quickStockForm')[0];
+                form.reset();
 
-                if (theme === "dark") {
-                    modalContent.style.backgroundColor = "#1e1e2f";
-                    modalContent.style.color = "#fff";
-                } else {
-                    modalContent.style.backgroundColor = "#fff";
-                    modalContent.style.color = "#000";
-                }
+                // Hidden alanı set et
+                $('#quickProductId').val(productId);
+
+                // Modal başlığını set et
+                $('#quickStockModal .modal-title').text(productName + ' için Hızlı Stok İşlemi');
+
+                // Tema ayarı
+                const dark = $('html').attr('data-theme') === 'dark';
+                $('#quickStockModal .modal-content').css({
+                    'background-color': dark ? '#1e1e2f' : '#fff',
+                    'color': dark ? '#fff' : '#000'
+                });
+
+                // Modalı göster
+                $('#quickStockModal').modal({ backdrop: 'static', keyboard: false });
+                $('#quickStockModal').modal('show');
+            });
+
+            // Form submit
+            $('#quickStockForm').submit(function(e) {
+                e.preventDefault();
+
+                const productId = $('#quickProductId').val();
+                const quantity = $('#quickQuantity').val();
+                const transactionType = $('input[name="TransactionType"]:checked').val() === 'true';
+                const token = $('#quickStockForm input[name="__RequestVerificationToken"]').val();
+                const dark = $('html').attr('data-theme') === 'dark';
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("QuickStockOperation", "Stock", new { area = "Admin" })',
+                    data: {
+                        ProductId: productId,
+                        Quantity: quantity,
+                        TransactionType: transactionType,
+                        __RequestVerificationToken: token
+                    },
+                    success: function(message) {
+                        // Başarılıysa modalı kapat
+                        $('#quickStockModal').modal('hide');
+
+                        // Başarı mesajı göster
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Başarılı',
+                            html: message,
+                            timer: 1250,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            background: dark ? '#1e1e2f' : '#fff',
+                            color: dark ? '#fff' : '#000',
+                            didOpen: () => {
+                                const bar = document.querySelector('.swal2-timer-progress-bar');
+                                if (bar) bar.style.backgroundColor = '#28a745';
+                            }
+                        });
+
+                        // Sayfayı yenile
+                        setTimeout(() => location.reload(), 2000);
+                    },
+                    error: function(xhr) {
+                        const errorMessage = xhr.responseText || 'Stok işlemi gerçekleştirilemedi.';
+
+                        // Hata olursa modal açık kalacak, mesaj göster
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata',
+                            html: errorMessage,
+                            timer: 1250,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                            background: dark ? '#1e1e2f' : '#fff',
+                            color: dark ? '#fff' : '#000',
+                            didOpen: () => {
+                                const bar = document.querySelector('.swal2-timer-progress-bar');
+                                if (bar) bar.style.backgroundColor = '#dc3545';
+                            }
+                        });
+                    }
+                });
             });
         });
+
     </script>
 }

@@ -9,9 +9,9 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
 {
     public interface ITopCategoryRepository : IRepository<TopCategory>
     {
-        Task<TopCategory> GetByIdAsync(int id);
-        Task CreateAsync(TopCategory topCategory);
-        Task UpdateAsync(TopCategory topCategory);
+        //Task<TopCategory> GetByIdAsync(int id);
+        //Task CreateAsync(TopCategory topCategory);
+        //Task UpdateAsync(TopCategory topCategory);
         Task SoftDeleteAsync(TopCategory topCategory);
         Task UndoSoftDeleteAsync(TopCategory topCategory);
         Task<List<TopCategory>> GetActiveTopCategoriesAsync();

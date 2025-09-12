@@ -53,7 +53,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(new { message });
             }
 
-            return Ok(new { message = "İlçe lokasyonu başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "İlçe lokasyonu başarıyla eklendi.", id = createdId });
         }
         [HttpPost("softdelete/{id}")]
         public async Task<IActionResult> SoftDelete(int id)
@@ -77,10 +77,10 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("İlçe lokasyonu bulunamadı.");
 
             if (!brand.IsDeleted)
-                return BadRequest("İlçe lokasyonu soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("İlçe lokasyonu silinmiş değil. Önce silmeniz gerekir.");
 
             await _locationDistrictService.TDeleteAsync(id);
-            return Ok("İlçe lokasyonu kalıcı olarak silindi.");
+            return Ok("İlçe lokasyonu çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpGet("GetCities/{cityId}")]

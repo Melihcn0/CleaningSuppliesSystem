@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using FluentValidation;
 using System;
 using System.Collections.Generic;

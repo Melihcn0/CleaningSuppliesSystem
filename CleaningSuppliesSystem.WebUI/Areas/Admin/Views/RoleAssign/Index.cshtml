@@ -17,10 +17,8 @@
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead class="table-light">
                 <tr>
-                    <th>#</th>
-                    <th>Ad Soyad</th>
-                    <th>Kullanıcı Adı</th>
-                    <th>Mail</th>
+                    <th class="text-start">#</th>
+                    <th>Ad Soyad | Kullanıcı Adı | Mail</th>
                     <th>Rol</th>
                     <th>Durum</th>
                     <th>İşlem</th>
@@ -32,9 +30,7 @@
                     count++;
                     <tr>
                         <td>@count</td>
-                        <td>@item.NameSurname</td>
-                        <td>@item.UserName</td>
-                        <td>@item.Email</td>
+                        <td>@item.NameSurname - @item.UserName - @item.Email</td>
                         <td>
                             @foreach (var role in item.Role)
                             {
@@ -59,42 +55,23 @@
                                 <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Pasif</span>
                             }
                         </td>
-                                                
-                        <td>
-                            <div class="dropdown dropend">
-                                    <button class="btn rounded-pill btn-primary-100 text-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon icon-right btn-sm" type="button" data-bs-toggle="dropdown">
-                                    Hesap Durumu
-                                </button>
-                                <ul class="dropdown-menu">
-                                    @if (!item.IsActive)
-                                    {
-                                        <li>
-                                            <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
-                                                <input type="hidden" name="userId" value="@item.Id" />
-                                                <input type="hidden" name="newStatus" value="true" />
 
-                                                <button type="submit" class="btn rounded-pill btn-success-100 text-success-600 radius-8 btn-sm text-sm">
-                                                    Aktif Yap
-                                                </button>
-                                            </form>
-                                        </li>
-                                    }
-                                    else
-                                    {
-                                        <li>
-                                            <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign">
-                                                <input type="hidden" name="userId" value="@item.Id" />
-                                                <input type="hidden" name="newStatus" value="false" />
+                            <td class="text-center align-middle">
+                                <form method="post" asp-action="ToggleStatus" asp-controller="RoleAssign" id="toggleForm-@item.Id" class="d-inline-block">
+                                    <input type="hidden" name="userId" value="@item.Id" />
+                                    <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsActive.ToString().ToLower()" />
 
-                                                <button type="submit" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 btn-sm text-sm">
-                                                    Pasif Yap
-                                                </button>
-                                            </form>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        </td>
+                                    <div class="form-switch">
+                                        <input class="form-check-input @(item.IsActive ? "bg-success-600" : "bg-danger-600")"
+                                               type="checkbox"
+                                               role="switch"
+                                               id="isActiveSwitch-@item.Id"
+                                               name="isActive"
+                                        @(item.IsActive ? "checked" : "")
+                                               onchange="onToggleChange(@item.Id)" />
+                                    </div>
+                                </form>
+                            </td>
                     </tr>
                 }
             </tbody>
@@ -102,3 +79,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function onToggleChange(id) {
+        const switchEl = document.getElementById(`isActiveSwitch-${id}`);
+        const newStatusInput = document.getElementById(`newStatus-${id}`);
+        const form = document.getElementById(`toggleForm-${id}`);
+
+        newStatusInput.value = switchEl.checked; // true/false
+        form.submit();
+    }
+</script>

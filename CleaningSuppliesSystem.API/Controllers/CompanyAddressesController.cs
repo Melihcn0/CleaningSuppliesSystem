@@ -1,5 +1,5 @@
 ﻿using CleaningSuppliesSystem.Business.Abstract;
-using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,26 +21,19 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpGet("Address")]
         public async Task<IActionResult> GetAddress()
         {
-            var profile = await _companyAddressService.TGetCompanyAddressAsync();
-            if (profile == null)
-                return Ok(new CompanyAddressDto());
-
-            return Ok(profile);
+            var address = await _companyAddressService.TGetCompanyAddressAsync();
+            if (address == null) return Ok(new CompanyAddressDto());
+            return Ok(address);
         }
-
 
         [HttpGet("UpdateCompanyAddress")]
         public async Task<IActionResult> GetUpdateCompanyAddress()
         {
             var updateCompanyAddress = await _companyAddressService.TGetUpdateCompanyAddressAsync();
-            if (updateCompanyAddress == null)
-                return Ok(new UpdateCompanyAddressDto()); 
-
+            if (updateCompanyAddress == null) return Ok(new UpdateCompanyAddressDto()); 
             return Ok(updateCompanyAddress);
         }
 
-
-        // Profil güncelle
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateCompanyAddressDto dto)
         {
@@ -49,7 +42,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (!isSuccess)
                 return BadRequest(new { message });
 
-            return Ok(new { message = "Şirket Adresi başarıyla güncellendi.", id = updatedId });
+            return Ok(new { message = "Şirket adresi başarıyla güncellendi.", id = updatedId });
         }
     }
 }

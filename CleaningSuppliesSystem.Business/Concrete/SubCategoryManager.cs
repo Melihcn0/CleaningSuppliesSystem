@@ -44,7 +44,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var subCategory = _mapper.Map<SubCategory>(createSubCategoryDto);
             subCategory.CreatedDate = DateTime.Now;
             await _subCategoryRepository.CreateAsync(subCategory);
-            return (true, "Ürün başarıyla oluşturuldu.", subCategory.Id);
+            return (true, "Alt kategori başarıyla eklendi.", subCategory.Id);
         }
         public async Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateSubCategoryAsync(UpdateSubCategoryDto updateSubCategoryDto)
         {
@@ -72,7 +72,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Alt kategori bulunamadı.", 0);
 
             if (subCategory.IsDeleted)
-                return (false, "Alt kategori zaten silinmiş.", subCategory.Id);
+                return (false, "Alt kategori zaten çöp kutusunda.", subCategory.Id);
 
             // Category içinde kullanılıyor mu?
             var isUsedInCategories = await _categoryRepository.AnyAsync(x => x.SubCategoryId == id && !x.IsDeleted);
@@ -83,7 +83,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             subCategory.DeletedDate = DateTime.Now;
 
             await _subCategoryRepository.UpdateAsync(subCategory);
-            return (true, "Alt kategori başarıyla silindi.", subCategory.Id);
+            return (true, "Alt kategori başarıyla çöp kutusuna taşındı.", subCategory.Id);
         }
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteSubCategoryAsync(int id)
         {
@@ -100,7 +100,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 x.Id != subCategory.Id);
 
             if (isDuplicate)
-                return (false, $"'{subCategory.Name}' isminde başka bir aktif alt kategori mevcut. Geri alma yapılamadı.", subCategory.Id);
+                return (false, $"{subCategory.Name} isminde başka bir aktif alt kategori mevcut. Geri alma yapılamadı.", subCategory.Id);
 
             subCategory.IsDeleted = false;
             subCategory.DeletedDate = null;
@@ -115,7 +115,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Alt kategori bulunamadı.");
 
             if (!subCategory.IsDeleted)
-                return (false, "Alt kategori soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Alt kategori silinmemiş. Önce silmeniz gerekir.");
 
             await _subCategoryRepository.DeleteAsync(subCategory.Id);
             return (true, "Alt kategori kalıcı olarak silindi.");
@@ -190,7 +190,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 subCategory.IsDeleted = true;
                 subCategory.DeletedDate = DateTime.Now;
                 await _subCategoryRepository.UpdateAsync(subCategory);
-                results.Add((subCategory.Id, true, $"'{subCategory.Name}' alt kategorisi başarıyla silindi."));
+                results.Add((subCategory.Id, true, $"{subCategory.Name} alt kategorisi başarıyla silindi."));
             }
 
             return results;

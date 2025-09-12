@@ -30,6 +30,8 @@ namespace CleaningSuppliesSystem.Business.Abstract
         Task<List<(int Id, bool IsSuccess, string Message)>> TSoftDeleteRangeProductAsync(List<int> ids);
         Task<List<(int Id, bool IsSuccess, string Message)>> TUndoSoftDeleteRangeProductAsync(List<int> ids);
         Task TPermanentDeleteRangeProductAsync(List<int> ids);
+        Task TDecreaseStockAsync(IEnumerable<OrderItem> orderItems);
+
 
     }
 }

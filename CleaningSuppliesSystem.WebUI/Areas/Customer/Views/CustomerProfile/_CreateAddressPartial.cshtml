@@ -36,7 +36,9 @@
         <!-- Şehir ve İlçe -->
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label asp-for="CreateIndividualAddress.CityId">Şehir <span class="text-danger">*</span></label>
+                <label asp-for="CreateIndividualAddress.CityId" class="form-label">
+                    Şehir Seçin <span class="text-danger">*</span>
+                </label>
                 <select asp-for="CreateIndividualAddress.CityId" id="individualCity" class="form-control" required>
                     <option value="" selected hidden>Şehir seçin</option>
                     @if (ViewBag.Cities != null)
@@ -51,7 +53,9 @@
                 <span asp-validation-for="CreateIndividualAddress.CityId" class="text-danger"></span>
             </div>
             <div class="col-md-6 mb-3">
-                <label asp-for="CreateIndividualAddress.DistrictId">İlçe <span class="text-danger">*</span></label>
+                <label asp-for="CreateIndividualAddress.DistrictId" class="form-label">
+                    İlçe Seçin <span class="text-danger">*</span>
+                </label>
                 <select asp-for="CreateIndividualAddress.DistrictId" id="individualDistrict" class="form-control" required>
                     <option value="" selected hidden>Önce Şehir seçiniz...</option>
                 </select>
@@ -62,7 +66,9 @@
 
         <!-- Açık Adres -->
         <div class="col-12 mt-3">
-            <label asp-for="CreateIndividualAddress.Address" class="form-label">Açık Adres <span class="text-danger">*</span></label>
+            <label asp-for="CreateIndividualAddress.Address" class="form-label">
+                Açık Adres Girin <span class="text-danger">*</span>
+            </label>
             <textarea asp-for="CreateIndividualAddress.Address" class="form-control" rows="3" maxlength="150" required></textarea>
             <span asp-validation-for="CreateIndividualAddress.Address" class="text-danger"></span>
         </div>
@@ -77,28 +83,36 @@
     <div id="corporateFields">
         <!-- Şirket Adı -->
         <div class="col-md-6 mb-3">
-            <label asp-for="CreateCorporateAddress.CompanyName" class="form-label">Şirket Adı <span class="text-danger">*</span></label>
+            <label asp-for="CreateCorporateAddress.CompanyName" class="form-label">
+                Şirket Adı <span class="text-danger">*</span>
+            </label>
             <input asp-for="CreateCorporateAddress.CompanyName" class="form-control" maxlength="100" required/>
             <span asp-validation-for="CreateCorporateAddress.CompanyName" class="text-danger"></span>
         </div>
 
         <!-- Vergi Dairesi -->
         <div class="col-md-6 mb-3">
-            <label asp-for="CreateCorporateAddress.TaxOffice" class="form-label">Vergi Dairesi <span class="text-danger">*</span></label>
+            <label asp-for="CreateCorporateAddress.TaxOffice" class="form-label">
+                Vergi Dairesi <span class="text-danger">*</span>
+            </label>
             <input asp-for="CreateCorporateAddress.TaxOffice" class="form-control" maxlength="100" required />
             <span asp-validation-for="CreateCorporateAddress.TaxOffice" class="text-danger"></span>
         </div>
 
         <!-- Vergi Numarası -->
         <div class="col-md-6 mb-3">
-            <label asp-for="CreateCorporateAddress.TaxNumber" class="form-label">Vergi Numarası <span class="text-danger">*</span></label>
+            <label asp-for="CreateCorporateAddress.TaxNumber" class="form-label">
+                Vergi Numarası <span class="text-danger">*</span>
+            </label>
             <input asp-for="CreateCorporateAddress.TaxNumber" class="form-control" minlength="10" maxlength="11" />
             <span asp-validation-for="CreateCorporateAddress.TaxNumber" class="text-danger"></span>
         </div>
 
         <!-- Adres Başlığı -->
         <div class="col-md-6 mb-3">
-            <label asp-for="CreateCorporateAddress.AddressTitle" class="form-label">Bu adrese bir isim verin <span class="text-danger">*</span></label>
+            <label asp-for="CreateCorporateAddress.AddressTitle" class="form-label">
+                Bu adrese bir isim verin <span class="text-danger">*</span>
+            </label>
             <input asp-for="CreateCorporateAddress.AddressTitle" class="form-control" maxlength="35" required/>
             <span asp-validation-for="CreateCorporateAddress.AddressTitle" class="text-danger"></span>
         </div>
@@ -106,7 +120,9 @@
         <!-- Şehir ve İlçe -->
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label asp-for="CreateCorporateAddress.CityId">Şehir <span class="text-danger">*</span></label>
+                <label asp-for="CreateCorporateAddress.CityId" class="form-label">
+                    Şehir Seçin <span class="text-danger">*</span>
+                </label>
                 <select asp-for="CreateCorporateAddress.CityId" id="corporateCity" class="form-control" required>
                     <option value="" selected disabled>Şehir seçin</option>
                     @if (ViewBag.Cities != null)
@@ -121,7 +137,9 @@
                 <span asp-validation-for="CreateCorporateAddress.CityId" class="text-danger"></span>
             </div>
             <div class="col-md-6 mb-3">
-                <label asp-for="CreateCorporateAddress.DistrictId">İlçe <span class="text-danger">*</span></label>
+                <label asp-for="CreateCorporateAddress.DistrictId" class="form-label">
+                    İlçe Seçin <span class="text-danger">*</span>
+                </label>
                 <select asp-for="CreateCorporateAddress.DistrictId" id="corporateDistrict" class="form-control" required>
                     <option value="" selected hidden>Önce Şehir seçiniz...</option>
                 </select>
@@ -132,7 +150,9 @@
 
         <!-- Açık Adres -->
         <div class="col-12 mt-3">
-            <label asp-for="CreateCorporateAddress.Address" class="form-label">Açık Adres <span class="text-danger">*</span></label>
+            <label asp-for="CreateCorporateAddress.Address" class="form-label">
+                Açık Adres <span class="text-danger">*</span>
+            </label>
             <textarea asp-for="CreateCorporateAddress.Address" class="form-control" rows="3" maxlength="150" required></textarea>
             <span asp-validation-for="CreateCorporateAddress.Address" class="text-danger"></span>
         </div>

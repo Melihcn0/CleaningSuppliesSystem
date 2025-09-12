@@ -73,7 +73,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             {
                 return BadRequest(new { message });
             }
-            return Ok(new { message = "Alt kategori başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "Alt kategori başarıyla eklendi.", id = createdId });
 
         }
 
@@ -108,10 +108,14 @@ namespace CleaningSuppliesSystem.API.Controllers
         public async Task<IActionResult> PermanentDelete(int id)
         {
             var subCategory = await _subCategoryService.TGetByIdAsync(id);
-            var (IsSuccess, Message) = await _subCategoryService.TPermanentDeleteSubCategoryAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            if (subCategory == null)
+                return NotFound("Alt kategori bulunamadı.");
+
+            if (!subCategory.IsDeleted)
+                return BadRequest("Alt kategori silinmiş değil. Önce silmeniz gerekir.");
+
+            await _subCategoryService.TDeleteAsync(id);
+            return Ok("Alt kategori çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpGet("ByTopCategory/{topCategoryId}")]
@@ -133,7 +137,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         public async Task<IActionResult> SoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek kategori bulunamadı.");
+                return BadRequest("Silinecek alt kategori bulunamadı.");
 
             var results = await _subCategoryService.TSoftDeleteRangeSubCategoryAsync(ids);
 
@@ -144,14 +148,14 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm kategoriler başarıyla silindi.");
+            return Ok("Seçili kategoriler başarıyla çöp kutusuna taşındı.");
         }
 
         [HttpPost("UndoSoftDeleteMultiple")]
         public async Task<IActionResult> UndoSoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Geri alınacak kategori bulunamadı.");
+                return BadRequest("Geri alınacak alt kategori bulunamadı.");
 
             var results = await _subCategoryService.TUndoSoftDeleteRangeSubCategoryAsync(ids);
 
@@ -162,16 +166,16 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm kategoriler başarıyla geri alındı.");
+            return Ok("Seçili alt kategoriler başarıyla geri alındı.");
         }
         [HttpPost("PermanentDeleteMultiple")]
         public async Task<IActionResult> PermanentDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek kategoriler bulunamadı.");
+                return BadRequest("Silinecek alt kategoriler bulunamadı.");
 
             await _subCategoryService.TPermanentDeleteRangeSubCategoryAsync(ids);
-            return Ok("Kategoriler başarıyla silindi.");
+            return Ok("Seçili alt kategoriler çöp kutusundan kalıcı olarak silindi.");
         }
 
 

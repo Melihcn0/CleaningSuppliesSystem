@@ -1,12 +1,53 @@
 ﻿@model List<ResultProductDto>
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        --info-dark-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        --hover-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+    }
+
+    .add-to-cart-btn {
+        background: var(--info-dark-gradient);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        text-decoration: none;
+        flex: 1;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        min-height: 40px;
+        height: 40px;
+        transition: all 0.3s ease;
+    }
+
+
+        .add-to-cart-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+
+</style>
 <section class="pb-5">
     <div class="container-lg">
         <div class="row">
             <div class="col-md-12">
                 <div class="section-header d-flex flex-wrap justify-content-between my-4">
-                    <h2 class="section-title">Son Eklenen Ürünler</h2>
+                    <h2 class="section-title">Yeni Gelen Ürünler</h2>
                     <div class="d-flex align-items-center">
-                        <a href="#" class="btn btn-dark rounded-1">Tümünü Gör</a>
+                        <a href="/Product/Index" class="add-to-cart-btn">Tümünü Gör</a>
                     </div>
                 </div>
             </div>
@@ -14,13 +55,13 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5">
-                    @foreach (var item in Model.OrderBy(x => Guid.NewGuid()).Take(10))
+                    @foreach (var item in Model.OrderBy(x => Guid.NewGuid()).Take(5))
                     {
                         <div class="col">
                             <div class="product-item">
                                 <figure>
-                                    <a href="index.html" title="@item.Name">
-                                        <img src="@Url.Content(item.ImageUrl)" alt="ürün resmi" class="tab-image" style="width: 220px; height: 175px;">
+                                    <a href="/Product/Index" title="@item.Name">
+                                        <img src="@Url.Content(item.ImageUrl)" alt="ürün resmi" class="tab-image" style="width: 130px; height: 140px;">
                                     </a>
                                 </figure>
                                 <div class="d-flex flex-column text-center">
@@ -37,28 +78,16 @@
                                     <div class="d-flex justify-content-center align-items-center gap-2">
                                         @if (item.DiscountRate > 0)
                                         {
-                                            <del>@item.UnitPrice ₺</del>
-                                            <span class="text-dark fw-semibold">@item.DiscountedPrice ₺</span>
+                                            <del>@item.PriceWithVat.ToString("N2") ₺</del>
+                                            <span class="text-dark fw-semibold">@item.DiscountedPriceWithVat.ToString("N2") ₺</span>
                                             <span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary">
                                                 @item.DiscountRate.ToString("F0")% İndirim
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="text-dark fw-semibold">@item.UnitPrice.ToString("N2") ₺</span>
+                                            <span class="text-dark fw-semibold">@item.PriceWithVat.ToString("N2") ₺</span>
                                         }
-                                    </div>
-                                    <div class="button-area p-3 pt-0">
-                                        <div class="row g-1 mt-2">
-                                            <div class="col-3">
-                                                <input type="number" name="quantity" class="form-control border-dark-subtle input-number quantity" value="1">
-                                            </div>
-                                            <div class="col-7">
-                                                <a href="#" class="btn btn-primary rounded-1 p-2 fs-7 btn-cart">
-                                                    <svg width="18" height="18"><use xlink:href="#cart"></use></svg> Sepete Ekle
-                                                </a>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -80,7 +80,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             brand.DeletedDate = DateTime.Now;
             brand.IsDeleted = true;
             await _brandRepository.UpdateAsync(brand);
-            return (true, "Marka başarıyla soft silindi.", brand.Id);
+            return (true, "Marka başarıyla çöp kutusuna taşındı.", brand.Id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteBrandAsync(int id)
@@ -113,10 +113,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Marka bulunamadı.");
 
             if (!brand.IsDeleted)
-                return (false, "Marka soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Marka silinmemiş. Önce silmeniz gerekir.");
 
             await _brandRepository.DeleteAsync(brand.Id);
-            return (true, "Marka kalıcı olarak silindi.");
+            return (true, "Marka çöp kutusundan kalıcı olarak silindi.");
         }
         public async Task<List<ResultBrandDto>> TGetActiveBrandsAsync()
         {

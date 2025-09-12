@@ -97,7 +97,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             }
 
             TempData["ErrorMessage"] = "Müşteri profili güncellenemedi.";
-            TempData["ActiveTab"] = "pills-edit-profile";
+            ViewBag.ActiveTab = "pills-edit-profile";
             var errorModel = await GetCustomerProfileViewModel(updateProfileDto: dto);
             return View("Index", errorModel);
         }
@@ -156,7 +156,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
 
                 await LoadCityDropdownAsync(dto.CityId, dto.DistrictId);
                 ViewBag.ActiveTab = "pills-add-address";
-                ViewBag.AddressType = "Individual"; // <-- Burayı "Individual" yap
+                ViewBag.AddressType = "Individual";
 
                 var vm = await GetCustomerProfileViewModel();
                 vm.CreateIndividualAddress = dto;

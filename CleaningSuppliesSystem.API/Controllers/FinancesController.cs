@@ -63,7 +63,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             {
                 return BadRequest(new { message });
             }
-            return Ok(new { message = "Finans Kaydı başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "Finans kaydı başarıyla oluşturuldu.", id = createdId });
         }
 
         [HttpPut]
@@ -74,25 +74,21 @@ namespace CleaningSuppliesSystem.API.Controllers
             {
                 return BadRequest(new { message });
             }
-            return Ok(new { message = "Finans Kaydı başarıyla oluşturuldu.", id = updatedId });
+            return Ok(new { message = "Finans kaydı başarıyla oluşturuldu.", id = updatedId });
         }
 
         [HttpPost("softdelete/{id}")]
         public async Task<IActionResult> SoftDelete(int id)
         {
-            var (IsSuccess, Message, _UndoSoftDeleteId) = await _financeService.TSoftDeleteFinanceAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            var result = await _financeService.TSoftDeleteFinanceAsync(id);
+            return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
         [HttpPost("undosoftdelete/{id}")]
         public async Task<IActionResult> UndoSoftDelete(int id)
         {
-            var (IsSuccess, Message, UndoSoftDeleteId) = await _financeService.TUndoSoftDeleteFinanceAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            var result = await _financeService.TUndoSoftDeleteFinanceAsync(id);
+            return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
         // Permanent Delete
@@ -104,18 +100,17 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("Finans kaydı bulunamadı");
 
             if (!entity.IsDeleted)
-                return BadRequest("Finans kaydı soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("Finans kaydı silinmiş değil. Önce silmeniz gerekir.");
 
             await _financeService.TDeleteAsync(id);
-
-            return Ok("Finans kaydı kalıcı olarak silindi");
+            return Ok("Finans kaydı çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpPost("DeleteMultiple")]
         public async Task<IActionResult> SoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek finans bulunamadı.");
+                return BadRequest("Silinecek finans kaydı bulunamadı.");
 
             var results = await _financeService.TSoftDeleteRangeFinanceAsync(ids);
 
@@ -126,14 +121,14 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm finanslar başarıyla silindi.");
+            return Ok("Seçili finans kayıtları başarıyla çöp kutusuna taşındı.");
         }
 
         [HttpPost("UndoSoftDeleteMultiple")]
         public async Task<IActionResult> UndoSoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Geri alınacak finans bulunamadı.");
+                return BadRequest("Geri alınacak finans kaydı bulunamadı.");
 
             var results = await _financeService.TUndoSoftDeleteRangeFinanceAsync(ids);
 
@@ -144,16 +139,16 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm finanslar başarıyla geri alındı.");
+            return Ok("Seçili finans kaydı başarıyla geri alındı.");
         }
         [HttpPost("PermanentDeleteMultiple")]
         public async Task<IActionResult> PermanentDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek finans bulunamadı.");
+                return BadRequest("Silinecek finans kaydı bulunamadı.");
 
             await _financeService.TPermanentDeleteRangeFinanceAsync(ids);
-            return Ok("Finanslar başarıyla silindi.");
+            return Ok("Seçili finans kayıtları çöp kutusundan kalıcı olarak silindi.");
         }
     }
 }

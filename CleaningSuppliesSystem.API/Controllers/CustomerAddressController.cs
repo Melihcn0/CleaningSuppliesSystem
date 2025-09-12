@@ -55,7 +55,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         {
             var customerAddress = await _customerIndividualAddressService.TGetAddressByIdAsync(id);
             if (customerAddress == null)
-                return NotFound("Müşteri adresi bulunamadı.");
+                return NotFound("Müşteri bireysel adresi bulunamadı.");
 
             return Ok(customerAddress);
         }
@@ -70,7 +70,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         {
             var customerAddress = await _customerCorporateAddressService.TGetAddressByIdAsync(id);
             if (customerAddress == null)
-                return NotFound("Müşteri adresi bulunamadı.");
+                return NotFound("Müşteri kurumsal adresi bulunamadı.");
 
             return Ok(customerAddress);
         }
@@ -121,7 +121,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (!isSuccess)
                 return Ok(new { isSuccess = false, message });
 
-            return Ok(new { isSuccess = true, message = "Müşteri adresi başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { isSuccess = true, message = "Müşteri adresi başarıyla eklendi.", id = createdId });
         }
 
         [HttpPut("individual")]
@@ -151,7 +151,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpPost("togglestatus")]
         public async Task<IActionResult> ToggleStatus([FromQuery] int addressId, [FromQuery] bool newStatus)
         {
-            var result = await _customerIndividualAddressService // Adreslerin durumunu değiştirmek için 2 adresi 1 serviste geçiyoruz.
+            var result = await _customerIndividualAddressService
                 .TToggleCustomerAddressStatusAsync(addressId, newStatus);
 
             if (!result)

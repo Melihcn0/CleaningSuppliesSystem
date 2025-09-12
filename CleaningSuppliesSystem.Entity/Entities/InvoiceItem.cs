@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CleaningSuppliesSystem.Entity.Entities;
 
-namespace CleaningSuppliesSystem.Entity.Entities
+public class InvoiceItem
 {
-    public class InvoiceItem
-    {
-        public int Id { get; set; }
-        public int InvoiceId { get; set; }           // Invoice ile ilişki
-        public Invoice Invoice { get; set; }
+    public int Id { get; set; }
+    public int InvoiceId { get; set; }
+    public Invoice Invoice { get; set; }
 
-        public string ProductName { get; set; }      // O anki ürün adı
-        public decimal Quantity { get; set; }        // Miktar
-        public string Unit { get; set; }             // Birim (adet, kg, vs.)
+    public string ProductName { get; set; }
+    public decimal Quantity { get; set; }
+    public string Unit { get; set; }
 
-        public decimal UnitPrice { get; set; }       // KDV hariç
-        public decimal VatRate { get; set; }         // KDV %
-        public decimal VatAmount { get; set; }       // KDV tutarı
-        public decimal Total { get; set; }           // KDV dahil toplam
-    }
+    public decimal UnitPrice { get; set; }          // Liste fiyatı (KDV hariç)
+    public decimal TotalPrice { get; set; }         // KDV dahil toplam
+    public decimal VatRate { get; set; }
+    public decimal VatAmount { get; set; }
+
+    public decimal? DiscountRate { get; set; }      // %
+    public decimal? DiscountAmount { get; set; }    // TL
+
+    // ✅ Burada yeni
+    public decimal? DiscountedUnitPrice { get; set; } // İndirimli birim fiyat (KDV hariç)
 }
-

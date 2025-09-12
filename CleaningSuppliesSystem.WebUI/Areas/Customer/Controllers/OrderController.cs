@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
+using System.Text.Json;
 
 [Authorize(Roles = "Customer")]
 [Area("Customer")]
@@ -26,24 +27,31 @@ public class OrderController : Controller
     {
         var response = await _client.GetAsync("customerOrders");
 
-        if (response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            var orders = await response.Content.ReadFromJsonAsync<List<ResultOrderDto>>();
-            return View(orders ?? new List<ResultOrderDto>());
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                TempData["ErrorMessage"] = "Siparişlerinizi görüntülemek için lütfen giriş yapın.";
+                return RedirectToAction("SignIn", "Login");
+            }
+
+            TempData["ErrorMessage"] = "Siparişleriniz yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.";
+            return View(new List<CustomerResultOrderDto>());
         }
 
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        // API’den DTO listesi alıyoruz
+        var orders = await response.Content.ReadFromJsonAsync<List<CustomerResultOrderDto>>();
+
+        if (orders != null && orders.Any())
         {
-            TempData["ErrorMessage"] = "Siparişlerinizi görüntülemek için lütfen giriş yapın.";
-            return RedirectToAction("SignIn", "Login");
+            // Admin banka bilgisi zaten DTO içinde var
+            ViewBag.AdminIban = orders.First().AdminBank?.IBAN ?? "-";
+            ViewBag.AdminNameSurname = orders.First().AdminBank?.AccountHolder ?? "-";
         }
 
-        TempData["ErrorMessage"] = "Siparişleriniz yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.";
-        return View(new List<ResultOrderDto>());
+        return View(orders ?? new List<CustomerResultOrderDto>());
     }
-
-
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> OrderDetails(int id)
     {
         var response = await _client.GetAsync($"customerOrders/{id}");
 
@@ -60,24 +68,101 @@ public class OrderController : Controller
             return PartialView("_ErrorPartial", errorMessage);
         }
 
-        var order = await response.Content.ReadFromJsonAsync<ResultOrderDto>();
+        var order = await response.Content.ReadFromJsonAsync<CustomerResultOrderDto>();
 
         if (order == null)
         {
             return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
         }
 
-        ViewData["ShowPendingPaymentMessage"] = order.Status == "Onay Bekleniyor";
+        ViewData["ShowPendingPaymentMessage"] = order.Status == "Onaylandı";
+
+        // 🔑 Admin bilgilerini ViewBag’e set et
+        ViewBag.AdminIban = order.AdminBank?.IBAN ?? "-";
+        ViewBag.AdminNameSurname = order.AdminBank?.AccountHolder ?? "-";
 
         return PartialView("_OrderDetailPartial", order);
     }
+    public async Task<IActionResult> ReadOnlyDetails(int id)
+    {
+        var response = await _client.GetAsync($"customerOrders/customerResult/{id}");
 
-    // WebUI Katmanı
+        if (response.IsSuccessStatusCode)
+        {
+            var order = await response.Content.ReadFromJsonAsync<CustomerResultOrderDto>();
+            if (order == null)
+            {
+                // Veri gelmediyse, hata partial view'ını döndür.
+                return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
+            }
+            // Başarılı durumda, sipariş verisiyle birlikte partial view'ı döndür.
+            return PartialView("_ReadOnlyOrderDetailPartial", order);
+        }
+        else
+        {
+            string errorMessage;
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                errorMessage = "Aradığınız sipariş bulunamadı.";
+            }
+            else
+            {
+                errorMessage = "Sipariş detayları yüklenirken bir sorun oluştu.";
+            }
+            // Hata durumunda da bir partial view döndür.
+            return PartialView("_ReadOnlyOrderDetailPartial", errorMessage);
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Decrement(int id, int orderId)
+    {
+        try
+        {
+            var response = await _client.PostAsync($"orderitems/decrement/{id}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                return Json(new { success = false, message = "Miktar azaltılamadı." });
+            }
+
+            return Json(new { success = true, message = "Miktar başarıyla azaltıldı." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Remove(int id)
+    {
+        try
+        {
+            var response = await _client.DeleteAsync($"orderitems/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return Json(new { success = false, message = "Ürün silinemedi." });
+            }
+
+            return Json(new { success = true, message = "Ürün başarıyla silindi." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(int id)
     {
-        // API'nin URL formatına uygun şekilde id'yi URL'ye ekle
         var response = await _client.PostAsync($"customerOrders/cancelOrder/{id}", null);
 
         if (response.StatusCode == HttpStatusCode.Forbidden)
@@ -94,34 +179,41 @@ public class OrderController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> AddToCart(AddToOrderDto dto)
     {
-        // Kullanıcı giriş yapmamışsa
         if (!User.Identity.IsAuthenticated)
         {
             TempData["ErrorMessage"] = "Sipariş vermek için giriş yapmalısınız.";
             return RedirectToAction("Index", "Product", new { area = "" });
         }
 
-        // Kullanıcı Customer rolüne sahip değilse
         if (!User.IsInRole("Customer"))
         {
             TempData["ErrorMessage"] = "Bu işlem sadece müşteri hesabı ile yapılabilir.";
-            return RedirectToAction("Index", "Product", new { area = "" });
+            return RedirectToAction("SignIn", "Login", new { area = "" });
         }
 
-        // Customer rolündeki kullanıcı için işlem yapılır
         var response = await _client.PostAsJsonAsync("customerOrders/add-to-order", dto);
 
         if (response.IsSuccessStatusCode)
-        {
             TempData["SuccessMessage"] = "Ürün sepete eklendi.";
-        }
         else
         {
-            TempData["ErrorMessage"] = "Ürün sepete eklenemedi.";
+            var errorJson = await response.Content.ReadAsStringAsync();
+            string message = "Ürün sepete eklenemedi.";
+
+            try
+            {
+                using var doc = JsonDocument.Parse(errorJson);
+                if (doc.RootElement.TryGetProperty("message", out var msgProp))
+                    message = msgProp.GetString() ?? message;
+            }
+            catch { }
+
+            TempData["ValidateProfileErrorMessage"] = message;
         }
 
         return RedirectToAction("Index", "Product", new { area = "" });
     }
+
 
     public async Task<IActionResult> DownloadInvoice(int orderId)
     {
@@ -136,6 +228,46 @@ public class OrderController : Controller
         return File(pdfBytes, "application/pdf", fileName);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> UpdateStatus(int id)
+    {
+        var response = await _client.GetAsync($"customerOrders/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            var order = await response.Content.ReadFromJsonAsync<CustomerResultOrderDto>();
+            if (order == null)
+            {
+                return View(nameof(Index));
+            }
+            return View(nameof(Index), order);
+        }
+        else
+        {
+            return View(nameof(Index));
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateStatus([FromBody] OrderStatusUpdateDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return BadRequest(new { message = "Geçersiz veri", errors });
+        }
+
+        var response = await _client.PostAsJsonAsync("customerOrders/UpdateStatus", dto);
+
+        if (!response.IsSuccessStatusCode)
+            return BadRequest("Sipariş durumu güncellenemedi.");
+
+        return Ok();
+    }
 
 
 

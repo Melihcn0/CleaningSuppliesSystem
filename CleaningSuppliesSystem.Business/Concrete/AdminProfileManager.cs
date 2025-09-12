@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DataAccess.Abstract;
-using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using CleaningSuppliesSystem.DataAccess.Concrete;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.AdminProfileValidatorDto;
 using CleaningSuppliesSystem.Entity.Entities;
@@ -15,29 +15,20 @@ using System.Threading.Tasks;
 
 namespace CleaningSuppliesSystem.Business.Concrete
 {
-    public class AdminProfileManager : IAdminProfileService
+    public class AdminProfileManager(UserManager<AppUser> _userManager, IHttpContextAccessor _httpContextAccessor, ICompanyAddressRepository _companyAddressRepository, IAdminProfileRepository _adminProfileRepository, IMapper _mapper) : IAdminProfileService
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly ICompanyAddressRepository _companyAddressRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMapper _mapper;
-
-        public AdminProfileManager(UserManager<AppUser> userManager, IHttpContextAccessor httpContextAccessor, ICompanyAddressRepository companyAddressRepository, IMapper mapper)
-        {
-            _userManager = userManager;
-            _httpContextAccessor = httpContextAccessor;
-            _companyAddressRepository = companyAddressRepository;
-            _mapper = mapper;
-        }
-
         public async Task<AdminProfileDto?> TGetAdminProfileAsync()
         {
+            // Giriş yapan kullanıcıyı al
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            if (user == null)
-                return null;
+            if (user == null) return null;
 
-            return _mapper.Map<AdminProfileDto>(user);
+            // Repository’den Include ile birlikte kullanıcıyı çek
+            var fullUser = await _adminProfileRepository.GetUserWithCompanyBankAndAddressAsync(user.Id);
+
+            return _mapper.Map<AdminProfileDto>(fullUser);
         }
+
         public async Task<UpdateAdminProfileDto?> TGetUpdateAdminProfileAsync()
         {
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);

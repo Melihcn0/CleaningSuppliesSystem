@@ -5,9 +5,9 @@
         public int Id { get; set; }
         public string ImageUrl { get; set; }
         public string Name { get; set; }
-        public decimal UnitPrice { get; set; }
-        public decimal DiscountRate { get; set; }
-        public decimal DiscountedPrice { get; set; }
+        public decimal UnitPrice { get; set; } // birim fiyat
+        public decimal TotalPrice { get; set; } // frontta hesaplama yapılıp gösterilen totalprice
+        public decimal DiscountRate { get; set; } // indirim oranı
         public int? StockQuantity { get; set; }
         public int BrandId { get; set; }
         public string BrandName { get; set; }
@@ -23,5 +23,9 @@
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public DateTime? DeletedDate { get; set; }
+        public decimal PriceWithVat => UnitPrice * (1 + VatRate / 100);
+
+        // KDV dahil indirimli fiyat
+        public decimal DiscountedPriceWithVat => PriceWithVat * (1 - DiscountRate / 100);
     }
 }

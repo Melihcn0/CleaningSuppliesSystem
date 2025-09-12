@@ -21,9 +21,10 @@ using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -39,6 +40,8 @@ namespace CleaningSuppliesSystem.API.Mapping
             // Product
             CreateMap<CreateProductDto, Product>().ReverseMap();
             CreateMap<UpdateProductDto, Product>().ReverseMap();
+
+
             CreateMap<Product, ResultProductDto>()
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand.Name))
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.Brand.Category.Id))
@@ -46,7 +49,13 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.SubCategoryId, opt => opt.MapFrom(src => src.Brand.Category.SubCategory.Id))
                 .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.Brand.Category.SubCategory.Name))
                 .ForMember(dest => dest.TopCategoryId, opt => opt.MapFrom(src => src.Brand.Category.SubCategory.TopCategory.Id))
-                .ForMember(dest => dest.TopCategoryName, opt => opt.MapFrom(src => src.Brand.Category.SubCategory.TopCategory.Name));
+                .ForMember(dest => dest.TopCategoryName, opt => opt.MapFrom(src => src.Brand.Category.SubCategory.TopCategory.Name))
+
+                // KDV dahil fiyat ve indirimli fiyat mapping
+                .ForMember(dest => dest.PriceWithVat, opt => opt.MapFrom(src => src.UnitPrice * (1 + src.VatRate / 100)))
+                .ForMember(dest => dest.DiscountedPriceWithVat, opt => opt.MapFrom(src =>
+                    (src.UnitPrice * (1 + src.VatRate / 100)) * (1 - src.DiscountRate / 100)));
+
 
 
             // Finance
@@ -92,7 +101,11 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
                 .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.VatRate))
                 .ForMember(dest => dest.VatAmount, opt => opt.MapFrom(src => src.VatAmount))
-                .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Total));
+                .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalPrice))
+                .ForMember(dest => dest.DiscountRate, opt => opt.MapFrom(src => src.DiscountRate ?? 0))
+                .ForMember(dest => dest.DiscountAmount, opt => opt.MapFrom(src => src.DiscountAmount ?? 0))
+                .ForMember(dest => dest.DiscountedUnitPrice, opt => opt.MapFrom(src => src.DiscountedUnitPrice ?? 0));
+
 
             // Bireysel adres → Invoice
             CreateMap<CustomerIndividualAddress, Invoice>()
@@ -116,16 +129,32 @@ namespace CleaningSuppliesSystem.API.Mapping
                 .ForMember(dest => dest.CustomerLastName, opt => opt.MapFrom(src => src.AppUser.LastName))
                 .ForMember(dest => dest.CustomerNationalId, opt => opt.MapFrom(src => src.AppUser.NationalId))
                 .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => src.AppUser.PhoneNumber))
-                .ForMember(dest => dest.InvoiceItems, opt => opt.Ignore()); // ürünleri manuel ekle
+                .ForMember(dest => dest.InvoiceItems, opt => opt.Ignore()); 
 
 
             // Order
             CreateMap<CreateOrderDto, Order>().ReverseMap();
-            CreateMap<Order, ResultOrderDto>()
+
+
+
+            // Admin siparişleri için mapping (AdminBank ignore ediliyor)
+            CreateMap<Order, AdminResultOrderDto>()
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.AppUser.LastName))
+                .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems ?? new List<OrderItem>()))
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Invoice));
+
+            // Müşteri siparişleri için mapping (AdminBank context ile geliyor)
+            CreateMap<Order, CustomerResultOrderDto>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.AppUser.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.AppUser.LastName))
                 .ForMember(dest => dest.OrderItems, opt => opt.MapFrom(src => src.OrderItems))
-                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Invoice != null ? src.Invoice : null));
+                .ForMember(dest => dest.Invoice, opt => opt.MapFrom(src => src.Invoice))
+                .ForMember(dest => dest.AdminBank, opt => opt.MapFrom((src, dest, _, context) =>
+                    context?.Items != null && context.Items.ContainsKey("AdminBank")
+                        ? context.Items["AdminBank"] as CompanyBankDto
+                        : null));
+
 
 
             CreateMap<UpdateOrderDto, Order>().ReverseMap();
@@ -135,7 +164,14 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<CreateOrderItemDto, OrderItem>().ReverseMap();
             CreateMap<UpdateOrderItemDto, OrderItem>().ReverseMap();
             CreateMap<OrderItem, ResultOrderItemDto>()
-                .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product));
+                .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => src.UnitPrice))
+                .ForMember(dest => dest.DiscountRate, opt => opt.MapFrom(src => src.DiscountRate))
+                .ForMember(dest => dest.DiscountedUnitPrice, opt => opt.MapFrom(src => src.DiscountedUnitPrice))
+                .ForMember(dest => dest.VatRate, opt => opt.MapFrom(src => src.Product.VatRate));
+
+
 
             CreateMap<AppUser, RegisterDto>().ReverseMap();
             CreateMap<AppRole, CreateRoleDto>().ReverseMap(); 
@@ -145,7 +181,11 @@ namespace CleaningSuppliesSystem.API.Mapping
 
             CreateMap<CreateBrandDto, Brand>().ReverseMap();
             CreateMap<UpdateBrandDto, Brand>().ReverseMap();
-            CreateMap<ResultBrandDto, Brand>().ReverseMap();
+            CreateMap<Brand, ResultBrandDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+                .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.Category.SubCategory.Name))
+                .ForMember(dest => dest.TopCategoryName, opt => opt.MapFrom(src => src.Category.SubCategory.TopCategory.Name))
+                .ReverseMap();
 
             CreateMap<CreateSubCategoryDto, SubCategory>().ReverseMap();
             CreateMap<UpdateSubCategoryDto, SubCategory>().ReverseMap();
@@ -259,21 +299,33 @@ namespace CleaningSuppliesSystem.API.Mapping
                         ? src.Districts.Select(d => d.DistrictName).ToList()
                         : new List<string>()));
 
-            CreateMap<CompanyAddress, CompanyAddressDto>().ReverseMap();
+            CreateMap<AppUser, AdminProfileDto>()
+                    .ForMember(dest => dest.CompanyBank, opt => opt.MapFrom(src => src.CompanyBank))
+                    .ForMember(dest => dest.CompanyAddress, opt => opt.MapFrom(src => src.CompanyAddress));
+
             CreateMap<AppUser, UpdateAdminProfileDto>().ReverseMap();
+
+            CreateMap<CompanyAddress, CompanyAddressDto>().ReverseMap();
             CreateMap<CompanyAddress, UpdateCompanyAddressDto>().ReverseMap();
+            //CreateMap<AppUser, UpdateCompanyAddressDto>()
+            //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompanyAddress.Id))
+            //    .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyAddress.CompanyName))
+            //    .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.CompanyAddress.TaxOffice))
+            //    .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.CompanyAddress.TaxNumber))
+            //    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.CompanyAddress.Address))
+            //    .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CompanyAddress.CityName))
+            //    .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.CompanyAddress.DistrictName));
 
-            CreateMap<AppUser, UpdateCompanyAddressDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompanyAddress.Id))
-                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyAddress.CompanyName))
-                .ForMember(dest => dest.TaxOffice, opt => opt.MapFrom(src => src.CompanyAddress.TaxOffice))
-                .ForMember(dest => dest.TaxNumber, opt => opt.MapFrom(src => src.CompanyAddress.TaxNumber))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.CompanyAddress.Address))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.CompanyAddress.CityName))
-                .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.CompanyAddress.DistrictName));
+
+            CreateMap<CompanyBank, CompanyBankDto>().ReverseMap();
+            CreateMap<CompanyBank, UpdateCompanyBankDto>().ReverseMap();
+            //CreateMap<AppUser, UpdateCompanyBankDto>()
+            //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CompanyBank.Id))
+            //    .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.CompanyBank.BankName))
+            //    .ForMember(dest => dest.AccountHolder, opt => opt.MapFrom(src => src.CompanyBank.AccountHolder))
+            //    .ForMember(dest => dest.IBAN, opt => opt.MapFrom(src => src.CompanyBank.IBAN));
 
 
-            CreateMap<AdminProfileDto, AppUser>().ReverseMap();
 
 
 

@@ -12,11 +12,13 @@
             <div class="col-lg-6 col-12 d-flex flex-column justify-content-center text-center text-lg-start">
                 @if (Model != null)
                 {
-                    <h2 class="display-3 ls-1">@Model.Title</h2>
-                    <p class="fs-5 mt-2 mb-4">@Model.Subtitle</p>
+                    <h1 class="display-3">@Model.Title</h1>
+                    <h6 style="display:block; font-size:1.1rem; margin-top:0.5rem; margin-bottom:1rem; line-height:1.4;">
+                        @Model.Subtitle
+                    </h6>
 
                     <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
-                        <a href="#" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Şimdi Sipariş Ver</a>
+                        <a href="/Login/SignIn" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Şimdi Sipariş Ver</a>
                     </div>
 
                     <div class="row my-5 text-dark">

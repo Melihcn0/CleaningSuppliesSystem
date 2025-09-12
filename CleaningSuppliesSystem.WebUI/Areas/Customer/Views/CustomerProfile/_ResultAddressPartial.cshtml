@@ -39,7 +39,7 @@
             {
                 foreach (var address in Model.CustomerIndividualAddresses)
                 {
-                    <div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
+                    <div class="p-16 bg-transparent radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-4">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0"><strong>Adres Adı:</strong> @address.AddressTitle</p>
@@ -54,7 +54,7 @@
                                     <input type="hidden" name="addressId" value="@address.Id" />
                                     <input type="hidden" name="newStatus" id="newtogglestatus-@address.Id" value="@address.IsDefault.ToString().ToLower()" />
                                     <div class="form-switch d-flex align-items-center justify-content-center">
-                                        <input class="form-check-input @(address.IsDefault ? "bg-success-600" : "bg-warning-600")"
+                                        <input class="form-check-input @(address.IsDefault ? "bg-success-600" : "bg-danger-600")"
                                                type="checkbox"
                                                role="switch"
                                                id="toggleswitch-@address.Id"
@@ -91,7 +91,7 @@
             {
                 foreach (var address in Model.CustomerCorporateAddresses)
                 {
-                    <div class="p-16 bg-neutral-50 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
+                    <div class="p-16 bg-transparent radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-4">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0"><strong>Şirket Adı:</strong> @address.CompanyName</p>
@@ -109,7 +109,7 @@
                                     <input type="hidden" name="addressId" value="@address.Id" />
                                     <input type="hidden" name="newStatus" id="newtogglestatus-@address.Id" value="@address.IsDefault.ToString().ToLower()" />
                                     <div class="form-switch d-flex align-items-center justify-content-center">
-                                        <input class="form-check-input @(address.IsDefault ? "bg-success-600" : "bg-warning-600")"
+                                        <input class="form-check-input @(address.IsDefault ? "bg-success-600" : "bg-danger-600")"
                                                type="checkbox"
                                                role="switch"
                                                id="toggleswitch-@address.Id"

@@ -69,11 +69,11 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "Şehir başarıyla oluşturuldu.";
+                TempData["SuccessMessage"] = "Şehir başarıyla eklendi.";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = "Şehir oluşturulamadı.";
+            TempData["ErrorMessage"] = "Şehir eklenemedi.";
             return View(dto);
         }
         [HttpPost]
@@ -95,9 +95,9 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         {
             var response = await _client.PostAsync($"locationCities/undosoftdelete/{id}", null);
             if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = "Şehir Lokasyonu geri alındı.";
+                TempData["SuccessMessage"] = "Şehir lokasyonu başarıyla çöp kutusundan geri alındı.";
             else
-                TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+                TempData["ErrorMessage"] = "Şehir lokasyonunun çöp kutusundan geri alma işlemi başarısız.";
 
             return RedirectToAction(nameof(DeletedCities));
         }

@@ -2,10 +2,12 @@
 {
     public interface ITokenService
     {
-        public string GetUserToken { get; }
-        public int GetUserId { get; }
-        public string GetUserRole { get; }
-        public string GetUserNameSurname { get; }
-        public string GetUserTheme { get; }
+        string GetUserToken { get; }
+        int GetUserId { get; }
+        string GetUserRole { get; }
+        string GetUserNameSurname { get; }
+        string GetUserTheme { get; }
+        void UpdateToken(string newToken);
+        void ClearToken();
     }
 }

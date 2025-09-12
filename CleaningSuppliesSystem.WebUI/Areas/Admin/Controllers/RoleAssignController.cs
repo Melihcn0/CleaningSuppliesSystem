@@ -52,7 +52,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var dto = new UserAssignRoleDto
             {
                 UserId = userId,
-                Roles = assignRoleList.Where(r => r.RoleExist).ToList()  // Sadece seçili rolleri al
+                Roles = assignRoleList.Where(r => r.RoleExist).ToList()
             };
 
             var validator = new UserAssignRoleValidator();
@@ -65,18 +65,16 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             }
 
             var response = await _client.PostAsJsonAsync("roleassign/assignrole", dto);
+            var msg = await response.Content.ReadAsStringAsync(); // Düz metin olarak al
 
             if (response.IsSuccessStatusCode)
-            {
-                TempData["SuccessMessage"] = "Rol başarıyla atandı.";
-            }
+                TempData["SuccessMessage"] = msg;
             else
-            {
-                TempData["ErrorMessage"] = "Rol atama sırasında bir hata oluştu.";
-            }
+                TempData["ErrorMessage"] = msg;
 
             return RedirectToAction("RolesIndex");
         }
+
 
 
 

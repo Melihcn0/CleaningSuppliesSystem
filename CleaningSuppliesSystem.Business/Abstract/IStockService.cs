@@ -10,7 +10,8 @@ namespace CleaningSuppliesSystem.Business.Abstract
 {
     public interface IStockService
     {
-        Task<(bool IsSuccess, string Message)> AssignStockAsync(CreateStockOperationDto dto);
+        Task<(bool IsSuccess, string Message)> TAssignStockAsync(CreateStockOperationDto dto);
         Task<List<ResultStockOperationDto>> TGetActiveProductsAsync();
+        Task<(bool IsSuccess, string Message)> TQuickStockOperationAsync(QuickStockOperationDto dto);
     }
 }

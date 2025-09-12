@@ -1,72 +1,130 @@
 ﻿document.addEventListener("DOMContentLoaded", () => {
-    const theme = document.documentElement.getAttribute("data-theme") || "light";  // Tema bilgisini al
+    const theme = document.documentElement.getAttribute("data-theme") || "light";
+    const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+    const token = tokenEl ? tokenEl.value : "";
 
-    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
-    if (!deleteSelectedBtn) return;
+    function massDelete(endpoint, confirmTitle) {
+        const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked'))
+            .map(cb => parseInt(cb.dataset.id))
+            .filter(id => !isNaN(id));
 
-    const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-    const token = tokenElement ? tokenElement.value : "";
+        if (!selectedIds.length) {
+            Swal.fire({
+                title: "Seçim Yapılmadı!",
+                text: "Lütfen en az bir öğe seçin.",
+                icon: "warning",
+                confirmButtonText: "Tamam",
+                background: theme === "dark" ? "#1e1e2f" : "#fff",
+                color: theme === "dark" ? "#fff" : "#000"
+            });
+            return;
+        }
 
-    deleteSelectedBtn.addEventListener('click', () => {
-        const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
-        if (selectedCheckboxes.length === 0) return;
-
-        const ids = Array.from(selectedCheckboxes).map(cb => cb.dataset.id);
+        if (!token || !endpoint) return;
 
         Swal.fire({
-            title: window.multiDeleteConfig.confirmTitle || "Seçilenleri silmek istediğinize emin misiniz?",
-            text: "Bu işlemi geri alamazsınız!",
+            title: confirmTitle,
+            text: "Ögeler çöp kutusundan geri alınabilir.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Evet, sil!",
-            cancelButtonText: "İptal",
+            confirmButtonText: "Evet, Sil",
+            cancelButtonText: "Hayır, İptal",
             background: theme === "dark" ? "#1e1e2f" : "#fff",
             color: theme === "dark" ? "#fff" : "#000",
-            allowOutsideClick: false,  // Ekran dışı tıklamayla kapanmasın
-            allowEscapeKey: false,     // ESC tuşuyla kapanmasın
-            allowEnterKey: false       // ENTER tuşuyla onaylama kapatma engellendi
-        }).then(result => {
-            if (result.isConfirmed) {
-                fetch(window.multiDeleteConfig.deleteUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "RequestVerificationToken": token
-                    },
-                    body: JSON.stringify(ids)
-                })
-                    .then(async res => {
-                        const msg = await res.text();
-                        const isSuccess = res.ok;
+            reverseButtons: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
 
-                        Swal.fire({
-                            title: isSuccess ? "Silindi!" : "Silinemedi!",
-                            text: msg,
-                            icon: isSuccess ? "success" : "error",
-                            confirmButtonText: "Tamam",
-                            confirmButtonColor: "#d33",
-                            customClass: {
-                                popup: getSwalClass()
-                            }
-                        }).then(() => {
-                            if (isSuccess) window.location.reload();
-                        });
-                    })
-                    .catch(() => {
-                        Swal.fire({
-                            title: "İstek Hatası!",
-                            text: "Sunucuya ulaşılamadı. Lütfen tekrar deneyin.",
-                            icon: "error",
-                            confirmButtonText: "Tamam",
-                            confirmButtonColor: "#d33",
-                            customClass: {
-                                popup: getSwalClass()
-                            }
-                        });
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
                     });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
             }
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": token
+                },
+                body: JSON.stringify(selectedIds)
+            })
+                .then(async res => {
+                    const msg = await res.text();
+                    const isSuccess = res.ok;
+
+                    Swal.fire({
+                        title: isSuccess ? "Başarılı!" : "Hata!",
+                        text: msg,
+                        icon: isSuccess ? "success" : "error",
+                        showConfirmButton: false,
+                        background: theme === "dark" ? "#1e1e2f" : "#fff",
+                        color: theme === "dark" ? "#fff" : "#000",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: true,
+                        timer: isSuccess ? 1250 : 2500,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            const pb = document.querySelector('.swal2-timer-progress-bar');
+                            if (pb) {
+                                pb.style.backgroundColor = isSuccess ? "#28a745" : "#dc3545";
+                            }
+                        }
+                    }).then(() => {
+                        if (isSuccess) window.location.reload();
+                    });
+                })
+                .catch(() => {
+                    Swal.fire({
+                        title: "Sunucuya ulaşılamadı!",
+                        text: "Lütfen tekrar deneyin.",
+                        icon: "error",
+                        showConfirmButton: false,
+                        background: theme === "dark" ? "#1e1e2f" : "#fff",
+                        color: theme === "dark" ? "#fff" : "#000",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            const pb = document.querySelector('.swal2-timer-progress-bar');
+                            if (pb) {
+                                pb.style.backgroundColor = "#dc3545";
+                            }
+                        }
+                    });
+                });
         });
+    }
+
+    const deleteBtn = document.getElementById("deleteSelectedBtn");
+    if (!deleteBtn) return;
+
+    deleteBtn.addEventListener("click", () => {
+        const config = window.multiDeleteConfig;
+        if (!config || !config.url || !config.confirmTitle) return;
+
+        massDelete(config.url, config.confirmTitle);
     });
 });

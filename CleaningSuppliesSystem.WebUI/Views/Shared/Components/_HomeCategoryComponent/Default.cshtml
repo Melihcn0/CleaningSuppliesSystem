@@ -2,24 +2,15 @@
 
 <section class="py-5 overflow-hidden">
     <div class="container-lg">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="section-header d-flex flex-wrap justify-content-between mb-5">
-                    <h2 class="section-title">Kategoriler</h2>
-                    <a href="#" class="btn btn-dark">Tümünü Gör</a>
-                </div>
-            </div>
-        </div>
-
         <div class="row overflow-hidden">
             <div class="col-md-12">
                 <div class="marquee-track">
                     <div class="marquee-content">
                         @foreach (var item in Model.Concat(Model))
                         {
-                            <div class="category-box text-center">
-                                <a href="/category/@item.Id" class="nav-link d-block">
-                                    <img src="@Url.Content(item.ImageUrl)" width="161" height="160" class="rounded-circle mb-2" alt="@item.Name" />
+                            <div class="category-box text-center no-select">
+                                <a href="/Product/Index" class="nav-link d-block">
+                                    <img src="@Url.Content(item.ImageUrl)" class="rounded-circle mb-2" alt="@item.Name" />
                                     <h4 class="fs-6 category-title">@item.Name</h4>
                                 </a>
                             </div>
@@ -36,6 +27,9 @@
         width: 100%;
         overflow: hidden;
         position: relative;
+        border-radius: 1rem; /* köşeleri yumuşat */
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
     }
 
     .marquee-content {
@@ -45,21 +39,38 @@
         animation: scroll-left 20s linear infinite;
     }
 
+    /* Hover ile durdurma */
+    .marquee-track:hover .marquee-content {
+        animation-play-state: paused;
+    }
+
     .category-box {
         flex: 0 0 auto;
+        text-align: center;
     }
 
         .category-box img {
-            width: 161px;
-            height: 160px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
+            border-radius: 50%; /* yuvarlak görünümlü */
+            transition: transform 0.3s ease;
         }
+
+            .category-box img:hover {
+                transform: scale(1.05); /* hafif zoom efekti */
+            }
 
     .category-title {
         white-space: nowrap;
         font-size: 1rem;
-        text-align: center;
+        margin-top: 0.25rem;
     }
 
-
+    /* Tıklamayı ve seçimi engelle */
+    .no-select {
+        pointer-events: none;
+        user-select: none;
+    }
 </style>
+

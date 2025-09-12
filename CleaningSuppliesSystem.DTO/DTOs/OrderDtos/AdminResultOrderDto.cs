@@ -1,0 +1,42 @@
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
+using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CleaningSuppliesSystem.DTO.DTOs.OrderDtos
+{
+    public class AdminResultOrderDto
+    {
+        public int Id { get; set; }
+        public string Status { get; set; }
+        public int AppUserId { get; set; } // Siparişi veren kullanıcı
+        public string FirstName { get; set; }  // Kullanıcının adı
+        public string LastName { get; set; }   // Kullanıcının soyadı
+        public string OrderNumber { get; set; }
+        public ICollection<ResultOrderItemDto>? OrderItems { get; set; }
+        public InvoiceDto? Invoice { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? ApprovedDate { get; set; }       // Onaylandı
+        public DateTime? PreparingDate { get; set; }       // Hazırlanıyor
+        public DateTime? ShippedDate { get; set; }         // Kargoya Verildi
+        public DateTime? DeliveredDate { get; set; }       // Teslim Edildi
+        public DateTime? CanceledDate { get; set; }        // İptal Edildi
+        public string? OrderNote { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public decimal TotalAmountWithVat => OrderItems?.Sum(x =>
+        {
+            var price = (x.DiscountRate.HasValue && x.DiscountRate.Value > 0 && x.DiscountedUnitPrice.HasValue)
+                ? x.DiscountedUnitPrice.Value
+                : x.UnitPrice;
+
+            // KDV dahil fiyat
+            return price * x.Quantity * (1 + (x.VatRate / 100));
+        }) ?? 0;
+
+
+    }
+}

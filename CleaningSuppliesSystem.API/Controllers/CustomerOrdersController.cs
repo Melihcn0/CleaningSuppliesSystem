@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
-using CleaningSuppliesSystem.Business.Concrete;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
@@ -15,74 +14,90 @@ namespace CleaningSuppliesSystem.API.Controllers
     [Authorize(Roles = "Customer")]
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerOrdersController : ControllerBase
+    public class CustomerOrdersController(IOrderService _orderService, IProductService _productService, IOrderItemService _orderItemService, IInvoiceService _invoiceService, ICompanyBankService _companyBankService, IHttpContextAccessor _httpContextAccessor, IMapper _mapper) : ControllerBase
     {
-        private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
-        private readonly IInvoiceService _invoiceService;
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public CustomerOrdersController(IOrderService orderService, IOrderItemService orderItemService, IInvoiceService invoiceService , IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        private async Task<(bool CanOrder, string? Message)> ValidateCustomerProfileAsync()
         {
-            _orderService = orderService;
-            _orderItemService = orderItemService;
-            _invoiceService = invoiceService;
-            _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return await _orderService.TValidateCustomerProfileAsync(userId);
         }
 
-        // Müşteri kendi siparişlerini listeleyecek
         [HttpGet]
         public async Task<IActionResult> GetMyOrders()
         {
-            // JWT'den kullanıcı ID'si alınır
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return Unauthorized();
 
             int appUserId = int.Parse(userIdClaim.Value);
 
-            // Sadece bu kullanıcıya ait siparişleri çekiyoruz
-            var orders = await _orderService.TGetFilteredListAsync(o => o.AppUserId == appUserId);
+            var orders = await _orderService.TGetOrdersByUserIdWithDetailsAsync(appUserId);
+            var adminBank = await _companyBankService.TGetFirstCompanyBankAsync();
 
-            var result = _mapper.Map<List<ResultOrderDto>>(orders);
+            var orderDtos = _mapper.Map<List<CustomerResultOrderDto>>(orders, opts =>
+            {
+                opts.Items["AdminBank"] = adminBank;
+            });
+
+            foreach (var order in orderDtos)
+            {
+                if (order.OrderItems == null)
+                    order.OrderItems = new List<ResultOrderItemDto>();
+            }
+
+            return Ok(orderDtos);
+        }
+
+        [HttpGet("customerResult/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var value = await _orderService.TGetOrderByIdWithDetailsAsync(id);
+            if (value == null)
+                return NotFound("Sipariş bulunamadı.");
+
+            var adminBank = await _companyBankService.TGetFirstCompanyBankAsync();
+
+            var result = _mapper.Map<CustomerResultOrderDto>(value, opts =>
+            {
+                opts.Items["AdminBank"] = adminBank;
+            });
+
             return Ok(result);
         }
 
-        // Müşteri kendi sipariş detayını görür
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
             var order = await _orderService.TGetOrderByIdWithDetailsAsync(id);
-
             if (order == null)
                 return NotFound();
 
-            // Sipariş, istek yapan kullanıcıya ait değilse erişim engellenir
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null || order.AppUserId != int.Parse(userIdClaim.Value))
                 return Forbid();
 
-            var result = _mapper.Map<ResultOrderDto>(order);
+            var adminBank = await _companyBankService.TGetFirstCompanyBankAsync();
+            var result = _mapper.Map<CustomerResultOrderDto>(order, opts =>
+            {
+                opts.Items["AdminBank"] = adminBank;
+            });
+
             return Ok(result);
         }
 
-        // Yeni sipariş oluşturabilir (örneğin sepetteki ürünleri order olarak kaydetmek için)
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-                return Unauthorized();
+            var (canOrder, message) = await ValidateCustomerProfileAsync();
+            if (!canOrder)
+                return BadRequest(new { message });
 
-            int userId = int.Parse(userIdClaim.Value);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             createOrderDto.AppUserId = userId;
 
             var newOrder = _mapper.Map<Order>(createOrderDto);
-
             await _orderService.TCreateAsync(newOrder);
-            // Fatura oluştur
+
             var invoice = await _invoiceService.TCreateAdminInvoiceAsync(newOrder.Id);
 
             return CreatedAtAction(nameof(GetOrderById),
@@ -90,38 +105,56 @@ namespace CleaningSuppliesSystem.API.Controllers
                                    new { Order = newOrder, Invoice = invoice });
         }
 
-
-        // Müşteri sipariş iptal etmek isterse (duruma göre)
-        [HttpPost("cancelOrder/{id}")]
-        public async Task<IActionResult> Cancel(int id)
-        {
-            var order = await _orderService.TGetByIdAsync(id);
-
-            if (order == null)
-                return NotFound();
-
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || order.AppUserId != int.Parse(userIdClaim.Value))
-                return Forbid();
-
-            if (order.Status == "Onaylandı")
-            {
-                return BadRequest("Onaylanmış siparişler iptal edilemez.");
-            }
-
-            order.Status = "İptal Edildi";
-            await _orderService.TUpdateAsync(order);
-
-            return NoContent();
-        }
-
         [HttpPost("add-to-order")]
         public async Task<IActionResult> AddToPendingOrder(AddToOrderDto dto)
         {
+            var (canOrder, message) = await ValidateCustomerProfileAsync();
+            if (!canOrder)
+            return BadRequest(new { message });
+
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await _orderService.TAddToPendingOrderAsync(userId, dto.ProductId, dto.Quantity);
-            return Ok();
+            var product = await _productService.TGetByIdAsync(dto.ProductId);
+
+            if (product == null)
+                return NotFound("Ürün bulunamadı.");
+
+            await _orderService.TAddToPendingOrderAsync(userId, dto.ProductId, dto.Quantity, product.UnitPrice, product.DiscountRate);
+
+            return Ok(new { message = "Ürün sepete eklendi." });
         }
+
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateOrderDto updateOrderDto)
+        {
+            var value = _mapper.Map<Order>(updateOrderDto);
+            await _orderService.TUpdateAsync(value);
+            return NoContent();
+        }
+
+        [HttpPost("UpdateStatus")]
+        public async Task<ActionResult<OrderStatusUpdateDto>> UpdateStatus([FromBody] OrderStatusUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Geçersiz veri.");
+
+                var order = await _orderService.TGetByIdAsync(dto.Id);
+                if (order == null)
+                    return NotFound("Sipariş bulunamadı.");
+
+                if (dto.Status == "İptal Edildi" && order.Status == "Onaylandı")
+                {
+                    return BadRequest("Onaylanmış siparişler iptal edilemez.");
+                }
+
+                var result = await _orderService.TUpdateStatusAsync(dto.Id, dto.Status);
+                if (result == null)
+                    return NotFound("Sipariş bulunamadı.");
+
+                return Ok(result);
+
+        }
+
 
     }
 }

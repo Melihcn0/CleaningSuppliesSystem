@@ -49,6 +49,20 @@ public class UsersController : ControllerBase
         _resetPasswordValidator = resetPasswordValidator;
     }
 
+    [HttpGet("check-token")]
+    public IActionResult CheckToken()
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+        var cookieToken = Request.Cookies["AccessToken"];
+
+        return Ok(new
+        {
+            AuthorizationHeader = authHeader,
+            AccessTokenCookie = cookieToken
+        });
+    }
+
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {

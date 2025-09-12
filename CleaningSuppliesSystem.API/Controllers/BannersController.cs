@@ -84,10 +84,10 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("Banner alanı bulunamadı.");
 
             if (!category.IsDeleted)
-                return BadRequest("Banner soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("Banner silinmiş değil. Önce silmeniz gerekir.");
 
             await _bannerService.TDeleteAsync(id);
-            return Ok("Banner kalıcı olarak silindi.");
+            return Ok("Banner çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpPost("togglestatus")]
@@ -95,9 +95,9 @@ namespace CleaningSuppliesSystem.API.Controllers
         {
             var result = await _bannerService.ToggleBannerStatusAsync(bannerId, newStatus);
             if (!result)
-                return BadRequest("Banner durumu güncellenemedi.");
+                return BadRequest("Banner gösterim durumu güncellenemedi.");
 
-            return Ok("Banner durumu güncellendi.");
+            return Ok("Banner gösterim durumu güncellendi.");
         }
 
         [HttpGet("active")]

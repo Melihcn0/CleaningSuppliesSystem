@@ -17,29 +17,38 @@
                 <div class="card-body d-flex flex-column">
                     <div class="mb-3 text-center d-flex align-items-center justify-content-center" style="gap:10px; flex-wrap: nowrap;">
                         <div>
-                            <label>Mevcut Görsel</label><br />
                             <img id="imagePreview1" src="/images/resim_yok.png" alt="Mevcut Görsel 1" class="img-thumbnail" style="max-height: 120px;" />
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <input asp-for="ImageFile1" type="file" accept="image/*" class="d-none" id="basic-upload-1" onchange="previewImage(this, 1)" />
-
                         <label for="basic-upload-1" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50">
                             <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
                             Görsel Yükle
+                            <input asp-for="ImageFile1" type="file" accept="image/*" class="visually-hidden" id="basic-upload-1" onchange="previewImage(this, 1)" required />
                         </label>
+                        <span asp-validation-for="ImageFile1" class="text-danger"></span>
                     </div>
+
                     <div class="mb-3">
-                        <input asp-for="Title1" class="form-control" placeholder="Başlık 1" />
+                        <label asp-for="Title1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner 1 Başlık Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title1" class="form-control" placeholder="Başlık 1" maxlength="15" required />
                         <span asp-validation-for="Title1" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="Description1" class="form-control" rows="2" placeholder="Açıklama 1" />
+                        <label asp-for="Description1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner 1 Açıklaması <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Description1" class="form-control" rows="2" placeholder="Açıklama 1" maxlength="25" required />
                         <span asp-validation-for="Description1" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="ButtonTitle1" class="form-control" placeholder="Buton Başlığı 1" />
+                        <label asp-for="ButtonTitle1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner Buton 1 Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="ButtonTitle1" class="form-control" placeholder="Buton Başlığı 1" maxlength="10" required />
                         <span asp-validation-for="ButtonTitle1" class="text-danger"></span>
                     </div>
                 </div>
@@ -55,28 +64,36 @@
                 <div class="card-body d-flex flex-column">
                     <div class="mb-3 text-center d-flex align-items-center justify-content-center" style="gap:10px; flex-wrap: nowrap;">
                         <div>
-                            <label>Mevcut Görsel</label><br />
                             <img id="imagePreview2" src="/images/resim_yok.png" alt="Mevcut Görsel 2" class="img-thumbnail" style="max-height: 120px;" />
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="ImageFile2" type="file" accept="image/*" class="d-none" id="basic-upload-2" onchange="previewImage(this, 2)" />
-
                         <label for="basic-upload-2" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50">
                             <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
                             Görsel Yükle
+                            <input asp-for="ImageFile2" type="file" accept="image/*" class="visually-hidden" id="basic-upload-2" onchange="previewImage(this, 2)" required />
                         </label>
+                        <span asp-validation-for="ImageFile2" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="Title2" class="form-control" placeholder="Başlık 2" />
+                        <label asp-for="Title2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner 2 Başlık Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title2" class="form-control" placeholder="Başlık 2" maxlength="15" required />
                         <span asp-validation-for="Title2" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="Description2" class="form-control" placeholder="Açıklama 2" />
+                        <label asp-for="Description2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner 2 Açıklaması <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Description2" class="form-control" placeholder="Açıklama 2" maxlength="25" required />
                         <span asp-validation-for="Description2" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="ButtonTitle2" class="form-control" placeholder="Buton Başlığı 2" />
+                        <label asp-for="ButtonTitle2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner Buton 2 Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="ButtonTitle2" class="form-control" placeholder="Buton Başlığı 2" maxlength="10" required />
                         <span asp-validation-for="ButtonTitle2" class="text-danger"></span>
                     </div>
                 </div>
@@ -92,28 +109,36 @@
                 <div class="card-body d-flex flex-column">
                     <div class="mb-3 text-center d-flex align-items-center justify-content-center" style="gap:10px; flex-wrap: nowrap;">
                         <div>
-                            <label>Mevcut Görsel</label><br />
                             <img id="imagePreview3" src="/images/resim_yok.png" alt="Mevcut Görsel 3" class="img-thumbnail" style="max-height: 120px;" />
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="ImageFile3" type="file" accept="image/*" class="d-none" id="basic-upload-3" onchange="previewImage(this, 3)" />
-
                         <label for="basic-upload-3" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50">
                             <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
                             Görsel Yükle
+                            <input asp-for="ImageFile3" type="file" accept="image/*" class="visually-hidden" id="basic-upload-3" onchange="previewImage(this, 3)" required />
                         </label>
+                        <span asp-validation-for="ImageFile3" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="Title3" class="form-control" placeholder="Başlık 3" />
+                        <label asp-for="Title3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner 3 Başlık Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title3" class="form-control" placeholder="Başlık 3" maxlength="15" required />
                         <span asp-validation-for="Title3" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="Description3" class="form-control" placeholder="Açıklama 3" />
+                        <label asp-for="Description3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner 3 Açıklaması <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Description3" class="form-control" placeholder="Açıklama 3" maxlength="25" required />
                         <span asp-validation-for="Description3" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <input asp-for="ButtonTitle3" class="form-control" placeholder="Buton Başlığı 3" />
+                        <label asp-for="ButtonTitle3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner Buton 3 Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="ButtonTitle3" class="form-control" placeholder="Buton Başlığı 3" maxlength="10" required/>
                         <span asp-validation-for="ButtonTitle3" class="text-danger"></span>
                     </div>
                 </div>
@@ -121,7 +146,10 @@
         </div>
     </div>
     <br />
-    <button type="submit" class="btn btn-outline-primary-600">Kaydet</button>
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
 </form>
 
 <script>

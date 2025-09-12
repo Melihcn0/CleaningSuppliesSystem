@@ -12,15 +12,12 @@
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <a asp-action="Index" asp-controller="Service" asp-area="Admin" class="btn btn-outline-secondary btn-sm d-flex align-items-center me-3">
-            <span class="material-symbols-outlined me-1">arrow_left</span>
-        </a>
-        <h5 class="card-title mb-0">Hizmetlerimiz İkonları Listesi</h5>
-        <div class="d-flex align-items-center gap-2 ms-auto">
-            <a asp-action="CreateServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Icon Ekle
+        <h5 class="card-title mb-0 mt-1">Hizmetlerimiz İkonları Listesi</h5>
+        <div class="d-flex align-items-center gap-2 md-0 mt-1">
+            <a asp-action="CreateServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni İkon Ekle
             </a>
-            <a asp-action="DeletedServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center me-2">
+            <a asp-action="DeletedServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" class="btn btn-danger-600 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
@@ -28,13 +25,11 @@
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Icon Adı</th>
-                    <th>Icon Url</th>
-                    <th>Eklenme</th>
-                    <th>Düzenleme</th>
+                    <th class="text-start">#</th>
+                    <th>İkon - İkon Url Adı</th>
+                    <th>Oluşturma | Son Güncelleme Tarihleri</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -44,26 +39,30 @@
                     count++;
                     <tr>
                         <td>@count</td>
-                        <td>@item.IconName</td>
-                        <td>@item.IconUrl</td>
+                        <td>@item.IconName - <b><u>@item.IconUrl</u></b></td>
                         <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncelleme yapılmadı")
+                            <div class="d-flex flex-column gap-1">
+                                <span>
+                                    🟢 <b>Oluşturma:</b>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                                <span>
+                                    🟡 <b>Güncelleme:</b>
+                                    @(item.UpdatedDate != null
+                                        ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                        : "Henüz güncelleme yapılmadı")
+                                </span>
+                            </div>
                         </td>
                             <td>
                                 <div class="d-flex flex-nowrap gap-2">
                                     <a asp-action="UpdateServiceIcon" asp-controller="ServiceIcon" asp-area="Admin" asp-route-id="@item.Id"
-                                       class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
-                                        <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                                       class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">edit</span> Düzenle
                                     </a>
-                                    <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
+                                    <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center action-btn delete-btn"
                                             data-id="@item.Id">
-                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                     </button>
                                 </div>
                             </td>

@@ -8,7 +8,7 @@
     ViewData["DeleteUrlPrefix"] = "/Admin/Category/SoftDeletedCategory/";
 
     ViewData["MultiDeleteUrl"] = "/Admin/Category/DeleteMultiple";
-    ViewData["MultiDeleteConfirmTitle"] = "Seçilen tüm kategorileri silmek istediğinize emin misiniz?";
+    ViewData["MultiDeleteConfirmTitle"] = "Seçilen ürün grubu / kategori çöp kutusuna taşınsın mı?";
 
     int count = 0;
 }
@@ -16,16 +16,16 @@
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Kategori Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="CreateCategory" asp-controller="Category" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Kategori Ekle
+        <h5 class="card-title mb-0 mt-1">Kategori Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto md-0 mt-1">
+            <a asp-action="CreateCategory" asp-controller="Category" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span> Yeni Ürün Grubu Ekle
             </a>
-            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center" disabled>
-                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center" disabled>
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Seçilenleri Sil
             </button>
-                        <a asp-action="DeletedCategory" asp-controller="Category" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            <a asp-action="DeletedCategory" asp-controller="Category" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
     </div>
@@ -33,17 +33,14 @@
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>
-                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    <th class="text-start">
+                        <input type="checkbox" id="selectAll" class="form-check-input" /> #
                     </th>
                     <th>Ürün Grubu / Kategori Fotoğrafı</th>
-                    <th>Üst Kategori Adı</th>
-                    <th>Alt Kategori Adı</th>
-                    <th>Kategori Adı</th>
-                    <th>Oluşturulma Tarihi</th>
-                    <th>Son Güncelleme Tarihi</th>
+                    <th>Üst Kategori Adı | Alt Kategori Adı | Ürün Grubu Adı</th>
+                    <th>Oluşturma | Son Güncelleme Tarihleri</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -58,30 +55,59 @@
                                 @count
                             </label>
                         </td>
-                        <td class="text-center">
-                              <img src="@Url.Content(item.ImageUrl)" alt="Ürün görseli" style="width: 100px; height: 100px; object-fit: cover;" />
-                        </td>
-                        <td>@item.TopCategoryName</td>
-                        <td>@item.SubCategoryName</td>
-                        <td>@item.Name</td>
-                        <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncelleme yapılmadı")
-                        </td>
+                            <td class="text-center">
+                                <!-- Thumbnail -->
+                                <div class="shadow-4 hover-scale-img border radius-16 overflow-hidden p-8 d-inline-flex align-items-center" style="width:125px; height:125px;">
+                                    <a href="@Url.Content(item.ImageUrl)"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#imageModal_@item.Id"
+                                       class="w-100 h-100 d-flex radius-12 overflow-hidden">
+                                        <img src="@Url.Content(item.ImageUrl)"
+                                             class="card-img-top shadow-lg w-100 h-100 object-fit-cover cursor-pointer hover-scale-img__img"
+                                             alt="Banner" />
+                                    </a>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="imageModal_@item.Id" tabindex="-1" aria-hidden="true"
+                                     data-bs-backdrop="true" data-bs-keyboard="true" style="background-color: rgba(0,0,0,0.6);">
+                                    <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                        <div class="modal-content bg-transparent border-0">
+                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center position-relative">
+                                                <img src="@Url.Content(item.ImageUrl)" class="img-fluid rounded" alt="Preview" />
+                                                <button type="button"
+                                                        class="btn-close position-absolute"
+                                                        data-bs-dismiss="modal" aria-label="Close"
+                                                        style="top: 1rem; right: 2rem; width: 2.5rem; height: 2.5rem;"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        <td>@item.TopCategoryName - @item.SubCategoryName - <b><u>@item.Name</u></b></td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span>
+                                        🟢 <b>Oluşturma:</b>
+                                        @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                    <span>
+                                        🟡 <b>Güncelleme:</b>
+                                        @(item.UpdatedDate != null
+                                            ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                            : "Henüz güncelleme yapılmadı")
+                                    </span>
+                                </div>
+                            </td>
                             <td>
                                 <div class="d-flex flex-nowrap gap-2">
                                     <a asp-action="UpdateCategory" asp-controller="Category" asp-area="Admin" asp-route-id="@item.Id"
-                                       class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
-                                        <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                                       class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">edit</span> Düzenle
                                     </a>
-                                    <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
+                                    <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
                                             data-id="@item.Id">
-                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                     </button>
                                 </div>
                             </td>
@@ -123,5 +149,17 @@
                 btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
             });
         }
+                document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.modal').forEach(function(modalEl){
+                modalEl.addEventListener('click', function (e) {
+                    const img = modalEl.querySelector('img'); // modal içindeki fotoğraf
+                    // Eğer tıklanan fotoğraf değilse modal kapanacak
+                    if (e.target !== img) {
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        modalInstance.hide();
+                    }
+                });
+            });
+        });
     </script>
 }

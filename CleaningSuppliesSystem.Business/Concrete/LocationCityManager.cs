@@ -54,13 +54,13 @@ namespace CleaningSuppliesSystem.Business.Concrete
             // Ürünlerde kullanım kontrolü (varsa)
             var isUsedInDistricts = await _locationDistrictRepository.AnyAsync(x => x.CityId == id);
             if (isUsedInDistricts)
-                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Soft silme yapılamaz.", locationCity.CityId);
+                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Silme yapılamaz.", locationCity.CityId);
 
             locationCity.DeletedDate = DateTime.Now;
             locationCity.IsDeleted = true;
             await _locationCityRepository.UpdateAsync(locationCity);
 
-            return (true, "Şehir lokasyonu başarıyla soft silindi.", locationCity.CityId);
+            return (true, "Şehir lokasyonu çöp kutusuna başarıyla taşındı.", locationCity.CityId);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteLocationCityAsync(int id)
@@ -83,7 +83,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             LocationCity.DeletedDate = null;
             LocationCity.IsDeleted = false;
             await _locationCityRepository.UpdateAsync(LocationCity);
-            return (true, "Şehir lokasyonu başarıyla geri getirildi.", LocationCity.CityId);
+            return (true, "Şehir lokasyonu çöp kutusundan başarıyla geri getirildi.", LocationCity.CityId);
         }
 
         public async Task<(bool IsSuccess, string Message)> TPermanentDeleteLocationCityAsync(int id)
@@ -93,10 +93,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Şehir lokasyonu bulunamadı.");
 
             if (!LocationCity.IsDeleted)
-                return (false, "Şehir lokasyonu soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Şehir lokasyonu silinmemiş. Önce silmeniz gerekir.");
 
             await _locationCityRepository.DeleteAsync(LocationCity.CityId);
-            return (true, "Şehir lokasyonu kalıcı olarak silindi.");
+            return (true, "Şehir lokasyonu çöp kutusundan kalıcı olarak silindi.");
         }
 
         public async Task<List<ResultLocationCityDto>> TGetActiveLocationCitysAsync()

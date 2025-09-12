@@ -9,16 +9,8 @@ namespace CleaningSuppliesSystem.API.Controllers
     [Authorize(Roles = "Customer")]
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerProfileController : ControllerBase
+    public class CustomerProfileController(ICustomerProfileService _customerProfileService) : ControllerBase
     {
-        private readonly ICustomerProfileService _customerProfileService;
-
-        public CustomerProfileController(ICustomerProfileService customerProfileService)
-        {
-            _customerProfileService = customerProfileService;
-        }
-
-        // Kullanıcının profilini getir
         [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -29,7 +21,6 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok(profile);
         }
 
-        // Güncelleme için DTO'yu getir
         [HttpGet("UpdateCustomerProfile")]
         public async Task<IActionResult> GetUpdateCustomerProfile()
         {
@@ -40,7 +31,6 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok(updateCustomerProfile);
         }
 
-        // Profil güncelle
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateCustomerProfileDto dto)
         {

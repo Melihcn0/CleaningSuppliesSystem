@@ -59,7 +59,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(errors);
             }
 
-            return Ok(new { Message = "Rol başarıyla oluşturuldu." });
+            return Ok(new { Message = "Rol başarıyla eklendi." });
         }
 
 

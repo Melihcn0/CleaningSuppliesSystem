@@ -16,8 +16,13 @@ namespace CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos
         public string Unit { get; set; }             // Birim (adet, kg, vs.)
 
         public decimal UnitPrice { get; set; }       // KDV hariç
+        public decimal TotalPrice { get; set; }       // KDV hariç
         public decimal VatRate { get; set; }         // KDV %
         public decimal VatAmount { get; set; }       // KDV tutarı
         public decimal Total { get; set; }           // KDV dahil toplam
+                                                     // ✅ Yeni eklediklerimiz
+        public decimal DiscountRate { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal DiscountedUnitPrice { get; set; } // İndirimli birim fiyat (KDV hariç)
     }
 }

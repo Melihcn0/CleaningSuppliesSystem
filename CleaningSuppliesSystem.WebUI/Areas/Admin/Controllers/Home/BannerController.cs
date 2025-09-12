@@ -49,6 +49,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBanner([FromForm] CreateBannerDto dto)
         {
             var validator = new CreateBannerValidator();
@@ -111,6 +112,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateBanner(UpdateBannerDto dto, string existingImageUrl)
         {
             var validator = new UpdateBannerValidator();
@@ -186,6 +188,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeleteBanner(int id)
         {
             var response = await _client.PostAsync($"banners/softdelete/{id}", null);
@@ -198,6 +201,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteBanner(int id)
         {
             var response = await _client.PostAsync($"banners/undosoftdelete/{id}", null);
@@ -206,6 +210,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteBanner(int id)
         {
             // Banner bilgilerini al
@@ -258,6 +263,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int bannerId, bool newStatus)
         {
             var content = new StringContent("", Encoding.UTF8, "application/json");

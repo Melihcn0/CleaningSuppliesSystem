@@ -7,83 +7,116 @@
     ViewData["DeleteUrlPrefix"] = "/Admin/Finance/SoftDeletedFinance/";
 
     ViewData["MultiDeleteUrl"] = "/Admin/Finance/DeleteMultiple";
-    ViewData["MultiDeleteConfirmTitle"] = "Seçilen tüm kategorileri silmek istediğinize emin misiniz?";
+    ViewData["MultiDeleteConfirmTitle"] = "Seçilen finans kaydı çöp kutusuna taşınsın mı?";
     int count = 0;
 }
+<div class="p-16 bg-transparent radius-8 border-start-width-3-px mb-24 shadow-4">
+    <h6 class="text-primary-light text-md mb-8">Gelir / Gider Açıklaması Örneği</h6>
+    <ul class="mb-0 ps-16" style="list-style-type: disc;">
+        <li>1245213 No'lu Sipariş için Ödeme Alındı</li>
+        <li>Fatura #2025 için Ödeme Tahsil Edildi</li>
+        <li>Ofis Kirası Mart 2025 Ödemesi</li>
+        <li>Dükkan Malzeme Alımı - Kağıt, Ambalaj, Temizlik Malzemeleri</li>
+        <li>Elektrik Faturası Mayıs 2025 Ödemesi</li>
+        <li>Çalışan Maaşları Haziran 2025 Ödemesi</li>
+        <li>Bilgisayar ve Yazılım Lisans Gideri</li>
+    </ul>
+    <small class="text-neutral-600 d-block mt-8">
+        Not: Açıklama, işlemi net olarak belirtmeli; “ödeme geldi” veya “gider oldu” gibi belirsiz ifadeler yerine detaylı ve anlaşılır bir şekilde yazın.
+    </small>
+</div>
 
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Finans Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="CreateFinance" asp-controller="Finance" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Finans Ekle
+        <h5 class="card-title mb-0 mt-1">Finans Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto md-0 mt-1">
+            <a asp-action="CreateFinance" asp-controller="Finance" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span> Yeni Finans Ekle
             </a>
-            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center" disabled>
-                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center" disabled>
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center">delete</span> Seçilenleri Sil
             </button>
             <a asp-action="DeletedFinance" asp-controller="Finance" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
     </div>
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
-        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
-                <tr>
-                    <th>
-                        <input type="checkbox" id="selectAll" class="form-check-input" />
-                    </th>
-                    <th>Finans Adı</th>
-                    <th>Finans Tipi</th>
-                    <th>Miktar</th>
-                    <th>Eklenme Tarihi</th>
-                    <th>Son Güncelleme Tarihi</th>
-                    <th>İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    count++;
+            <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+                <thead>
                     <tr>
-                        <td>
-                            <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
-                                <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
-                                @count
-                            </label>
-                        </td>
-                        <td>@item.Title</td>
-                        <td>@(item.Type == "Income" ? "Gelir" : item.Type == "Expense" ? "Gider" : "Bilinmiyor")</td>
-                        <td>@item.Amount</td>
-                        <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncelleme yapılmadı")
-                        </td>
+                        <th class="text-start">
+                            <input type="checkbox" id="selectAll" class="form-check-input" /> #
+                        </th>
+                        <th>Finans Adı</th>
+                        <th>Miktar</th>
+                        <th>Oluşturma | Son Güncelleme Tarihleri</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        count++;
+                        <tr>
+                            <td>
+                                <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
+                                    <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
+                                    @count
+                                </label>
+                            </td>
+                            <td><b><u>@item.Title</u></b></td>
+                            <td style="font-size:16px; line-height:2.6; min-width:200px;">
+                                @if(item.Type == "Income")
+                                {
+                                    <div class="d-flex align-items-center gap-1 px-3 py-2 rounded-pill bg-success-100">
+                                        <span class="material-symbols-outlined me-1" style="color:#388e3c;">trending_up</span>
+                                        <span><b>Gelir:</b> @item.Amount.ToString("N2")₺</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center gap-1 px-3 py-2 rounded-pill bg-danger-100">
+                                        <span class="material-symbols-outlined me-1" style="color:#d32f2f;">trending_down</span>
+                                        <span><b>Gider:</b> @item.Amount.ToString("N2")₺</span>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span>
+                                        🟢 <b>Oluşturma:</b> @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                    <span>
+                                        🟡 <b>Güncelleme:</b>
+                                        @(item.UpdatedDate != null
+                                            ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                            : "Henüz güncelleme yapılmadı")
+                                    </span>
+                                </div>
+                            </td>
                             <td>
                                 <div class="d-flex flex-nowrap gap-2">
                                     <a asp-action="UpdateFinance" asp-controller="Finance" asp-area="Admin" asp-route-id="@item.Id"
-                                       class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
-                                        <span class="material-symbols-outlined menu-icon">edit</span> Düzenle
+                                       class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">edit</span> Düzenle
                                     </a>
-                                    <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
+                                    <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
                                             data-id="@item.Id">
-                                        <span class="material-symbols-outlined menu-icon">delete</span> Sil
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                     </button>
                                 </div>
                             </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
+
+
 </div>
 @section Scripts {
     <script>

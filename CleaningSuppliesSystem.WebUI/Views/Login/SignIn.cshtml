@@ -68,6 +68,21 @@
                         <img src="~/images/ess_star_yatay_logo_light1.png" alt="sub login logo" style="max-width: 200px;">
                     </div>
 
+                    @if (TempData["SessionExpiredWarning"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-3 d-flex flex-column" role="alert">
+                            <div class="d-flex align-items-center mb-1">
+                                <iconify-icon icon="material-symbols:warning" class="me-2 fs-4"></iconify-icon>
+                                <span class="fw-bold">Uyarı</span>
+                            </div>
+                            <div>
+                                @TempData["SessionExpiredWarning"]
+                            </div>
+                            <button type="button" class="btn-close btn-close-dark" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+
                     <div class="mb-3">
                         <label for="Identifier" class="form-label">Email veya Kullanıcı Adı</label>
                         <div class="input-group">
@@ -85,8 +100,8 @@
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
                             </span>
-                            <input type="password" asp-for="Password" class="form-control border-start-0" id="your-password" placeholder="Şifre" />
-                            <button class="btn btn-outline-secondary toggle-password" type="button" data-toggle="#your-password">
+                            <input type="password" asp-for="Password" class="form-control border-start-0" id="Password" placeholder="Şifre" />
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-toggle="#Password">
                                 <i class="ri-eye-line"></i>
                             </button>
                         </div>
@@ -111,8 +126,6 @@
                     }
 
                 </form>
-
-
 
             </div>
         </div>
@@ -147,15 +160,16 @@
     <script src="~/wowdash-admin/assets/js/app.js"></script>
 
     <script>
-                    // Sadece bu sayfa için geçici olarak dark mod uygula ve değiştirilmesini engelle
-            document.addEventListener("DOMContentLoaded", function () {
-                const html = document.documentElement;
-                if (html.getAttribute("data-theme") !== "dark") {
-                    html.setAttribute("data-theme", "dark");
-                }
-            });
+        // Sadece bu sayfa için geçici olarak dark mod uygula ve değiştirilmesini engelle
+        document.addEventListener("DOMContentLoaded", function () {
+            const html = document.documentElement;
+            if (html.getAttribute("data-theme") !== "dark") {
+                html.setAttribute("data-theme", "dark");
+            }
+        });
+
         // ================== Password Show Hide Js Start ==========
-            function initializePasswordToggle(toggleSelector) {
+        function initializePasswordToggle(toggleSelector) {
             $(toggleSelector).on('click', function () {
                 var $icon = $(this).find('i'); // i öğesini seç
                 var input = $($(this).attr("data-toggle"));
@@ -171,6 +185,17 @@
             });
         }
         initializePasswordToggle('.toggle-password');
+
+        // Alert otomatik kapanma - Session uyarıları için
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(function(alert) {
+                if (window.bootstrap && window.bootstrap.Alert) {
+                    const alertInstance = new bootstrap.Alert(alert);
+                    alertInstance.close();
+                }
+            });
+        }, 10000); // 10 saniye sonra kapan
     </script>
 
 </body>

@@ -14,6 +14,7 @@ using CleaningSuppliesSystem.DTO.DTOs.TokenDtos;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net.Http;
+using CleaningSuppliesSystem.DTO.DTOs.ErrorDetailDtos;
 
 namespace CleaningSuppliesSystem.WebUI.Controllers
 {
@@ -27,12 +28,28 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
 
         public IActionResult SignIn()
         {
+            var sessionWarning = HttpContext.Session.GetString("SessionExpiredWarning");
+            if (!string.IsNullOrEmpty(sessionWarning))
+            {
+                TempData["SessionExpiredWarning"] = sessionWarning;
+                HttpContext.Session.Remove("SessionExpiredWarning");
+            }
             return View();
         }
 
+        // POST: Login işlemi
         [HttpPost]
         public async Task<IActionResult> SignIn(UserLoginDto userLoginDto)
         {
+            // Session'dan uyarı mesajını TempData'ya taşı (POST durumunda da)
+            var sessionWarning = HttpContext.Session.GetString("SessionExpiredWarning");
+            if (!string.IsNullOrEmpty(sessionWarning))
+            {
+                TempData["SessionExpiredWarning"] = sessionWarning;
+                HttpContext.Session.Remove("SessionExpiredWarning");
+            }
+
+            // 🔹 Kullanıcı giriş verilerini doğrula
             var validator = new LoginValidator();
             var validationResult = await validator.ValidateAsync(userLoginDto);
 
@@ -46,18 +63,21 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 return View(userLoginDto);
             }
 
+            // 🔹 API'ye login isteği gönder
             var responseMessage = await _client.PostAsJsonAsync("Users/login", userLoginDto);
 
             if (!responseMessage.IsSuccessStatusCode)
             {
-                var errorResponse = await responseMessage.Content.ReadFromJsonAsync<List<TokenDetailDto>>();
+                // 🔹 API hatalarını işle
+                var errorResponse = await responseMessage.Content.ReadFromJsonAsync<List<ErrorDetailDto>>();
                 if (errorResponse != null && errorResponse.Any())
                 {
+                    // 🔹 Hataları filtrele (RemainingAttempts hariç)
                     var actualErrors = errorResponse
                         .Where(e => !string.Equals(e.Code?.Trim(), "RemainingAttempts", StringComparison.OrdinalIgnoreCase))
                         .ToList();
 
-                    ViewBag.HataSayisi = actualErrors.Count;
+                    ViewBag.ErrorCount = actualErrors.Count;
 
                     foreach (var error in actualErrors)
                     {
@@ -71,6 +91,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                         ModelState.AddModelError(key, error.Description ?? "Giriş işlemi başarısız.");
                     }
 
+                    // 🔹 Kalan deneme sayısını al ve ViewBag'e ekle
                     var remainingError = errorResponse
                         .FirstOrDefault(e => string.Equals(e.Code?.Trim(), "RemainingAttempts", StringComparison.OrdinalIgnoreCase));
 
@@ -82,7 +103,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                         {
                             int used = maxAttempts - remaining;
                             ViewBag.RemainingAttempts = remaining;
-                            ViewBag.RemainingAttemptsMessage = $"Toplam {maxAttempts} denemeden {used} tanesi kullanıldı. Kalan: {remaining}";
+                            ViewBag.RemainingAttemptsMessage = $"Toplam {maxAttempts} denemeden {used} tanesi kullanıldı. Kalan: {remaining}.";
                         }
                         else
                         {
@@ -94,38 +115,36 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 return View(userLoginDto);
             }
 
+            // 🔹 API başarılı ise response al
             var response = await responseMessage.Content.ReadFromJsonAsync<LoginResponseDto>();
-            var jwtToken = response?.Token?.Token?.Token;
-            var expireDate = response?.Token?.Token?.ExpireDate;
 
-            if (string.IsNullOrEmpty(jwtToken) || expireDate == null)
+            // 🔹 Tek seviye token yapısı
+            var jwtToken = response?.Token;
+            var expireDate = response?.ExpireDate;
+            var isActive = response?.IsActive ?? false;
+
+            if (string.IsNullOrEmpty(jwtToken) || expireDate == null || !isActive)
             {
-                ModelState.AddModelError("", "Token alınamadı.");
+                ModelState.AddModelError("", isActive ? "Token alınamadı." : "Kullanıcı hesabı pasif durumda.");
                 return View(userLoginDto);
             }
 
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(jwtToken);
 
-            // 🔍 Token içindeki claim’leri al
+            // 🔹 Token içindeki claim'leri al
             var name = token.Claims.FirstOrDefault(c => c.Type == "name" || c.Type == ClaimTypes.Name)?.Value ?? userLoginDto.Identifier;
             var role = token.Claims.FirstOrDefault(c => c.Type == "role" || c.Type == ClaimTypes.Role)?.Value ?? "Customer";
             var theme = response?.Theme ?? "light";
 
-
-
-            // 🔐 Identifier sabit olarak DTO'dan alınıyor
-            var identifier = userLoginDto.Identifier;
-
-            // ✅ ClaimsPrincipal oluştur
+            // 🔹 Claims oluştur
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, name),
                 new Claim(ClaimTypes.Role, role),
-                new Claim(ClaimTypes.NameIdentifier, identifier),
-                new Claim("Identifier", identifier),
-                new Claim("theme", theme) // 🔥 Tema bilgisi burada
-
+                new Claim(ClaimTypes.NameIdentifier, userLoginDto.Identifier),
+                new Claim("Identifier", userLoginDto.Identifier),
+                new Claim("theme", theme)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -135,9 +154,10 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 IsPersistent = true
             };
 
+            // 🔹 Cookie Authentication ile login
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProps);
 
-            // 🔐 Token'ı HttpOnly cookie olarak sakla (TokenHandler için garanti)
+            // 🔹 HttpOnly cookie olarak token sakla
             Response.Cookies.Append("AccessToken", jwtToken, new CookieOptions
             {
                 HttpOnly = true,
@@ -145,7 +165,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 Expires = expireDate
             });
 
-            // 🔁 Role’a göre yönlendirme
+            // 🔁 Role'a göre yönlendirme
             return role switch
             {
                 "Admin" => RedirectToAction("Index", "AdminProfile", new { area = "Admin" }),
@@ -153,6 +173,7 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 _ => RedirectToAction("AccessDenied", "ErrorPage")
             };
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -41,25 +41,31 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input type="file" name="ImageFile1" accept="image/*" class="d-none" id="basic-upload-1" onchange="previewImage(event, 1)" />
                         <label for="basic-upload-1" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50" style="cursor:pointer;">
                             <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
-                            Yeni Görsel Yükle
+                            Yeni Fotoğraf Yükle (güncellemek için)
+                            <input type="file" name="ImageFile1" accept="image/*" class="visually-hidden" id="basic-upload-1" onchange="previewImage(event, 1)" />
                         </label>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Title1" class="form-label">Başlık 1</label>
-                        <input asp-for="Title1" class="form-control" />
+                        <label asp-for="Title1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Başlık 1 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title1" class="form-control" maxlength="15"/>
                         <span asp-validation-for="Title1" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Description1" class="form-label">Açıklama 1</label>
-                        <input asp-for="Description1" class="form-control" />
+                        <label asp-for="Description1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Açıklama 1 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Description1" class="form-control" maxlength="25"/>
                         <span asp-validation-for="Description1" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="ButtonTitle1" class="form-label">Buton Başlığı 1</label>
-                        <input asp-for="ButtonTitle1" class="form-control" />
+                        <label asp-for="ButtonTitle1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Buton Başlığı 1 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="ButtonTitle1" class="form-control" maxlength="10"/>
                         <span asp-validation-for="ButtonTitle1" class="text-danger"></span>
                     </div>
                 </div>
@@ -94,25 +100,31 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input type="file" name="ImageFile2" accept="image/*" class="d-none" id="basic-upload-2" onchange="previewImage(event, 2)" />
                         <label for="basic-upload-2" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50" style="cursor:pointer;">
                             <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
-                            Yeni Görsel Yükle
+                            Yeni Fotoğraf Yükle(güncellemek için)
+                            <input type="file" name="ImageFile2" accept="image/*" class="visually-hidden" id="basic-upload-2" onchange="previewImage(event, 2)" />
                         </label>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Title2" class="form-label">Başlık 2</label>
-                        <input asp-for="Title2" class="form-control" />
+                        <label asp-for="Title2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Başlık 2 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title2" class="form-control" maxlength="15"/>
                         <span asp-validation-for="Title2" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Description2" class="form-label">Açıklama 2</label>
-                        <input asp-for="Description2" class="form-control" />
+                        <label asp-for="Description2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Açıklama 2 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Description2" class="form-control" maxlength="25"/>
                         <span asp-validation-for="Description2" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="ButtonTitle2" class="form-label">Buton Başlığı 2</label>
-                        <input asp-for="ButtonTitle2" class="form-control" />
+                        <label asp-for="ButtonTitle2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Buton Başlığı 2 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="ButtonTitle2" class="form-control" maxlength="10"/>
                         <span asp-validation-for="ButtonTitle2" class="text-danger"></span>
                     </div>
                 </div>
@@ -147,25 +159,31 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input type="file" name="ImageFile3" accept="image/*" class="d-none" id="basic-upload-3" onchange="previewImage(event, 3)" />
                         <label for="basic-upload-3" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50" style="cursor:pointer;">
                             <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
-                            Yeni Görsel Yükle
+                            Yeni Fotoğraf Yükle(güncellemek için)
+                            <input type="file" name="ImageFile3" accept="image/*" class="visually-hidden" id="basic-upload-3" onchange="previewImage(event, 3)" />
                         </label>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Title3" class="form-label">Başlık 3</label>
-                        <input asp-for="Title3" class="form-control" />
+                        <label asp-for="Title3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Başlık 3 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title3" class="form-control" maxlength="15"/>
                         <span asp-validation-for="Title3" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Description3" class="form-label">Açıklama 3</label>
-                        <input asp-for="Description3" class="form-control" />
+                        <label asp-for="Description3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Açıklama 3 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Description3" class="form-control" maxlength="25"/>
                         <span asp-validation-for="Description3" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="ButtonTitle3" class="form-label">Buton Başlığı 3</label>
-                        <input asp-for="ButtonTitle3" class="form-control" />
+                        <label asp-for="ButtonTitle3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Buton Başlığı 3 <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="ButtonTitle3" class="form-control" maxlength="10"/>
                         <span asp-validation-for="ButtonTitle3" class="text-danger"></span>
                     </div>
                 </div>
@@ -173,7 +191,10 @@
         </div>
     </div>
     <br />
-        <button type="button" class="btn btn-warning-600" onclick="submitSecondaryBanner()">Güncelle</button>
+    <button type="button" class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center me-1 btn-sm" onclick="updateSecondaryBanner()">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">update</span>
+        Güncelle
+    </button>
 </form>
 
 @section Scripts {
@@ -192,7 +213,7 @@
             }
         }
 
-        function submitSecondaryBanner() {
+        function updateSecondaryBanner() {
             const form = document.getElementById("updateSecondaryBannerForm");
             const theme = document.documentElement.getAttribute("data-theme");
 
@@ -211,7 +232,31 @@
                 confirmButtonText: "Evet, güncelle!",
                 cancelButtonText: "İptal",
                 background: theme === "dark" ? "#1e1e2f" : "#fff",
-                color: theme === "dark" ? "#fff" : "#000"
+                color: theme === "dark" ? "#fff" : "#000",
+                reverseButtons: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
+            }
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

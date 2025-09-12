@@ -21,6 +21,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         public async Task<IActionResult> Index()
         {
             var serviceIcons = await _client.GetFromJsonAsync<List<ResultServiceIconDto>>("ServiceIcons/active");
+            ViewBag.ServiceShowBackButton = true;
             return View(serviceIcons);
         }
 
@@ -39,6 +40,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateServiceIcon(CreateServiceIconDto dto)
         {
             var validator = new CreateServiceIconValidator();
@@ -79,6 +81,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateServiceIcon(UpdateServiceIconDto dto)
         {
             var validator = new UpdateServiceIconValidator();
@@ -110,6 +113,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeleteServiceIcon(int id)
         {
             var response = await _client.PostAsync($"ServiceIcons/softdelete/{id}", null);
@@ -122,22 +126,26 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteServiceIcon(int id)
         {
-            var response = await _client.PostAsync($"ServiceIcons/undosoftdelete/{id}", null);
-            var message = await response.Content.ReadAsStringAsync();
+            var response = await _client.PostAsync($"serviceIcons/undosoftdelete/{id}", null);
+            var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "Icon geri alındı.";
-                return RedirectToAction(nameof(DeletedServiceIcon));
+                TempData["SuccessMessage"] = msg;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = msg;
             }
 
-            TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
             return RedirectToAction(nameof(DeletedServiceIcon));
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteServiceIcon(int id)
         {
             var responseGet = await _client.GetAsync($"ServiceIcons/{id}");

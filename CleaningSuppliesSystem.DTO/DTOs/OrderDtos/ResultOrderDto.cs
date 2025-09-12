@@ -1,5 +1,6 @@
-﻿    using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
-    using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
+using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
     using CleaningSuppliesSystem.Entity.Entities;
     using System;
     using System.Collections.Generic;
@@ -17,7 +18,7 @@
             public string FirstName { get; set; }  // Kullanıcının adı
             public string LastName { get; set; }   // Kullanıcının soyadı
             public string OrderNumber { get; set; }
-            public ICollection<ResultOrderItemDto> OrderItems { get; set; }
+            public ICollection<ResultOrderItemDto>? OrderItems { get; set; }
             public InvoiceDto? Invoice { get; set; }
             public DateTime CreatedDate { get; set; }
             public DateTime? ApprovedDate { get; set; }       // Onaylandı
@@ -27,5 +28,6 @@
             public DateTime? CanceledDate { get; set; }        // İptal Edildi
             public string? OrderNote { get; set; }
             public DateTime? UpdatedDate { get; set; }
+            public CompanyBankDto? AdminBank { get; set; }
         }
     }

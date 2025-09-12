@@ -13,7 +13,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.BannerDto
         public CreateBannerValidator()
         {
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Banner başlığı boş olamaz.")
+                .NotEmpty().WithMessage("Başlık boş olamaz.")
                 .MaximumLength(100).WithMessage("Başlık en fazla 40 karakter olabilir.");
 
             RuleFor(x => x.Subtitle)
@@ -51,6 +51,10 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.BannerDto
             RuleFor(x => x.Statistic4)
                 .NotEmpty().WithMessage("İstatistik 4 boş olamaz.")
                 .MaximumLength(50).WithMessage("İstatistik 4 en fazla 7 karakter olabilir.");
+
+            RuleFor(x => x.ImageFile)
+                .Must((dto, file) => file != null || !string.IsNullOrWhiteSpace(dto.ImageUrl))
+                .WithMessage("İkincil banner fotoğrafı gereklidir.");
         }
 
 

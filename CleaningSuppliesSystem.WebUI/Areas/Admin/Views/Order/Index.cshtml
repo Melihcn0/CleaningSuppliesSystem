@@ -1,4 +1,4 @@
-﻿@model List<ResultOrderDto>
+﻿@model List<AdminResultOrderDto>
 
 @{
     ViewData["Title"] = "Siparişler";
@@ -6,12 +6,13 @@
     int count = 0;
 }
 
-<div class="p-16 bg-transparent radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3">
+<div class="p-16 bg-transparent radius-8 border-start-width-3-px mb-24 shadow-4">
     <h6 class="mb-2" style="font-size: 1rem;">Sipariş Yönetimi Notları</h6>
     <ul class="mb-2 ps-3" style="list-style-type: disc; font-size: 0.9rem;">
-        <li>Siparişin ödemesi geldiğinde, durumunu 'Onaylandı' olarak güncelleyiniz.</li>
+        <li>Siparişin ödemesi geldiğinde, durumunu 'Hazırlanıyor' olarak güncelleyiniz.</li>
         <li>Sipariş durumu 'Hazırlanıyor' olduğunda, fatura otomatik olarak oluşturulacaktır.</li>
         <li>Sipariş hazırlandığında, durumunu 'Kargoya Verildi' olarak değiştiriniz.</li>
+        <li>Sipariş durumu 'Kargoya Verildi' olduğunda, irsaliye fatura otomatik olarak oluşturulacaktır.</li>
     </ul>
     <strong>
         <small class="d-block mt-2">
@@ -25,14 +26,16 @@
         <h5 class="card-title mb-0">Gelen Siparişler</h5>
     </div>
     <div class="card-body">
+       @if (Model != null && Model.Any())
+        {
         <div class="table-responsive" style="overflow-y: hidden;">
             <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th>#</th>
-                        <th>Sipariş No</th>
-                        <th>Sipariş Veren</th>
+                        <th>Sipariş No | Sipariş Veren</th>
                         <th>Sipariş Tarihi</th>
+                        <th>Ödenecek Tutar</th>
                         <th>Durum</th>
                         <th>İşlem</th>
                     </tr>
@@ -44,147 +47,385 @@
 
                         var statusClass = item.Status switch
                         {
-                            "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
-                            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-                            "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
-                            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
-                            "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-                            "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-                            _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
+                                "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
+                                "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
+                                "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+                                "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
                         };
-
                         <tr>
                             <td>@count</td>
-                            <td><strong>@item.OrderNumber</strong></td>
-                            <td>@($"{item.FirstName} {item.LastName}")</td>
-                            <td>@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td><span class="@statusClass">@item.Status</span></td>
+                             <td><b><u>#@item.OrderNumber</u></b> - <b><u>@($"{item.FirstName} {item.LastName}")</u></b></td>
                             <td>
-                                <div class="d-flex flex-nowrap gap-2">
-                                    <a href="#" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center btn-sm js-show-order-detail" data-order-id="@item.Id" title="Detay">
-                                        <span class="material-symbols-outlined menu-icon">read_more</span> Daha Fazla...
-                                    </a>
-                                    <a href="#" class="btn rounded-pill btn-warning-100 text-warning-600 radius-8 d-inline-flex align-items-center btn-sm js-show-update-status" data-order-id="@item.Id" title="Sipariş Durumu Güncelle">
-                                        <span class="material-symbols-outlined menu-icon">app_badging</span> Sipariş Durum Güncelle
-                                    </a>
-                                    @if (item.Status == "Kargoya Verildi" || item.Status == "Teslim Edildi")
-                                    {
-                                        <a asp-controller="Order" asp-action="DownloadDeliveryNoteInvoice" asp-route-orderId="@item.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
-                                            <span class="material-symbols-outlined me-1">download</span> İrsaliyeli Faturayı İndir
-                                        </a>
-                                    }
-                                    @if (item.Status != "Onay Bekleniyor" && item.Status != "Onaylandı")
-                                    {
-                                        <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-orderId="@item.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
-                                            <span class="material-symbols-outlined me-1">download</span> Faturayı İndir
-                                        </a>
-                                    }
-                                </div>
+                                <span>
+                                    🟢 <b>Oluşturma:</b>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
                             </td>
+                            <td>@item.TotalAmountWithVat.ToString("C", new System.Globalization.CultureInfo("tr-TR"))</td>
+                            <td><span class="@statusClass">@item.Status</span></td>
+                            <td class="d-flex flex-wrap gap-2">
+                                <!-- Detay -->
+                                <button type="button"
+                                        class="btn btn-lilac-600 btn-sm rounded d-inline-flex align-items-center js-show-readonly-order"
+                                        data-order-id="@item.Id"
+                                        title="Detay">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">read_more</span>
+                                </button>
+
+                                <!-- Sipariş Durumu Güncelle -->
+                                @if (item.Status != "Teslim Edildi" && item.Status != "İptal Edildi")
+                                {
+                                    <button type="button"
+                                            class="btn btn-warning-600 btn-sm rounded d-inline-flex align-items-center js-show-update-status"
+                                            data-order-id="@item.Id"
+                                            title="Sipariş Durumu Güncelle">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">app_badging</span>
+                                    </button>
+                                }
+
+                                <!-- İrsaliyeli Fatura -->
+                                @if (item.Status == "Kargoya Verildi" || item.Status == "Teslim Edildi")
+                                {
+                                    <a asp-controller="Order"
+                                        asp-action="DownloadDeliveryNoteInvoice"
+                                        asp-route-orderId="@item.Id"
+                                        class="btn btn-light-600 text-dark btn-sm rounded d-inline-flex align-items-center"
+                                        title="İrsaliyeli Faturayı İndir">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                                        İrsaliye
+                                    </a>
+                                }
+
+                                <!-- Fatura -->
+                                @if (item.Status == "Hazırlanıyor" || item.Status == "Kargoya Verildi" || item.Status == "Teslim Edildi")
+                                {
+                                    <a asp-controller="Order"
+                                        asp-action="DownloadInvoice"
+                                        asp-route-orderId="@item.Id"
+                                        class="btn btn-light-600 text-dark btn-sm rounded d-inline-flex align-items-center"
+                                        title="Faturayı İndir">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                                        Fatura
+                                    </a>
+                                }
+
+                                <!-- Sil -->
+                                <button type="button"
+                                        class="btn btn-danger-600 btn-sm rounded d-inline-flex align-items-center delete-btn"
+                                        data-id="@item.Id">
+                                    <span class="material-symbols-outlined">delete_forever</span>
+                                </button>
+                            </td>
+
+
                     </tr>
                 }
 
             </tbody>
         </table>
         </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-3x mb-3 opacity-25"></i>
+                <h5>Hiç sipariş bulunamadı</h5>
+                <p>Henüz bir siparişiniz bulunmamaktadır.</p>
+            </div>
+        }
     </div>
 </div>
 
 <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" id="orderDetailModalContent">
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="orderUpdateStatusModal" tabindex="-1" aria-labelledby="orderUpdateStatusModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" id="orderUpdateStatusModalContent">
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="orderReadOnlyModal" tabindex="-1" aria-labelledby="orderReadOnlyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" id="orderReadOnlyModalContent">
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        $(function(){
+            let currentOrderId = null;
 
-        function showLoadingModal(modal, modalContent) {
-            modalContent.html(`
-                <div class="modal-header">
-                    <h5 class="modal-title">Yükleniyor...</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                </div>
-                <div class="modal-body text-center p-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Yükleniyor...</span>
+            const detailModalEl = $('#orderDetailModal');
+            const detailModalContent = $('#orderDetailModalContent');
+
+            const statusModalEl = $('#orderUpdateStatusModal');
+            const statusModalContent = $('#orderUpdateStatusModalContent');
+
+            const readonlyModalEl = $('#orderReadOnlyModal');
+            const readonlyModalContent = $('#orderReadOnlyModalContent');
+
+            const bsDetailModal = new bootstrap.Modal(detailModalEl[0], {backdrop:'static', keyboard:false});
+            const bsStatusModal = new bootstrap.Modal(statusModalEl[0], {backdrop:'static', keyboard:false});
+            const bsReadonlyModal = new bootstrap.Modal(readonlyModalEl[0], { backdrop: 'static', keyboard: false });
+
+            const getToken = () => $('input[name="__RequestVerificationToken"]').val();
+
+            // --- Yardımcı Fonksiyonlar ---
+            function showLoading(content){
+                content.html(`
+                    <div class="modal-header">
+                        <h5 class="modal-title">Yükleniyor...</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                </div>
-            `);
-            modal.modal('show');
-        }
+                    <div class="modal-body text-center p-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                `);
+            }
 
-        function showErrorModal(modalContent, errorMessage) {
-            modalContent.html(`
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger">Hata</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-danger">${errorMessage}</div>
-                </div>
-            `);
-        }
+            function showError(content, message){
+                content.html(`
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">Hata</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body"><div class="alert alert-danger">${message}</div></div>
+                `);
+            }
 
-        $(document).ready(function () {
-            // Sipariş detayını göster
-            $('.js-show-order-detail').on('click', function (e) {
-                e.preventDefault();
-                var orderId = $(this).data('order-id');
-                var modal = $('#orderDetailModal');
-                var modalContent = $('#orderDetailModalContent');
-
-                showLoadingModal(modal, modalContent);
-
-                $.ajax({
-                    url: '/Admin/Order/Details/' + orderId,
-                    type: 'GET',
-                    success: function (data) {
-                        modalContent.html(data);
-                    },
-                    error: function (xhr) {
-                        var errorMessage = "Sipariş detayı yüklenirken bir sorun oluştu.";
-                        if (xhr.status === 403) errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
-                        else if (xhr.status === 404) errorMessage = "Belirtilen sipariş bulunamadı.";
-                        showErrorModal(modalContent, errorMessage);
-                    }
+            function reloadOrUpdateModal(orderId){
+                $.get('/Admin/Order/OrderDetails/' + orderId, function(data){
+                    if($(data).find('tbody tr').length === 0) location.reload();
+                    else loadOrderDetail(orderId);
                 });
+            }
+
+            // Normal sipariş detayları
+            function loadOrderDetail(orderId){
+                showLoading(detailModalContent);
+                bsDetailModal.show();
+
+                $.get('/Admin/Order/OrderDetails/' + orderId)
+                .done(function(data){
+                    if($(data).find('tbody tr').length === 0) return location.reload();
+                    detailModalContent.html(data);
+                    initOrderDetailDataTable();
+                })
+                .fail(function(xhr){
+                    let msg = xhr.status===403 ? "Bu siparişi görüntüleme yetkiniz yok." :
+                              xhr.status===404 ? "Sipariş bulunamadı." : "Sipariş detayı yüklenemedi.";
+                    showError(detailModalContent, msg);
+                });
+            }
+
+            // İptal edilen ve tamamlanan siparişler
+            function loadOrderReadOnlyDetail(orderId){
+                showLoading(readonlyModalContent); // ✅ detailModalContent yerine readonlyModalContent
+                bsReadonlyModal.show(); // ✅ detail modal değil readonly modal açılmalı
+
+                $.get('/Admin/Order/ReadOnlyDetails/' + orderId)
+                .done(function(data){
+                    if($(data).find('tbody tr').length === 0) return location.reload();
+                    readonlyModalContent.html(data); // ✅ doğru content
+                    initReadOnlyOrderDataTable();
+                })
+                .fail(function(xhr){
+                    let msg = xhr.status===403 ? "Bu siparişi görüntüleme yetkiniz yok." :
+                              xhr.status===404 ? "Sipariş bulunamadı." : "Sipariş detayı yüklenemedi.";
+                    showError(readonlyModalContent, msg); // ✅ doğru content
+                });
+            }
+
+
+            // Event binding
+            $(document).on('click', '.js-show-order-detail', function(e){
+                e.preventDefault();
+                currentOrderId = $(this).data('order-id');
+                loadOrderDetail(currentOrderId);
             });
 
-            // Sipariş durumu güncelleme
-            $('.js-show-update-status').on('click', function (e) {
+            $(document).on('click', '.js-show-readonly-order', function(e){
                 e.preventDefault();
-                var orderId = $(this).data('order-id');
-                var modal = $('#orderUpdateStatusModal');
-                var modalContent = $('#orderUpdateStatusModalContent');
-
-                showLoadingModal(modal, modalContent);
-
-                $.ajax({
-                    url: '/Admin/Order/UpdateStatus/' + orderId,
-                    type: 'GET',
-                    success: function (data) {
-                        modalContent.html(data);
-                    },
-                    error: function (xhr) {
-                        var errorMessage = "Sipariş durumu yüklenirken bir sorun oluştu.";
-                        if (xhr.status === 403) errorMessage = "Bu sipariş durumunu güncelleme yetkiniz yok.";
-                        else if (xhr.status === 404) errorMessage = "Belirtilen sipariş bulunamadı.";
-                        showErrorModal(modalContent, errorMessage);
-                    }
-                });
+                currentOrderId = $(this).data('order-id');
+                loadOrderReadOnlyDetail(currentOrderId);
             });
+
+
+            function loadUpdateStatus(orderId){
+                showLoading(statusModalContent);
+                bsStatusModal.show();
+
+                $.get('/Admin/Order/UpdateStatus/' + orderId)
+                .done(function(data){
+                    statusModalContent.html(data);
+                    initUpdateStatusDataTable();
+                })
+                .fail(function(xhr){
+                    let msg = xhr.status===403 ? "Bu sipariş durumunu güncelleme yetkiniz yok." :
+                              xhr.status===404 ? "Sipariş bulunamadı." : "Sipariş durumu yüklenemedi.";
+                    showError(statusModalContent, msg);
+                });
+            }
+
+            $(document).on('click', '.js-show-update-status', function(e){
+                e.preventDefault();
+                currentOrderId = $(this).data('order-id');
+                loadUpdateStatus(currentOrderId);
+            });
+
+            function showToast(message, type='success', dark=false){
+                Swal.fire({
+                    icon: type, // success veya error
+                    title: type === 'success' ? 'Başarılı' : 'Hata',
+                    html: message,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    showConfirmButton: false, // buton kaldırıldı
+                    background: dark ? '#1e1e2f' : '#fff',
+                    color: dark ? '#fff' : '#000',
+                    allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false,
+                    didOpen: () => {
+                        const bar = document.querySelector('.swal2-timer-progress-bar');
+                        if(bar) bar.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+                    }
+            });
+        }
+
+        // --- Miktar Azalt ---
+        $(document).on('click', '.btn-decrement', function(){
+            const id = $(this).data('id');
+            const dark = $('html').attr('data-theme')==='dark';
+
+            Swal.fire({
+                title:'Emin misiniz?',
+                text:'Bu işlem seçilen üründen yalnızca 1 adet azaltacaktır.',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Evet, azalt',
+                cancelButtonText:'Hayır',
+                confirmButtonColor: dark ? '#0d6efd' : '#007bff',
+                cancelButtonColor: dark ? '#6c757d' : '#6c757d',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false
+            }).then(result=>{
+                if(result.isConfirmed){
+                    $.post('/Admin/Order/Decrement',{id, orderId:currentOrderId,__RequestVerificationToken:getToken()})
+                    .done(()=>{
+                        showToast('Miktar başarıyla azaltıldı.', 'success', dark);
+                        reloadOrUpdateModal(currentOrderId);
+                    })
+                    .fail(()=>{
+                        showToast('Miktar azaltılamadı.', 'error', dark);
+                    });
+                }
+            });
+        });
+
+        // --- Ürün Sil ---
+        $(document).on('click', '.btn-remove', function(){
+            const id = $(this).data('id');
+            const dark = $('html').attr('data-theme')==='dark';
+
+            Swal.fire({
+                title:'Emin misiniz?',
+                text:'Bu işlem ile sepetten bu ürünün tamamı çıkarılacaktır.',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Tamam',
+                cancelButtonText:'İptal',
+                confirmButtonColor: dark ? '#0d6efd' : '#007bff',
+                cancelButtonColor: dark ? '#6c757d' : '#6c757d',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false
+            }).then(result=>{
+                if(result.isConfirmed){
+                    $.post('/Admin/Order/Remove',{id, orderId:currentOrderId,__RequestVerificationToken:getToken()})
+                    .done(()=>{
+                        showToast('Ürün başarıyla silindi.', 'success', dark);
+                        reloadOrUpdateModal(currentOrderId);
+                    })
+                    .fail(()=>{
+                        showToast('Ürün silinemedi.', 'error', dark);
+                    });
+                }
+            });
+        });
+
+        // --- Sipariş Onayla ---
+        window.confirmOrder = function(orderId){
+            const dark = $('html').attr('data-theme')==='dark';
+
+            Swal.fire({
+                title:'Siparişi onaylamak istiyor musunuz?',
+                text:'Bu işlem geri alınamaz.',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Tamam',
+                cancelButtonText:'İptal',
+                confirmButtonColor:'#28a745',
+                cancelButtonColor:'#dc3545',
+                allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false
+            }).then(result=>{
+                if(result.isConfirmed){
+                    $.ajax({
+                        url:'/Admin/Order/UpdateStatus',
+                        type:'POST',
+                        contentType:'application/json',
+                        data:JSON.stringify({Id:orderId, Status:'Onaylandı'}),
+                        headers:{'RequestVerificationToken':getToken()},
+                        success:()=>showToast('Sipariş başarıyla onaylandı.', 'success', dark),
+                        error:()=>showToast('Sipariş onaylanamadı.', 'error', dark)
+                    });
+                }
+            });
+        };
+
+        // --- Sipariş İptal ---
+        window.cancelOrder = function(orderId){
+            const dark = $('html').attr('data-theme') === 'dark';
+
+            Swal.fire({
+                title: 'Siparişi iptal etmek istiyor musunuz?',
+                text: 'Bu işlem geri alınamaz.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Tamam',
+                cancelButtonText: 'İptal',
+                confirmButtonColor: dark ? '#0d6efd' : '#007bff', // buton rengi tema uyumlu
+                cancelButtonColor: dark ? '#6c757d' : '#6c757d',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(result => {
+                if(result.isConfirmed){
+                    $.post('/Admin/Order/Cancel', {
+                        id: orderId,
+                        __RequestVerificationToken: getToken()
+                    })
+                    .done(() => showToast('Sipariş başarıyla iptal edildi.', 'success', dark))
+                    .fail(() => showToast('Sipariş iptal edilemedi.', 'error', dark));
+                }
+            });
+        };
+
+
+
+
         });
     </script>
 }
-
-
-

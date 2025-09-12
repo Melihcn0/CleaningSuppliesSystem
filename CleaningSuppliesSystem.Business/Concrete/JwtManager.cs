@@ -45,7 +45,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 issuer: _jwtTokenOptions.Issuer,
                 audience: _jwtTokenOptions.Audience,
                 claims: claims,
-                notBefore: DateTime.UtcNow, // kontrol edilecek
+                notBefore: DateTime.UtcNow,
                 expires: DateTime.UtcNow.AddMinutes(_jwtTokenOptions.ExpireInMinutes),
                 signingCredentials: new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256)
             );
@@ -53,25 +53,19 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var handler = new JwtSecurityTokenHandler();
             var tokenString = handler.WriteToken(jwtSecurityToken);
 
-            var innerToken = new InnerTokenDto
-            {
-                Token = new TokenDetailDto
-                {
-                    Token = tokenString,
-                    ExpireDate = jwtSecurityToken.ValidTo,
-                    Code = null,
-                    Description = null,
-                    IsActive = true
-                },
-                Message = "Giriş başarılı"
-            };
+            // Tek seviye token için
+            var theme = "light"; // sabit tema
 
             return new LoginResponseDto
             {
-                Token = innerToken,
-                Message = "Giriş başarılı"
+                Token = tokenString,
+                ExpireDate = jwtSecurityToken.ValidTo,
+                IsActive = true,
+                Message = "Giriş başarılı",
+                Theme = theme
             };
         }
+
 
     }
 }

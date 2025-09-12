@@ -7,19 +7,25 @@
 <form method="post">
     @Html.AntiForgeryToken()
     <div class="form-group">
-        <label for="CityId">Şehir</label>
-        <select id="CityId" name="CityId" asp-items="ViewBag.cities" class="form-control">
+        <label asp-for="CityId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Şehir Adı <span class="text-danger-600">*</span>
+        </label>
+        <select id="CityId" name="CityId" asp-items="ViewBag.cities" class="form-control" required>
             <option value="" disabled selected>Şehir Lokasyonu Seçin</option>
         </select>
         <span asp-validation-for="CityId" class="text-danger"></span>
     </div>
     <br />
     <div class="form-group">
-        <label for="DistrictName">İlçe Adı</label>
-        <input asp-for="DistrictName" class="form-control" />
+        <label asp-for="DistrictName" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            İlçe Adı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="DistrictName" class="form-control" maxlength="25" required/>
         <span asp-validation-for="DistrictName" class="text-danger"></span>
     </div>
     <br />
-    <button type="submit" class="btn btn-primary-600">Kaydet</button>
-    <br />
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
 </form>

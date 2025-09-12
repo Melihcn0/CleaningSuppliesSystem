@@ -6,31 +6,31 @@
 
 @{
     List<SelectListItem> topCategories = new List<SelectListItem> {
-        new SelectListItem { Value = "0", Text = "Üst kategori seçiniz", Disabled = true, Selected = true }
+        new SelectListItem { Value = "", Text = "Üst kategori seçiniz", Disabled = true, Selected = true }
     };
     if (ViewBag.topCategories != null)
         topCategories.AddRange((List<SelectListItem>)ViewBag.topCategories);
 
     List<SelectListItem> subCategories = new List<SelectListItem> {
-        new SelectListItem { Value = "0", Text = "Alt kategori seçiniz", Disabled = true, Selected = true }
+        new SelectListItem { Value = "", Text = "Alt kategori seçiniz", Disabled = true, Selected = true }
     };
     if (ViewBag.subCategories != null)
         subCategories.AddRange((List<SelectListItem>)ViewBag.subCategories);
 
     List<SelectListItem> categories = new List<SelectListItem> {
-        new SelectListItem { Value = "0", Text = "Ürün grubu / kategori seçiniz", Disabled = true, Selected = true }
+        new SelectListItem { Value = "", Text = "Ürün grubu / kategori seçiniz", Disabled = true, Selected = true }
     };
     if (ViewBag.categories != null)
         categories.AddRange((List<SelectListItem>)ViewBag.categories);
 
     List<SelectListItem> brands = new List<SelectListItem> {
-        new SelectListItem { Value = "0", Text = "Marka seçiniz", Disabled = true, Selected = true }
+        new SelectListItem { Value = "", Text = "Marka seçiniz", Disabled = true, Selected = true }
     };
     if (ViewBag.brands != null)
         brands.AddRange((List<SelectListItem>)ViewBag.brands);
 
     List<SelectListItem> products = new List<SelectListItem> {
-        new SelectListItem { Value = "0", Text = "Ürün seçiniz", Disabled = true, Selected = true }
+        new SelectListItem { Value = "", Text = "Ürün seçiniz", Disabled = true, Selected = true }
     };
     if (ViewBag.products != null)
         products.AddRange((List<SelectListItem>)ViewBag.products);
@@ -39,62 +39,85 @@
 <form asp-action="CreateStockOperation" method="post">
     @Html.AntiForgeryToken()
     <div class="form-group">
-        <label asp-for="TopCategoryId">Üst Kategori</label>
-        <select asp-for="TopCategoryId" class="form-control" asp-items="@(topCategories)"></select>
+        <label asp-for="TopCategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Üst Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="TopCategoryId" class="form-control" asp-items="@(topCategories)" required></select>
         <span asp-validation-for="TopCategoryId" class="text-danger"></span>
     </div>
     <br />
 
     <div class="form-group">
-        <label asp-for="SubCategoryId">Alt Kategori</label>
-        <select asp-for="SubCategoryId" class="form-control" asp-items="@(subCategories)"></select>
+        <label asp-for="SubCategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Alt Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="SubCategoryId" class="form-control" asp-items="@(subCategories)" required>
+            <option value="" disabled hidden>Seçiniz...</option>
+        </select>
         <span asp-validation-for="SubCategoryId" class="text-danger"></span>
     </div>
+
     <br />
 
     <div class="form-group">
-        <label asp-for="CategoryId">Ürün Grubu / Kategori</label>
-        <select asp-for="CategoryId" class="form-control" asp-items="@(categories)"></select>
+        <label asp-for="CategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Ürün Grubu / Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="CategoryId" class="form-control" asp-items="@(categories)" required></select>
         <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
     <br />
 
     <div class="form-group">
-        <label asp-for="BrandId">Marka</label>
-        <select asp-for="BrandId" class="form-control" asp-items="@(brands)"></select>
+        <label asp-for="BrandId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Marka Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="BrandId" class="form-control" asp-items="@(brands)" required></select>
         <span asp-validation-for="BrandId" class="text-danger"></span>
     </div>
     <br />
 
     <div class="form-group">
-        <label asp-for="ProductId">Ürün</label>
-        <select asp-for="ProductId" class="form-control" asp-items="@(products)"></select>
+        <label asp-for="ProductId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Ürün Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="ProductId" class="form-control" asp-items="@(products)" required></select>
         <span asp-validation-for="ProductId" class="text-danger"></span>
     </div>
     <br />
-
     <div class="form-group">
-        <label asp-for="TransactionType">İşlem Türü</label><br />
-        <div class="form-check form-check-inline">
-            <input asp-for="TransactionType" type="radio" class="form-check-input" id="entry" value="true" />
-            <label class="form-check-label" for="entry">Stok Girişi</label>
-        </div>
-        <div class="form-check form-check-inline" style="margin-left: 15px;">
-            <input asp-for="TransactionType" type="radio" class="form-check-input" id="exit" value="false" />
-            <label class="form-check-label" for="exit">Stok Çıkışı</label>
+        <label asp-for="TransactionType" class="form-label fw-semibold text-primary-light text-sm mb-2">
+            İşlem Türü Seçin <span class="text-danger-600">*</span>
+        </label>
+        <div class="d-flex gap-3">
+            <div class="form-check d-inline-flex align-items-center">
+                <input asp-for="TransactionType" type="radio" class="form-check-input" id="entry" value="true" required />
+                <label class="form-check-label" for="entry">Stok Girişi</label>
+            </div>
+            <div class="form-check d-inline-flex align-items-center">
+                <input asp-for="TransactionType" type="radio" class="form-check-input" id="exit" value="false" required />
+                <label class="form-check-label" for="exit">Stok Çıkışı</label>
+            </div>
         </div>
         <span asp-validation-for="TransactionType" class="text-danger"></span>
     </div>
+
+
     <br />
 
     <div class="form-group">
-        <label asp-for="Quantity">Miktar</label>
-        <input asp-for="Quantity" type="number" class="form-control" min="1" placeholder="Ürün miktarını girin" />
+        <label asp-for="Quantity" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Miktar yazın <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Quantity" type="number" class="form-control" min="1" max="100" placeholder="Ürün miktarını girin" required/>
         <span asp-validation-for="Quantity" class="text-danger"></span>
     </div>
     <br />
 
-    <button type="submit" class="btn btn-primary-600">Kaydet</button>
+    <button type="submit" class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
 </form>
 
 @section Scripts {
@@ -107,92 +130,91 @@
 
             $('#TopCategoryId').change(function () {
                 const topCategoryId = $(this).val();
-                if (topCategoryId && topCategoryId != "0") {
+                if (topCategoryId && topCategoryId != "") {
                     $.getJSON(`/Stock/GetSubCategories/${topCategoryId}`)
                         .done(function (data) {
-                            $subCat.empty().append('<option value="0" disabled selected>Alt kategori seçiniz</option>');
+                            $subCat.empty().append('<option value="" disabled selected>Alt kategori seçiniz</option>');
                             data.forEach(item => {
                                 $subCat.append(`<option value="${item.id}">${item.name}</option>`);
                             });
-                            // Reset dependent selects
-                            $cat.empty().append('<option value="0" disabled selected>Ürün grubu / kategori seçmek için önce alt kategori seçin</option>');
-                            $brand.empty().append('<option value="0" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
-                            $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                            $cat.empty().append('<option value="" disabled selected>Ürün grubu / kategori seçmek için önce alt kategori seçin</option>');
+                            $brand.empty().append('<option value="" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
+                            $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
                         })
                         .fail(() => {
-                            $subCat.empty().append('<option value="0" disabled selected>Alt kategori yüklenemedi</option>');
+                            $subCat.empty().append('<option value="" disabled selected>Alt kategori yüklenemedi</option>');
                         });
                 } else {
-                    $subCat.empty().append('<option value="0" disabled selected>Alt kategori seçmek için önce üst kategori seçin</option>');
-                    $cat.empty().append('<option value="0" disabled selected>Ürün grubu / kategori seçmek için önce alt kategori seçin</option>');
-                    $brand.empty().append('<option value="0" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
-                    $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                    $subCat.empty().append('<option value="" disabled selected>Alt kategori seçmek için önce üst kategori seçin</option>');
+                    $cat.empty().append('<option value="" disabled selected>Ürün grubu / kategori seçmek için önce alt kategori seçin</option>');
+                    $brand.empty().append('<option value="" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
+                    $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
                 }
             });
 
             $('#SubCategoryId').change(function () {
                 const subCategoryId = $(this).val();
-                if (subCategoryId && subCategoryId != "0") {
-                    $cat.empty().append('<option value="0" disabled selected>Yükleniyor...</option>');
-                    $brand.empty().append('<option value="0" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
-                    $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                if (subCategoryId && subCategoryId != "") {
+                    $cat.empty().append('<option value="" disabled selected>Yükleniyor...</option>');
+                    $brand.empty().append('<option value="" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
+                    $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
 
                     $.getJSON(`/Stock/GetCategories/${subCategoryId}`)
                         .done(function (data) {
-                            $cat.empty().append('<option value="0" disabled selected>Ürün grubu / kategori seçiniz</option>');
+                            $cat.empty().append('<option value="" disabled selected>Ürün grubu / kategori seçiniz</option>');
                             data.forEach(item => {
                                 $cat.append(`<option value="${item.id}">${item.name}</option>`);
                             });
                         })
                         .fail(() => {
-                            $cat.empty().append('<option value="0" disabled selected>Ürün grubu / kategori yüklenemedi</option>');
+                            $cat.empty().append('<option value="" disabled selected>Ürün grubu / kategori yüklenemedi</option>');
                         });
                 } else {
-                    $cat.empty().append('<option value="0" disabled selected>Ürün grubu / kategori seçmek için önce alt kategori seçin</option>');
-                    $brand.empty().append('<option value="0" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
-                    $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                    $cat.empty().append('<option value="" disabled selected>Ürün grubu / kategori seçmek için önce alt kategori seçin</option>');
+                    $brand.empty().append('<option value="" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
+                    $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
                 }
             });
 
             $('#CategoryId').change(function () {
                 const categoryId = $(this).val();
-                if (categoryId && categoryId != "0") {
-                    $brand.empty().append('<option value="0" disabled selected>Yükleniyor...</option>');
-                    $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                if (categoryId && categoryId != "") {
+                    $brand.empty().append('<option value="" disabled selected>Yükleniyor...</option>');
+                    $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
 
                     $.getJSON(`/Stock/GetBrands/${categoryId}`)
                         .done(function (data) {
-                            $brand.empty().append('<option value="0" disabled selected>Marka seçiniz</option>');
+                            $brand.empty().append('<option value="" disabled selected>Marka seçiniz</option>');
                             data.forEach(item => {
                                 $brand.append(`<option value="${item.id}">${item.name}</option>`);
                             });
                         })
                         .fail(() => {
-                            $brand.empty().append('<option value="0" disabled selected>Marka yüklenemedi</option>');
+                            $brand.empty().append('<option value="" disabled selected>Marka yüklenemedi</option>');
                         });
                 } else {
-                    $brand.empty().append('<option value="0" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
-                    $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                    $brand.empty().append('<option value="" disabled selected>Marka seçmek için önce ürün grubu / kategori seçin</option>');
+                    $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
                 }
             });
 
             $('#BrandId').change(function () {
                 const brandId = $(this).val();
-                if (brandId && brandId != "0") {
-                    $product.empty().append('<option value="0" disabled selected>Yükleniyor...</option>');
+                if (brandId && brandId != "") {
+                    $product.empty().append('<option value="" disabled selected>Yükleniyor...</option>');
 
                     $.getJSON(`/Stock/GetProducts/${brandId}`)
                         .done(function (data) {
-                            $product.empty().append('<option value="0" disabled selected>Ürün seçiniz</option>');
+                            $product.empty().append('<option value="" disabled selected>Ürün seçiniz</option>');
                             data.forEach(item => {
                                 $product.append(`<option value="${item.id}">${item.name}</option>`);
                             });
                         })
                         .fail(() => {
-                            $product.empty().append('<option value="0" disabled selected>Ürünler yüklenemedi</option>');
+                            $product.empty().append('<option value="" disabled selected>Ürünler yüklenemedi</option>');
                         });
                 } else {
-                    $product.empty().append('<option value="0" disabled selected>Ürün seçmek için önce marka seçin</option>');
+                    $product.empty().append('<option value="" disabled selected>Ürün seçmek için önce marka seçin</option>');
                 }
             });
         });

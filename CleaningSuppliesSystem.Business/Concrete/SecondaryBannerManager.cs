@@ -24,7 +24,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task<(bool IsSuccess, string Message, int CreatedId)> TCreateBannerAsync(CreateSecondaryBannerDto createSecondaryBannerDto)
+        public async Task<(bool IsSuccess, string Message, int CreatedId)> TCreateSecondaryBannerAsync(CreateSecondaryBannerDto createSecondaryBannerDto)
         {
             var validator = new CreateSecondaryBannerValidator();
             var validationResult = await validator.ValidateAsync(createSecondaryBannerDto);
@@ -40,7 +40,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return (true, "İkincil banner başarıyla oluşturuldu", secondaryBanner.Id);
         }
 
-        public async Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateBannerAsync(UpdateSecondaryBannerDto updateSecondaryBannerDto)
+        public async Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateSecondaryBannerAsync(UpdateSecondaryBannerDto updateSecondaryBannerDto)
         {
             var validator = new UpdateSecondaryBannerValidator();
             var validationResult = await validator.ValidateAsync(updateSecondaryBannerDto);
@@ -60,7 +60,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return (true, "İkincil banner başarıyla güncellendi.", secondaryBanner.Id);
         }
 
-        public async Task<(bool IsSuccess, string Message, int SoftDeletedId)> TSoftDeleteBannerAsync(int id)
+        public async Task<(bool IsSuccess, string Message, int SoftDeletedId)> TSoftDeleteSecondaryBannerAsync(int id)
         {
             var secondaryBanner = await _secondaryBannerRepository.GetByIdAsync(id);
             if (secondaryBanner == null)
@@ -70,16 +70,16 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "İkincil banner zaten silinmiş.", secondaryBanner.Id);
 
             if (secondaryBanner.IsShown)
-                return (false, "Şu anda gösterimde olan bir ikincil banner soft silinemez. Lütfen başka bir banneri aktif hale getirin.", secondaryBanner.Id);
+                return (false, "Şu anda gösterimde olan bir ikincil banner çöp kutusuna taşınamaz. Lütfen başka bir banneri aktif hale getirin.", secondaryBanner.Id);
 
             secondaryBanner.DeletedDate = DateTime.Now;
             secondaryBanner.IsDeleted = true;
             secondaryBanner.IsShown = false;
             await _secondaryBannerRepository.UpdateAsync(secondaryBanner);
-            return (true, "İkincil banner başarıyla soft silindi.", secondaryBanner.Id);
+            return (true, "İkincil banner başarıyla çöp kutusuna taşındı.", secondaryBanner.Id);
         }
 
-        public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteBannerAsync(int id)
+        public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteSecondaryBannerAsync(int id)
         {
             var secondaryBanner = await _secondaryBannerRepository.GetByIdAsync(id);
             if (secondaryBanner == null)
@@ -94,17 +94,17 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return (true, "İkincil banner başarıyla geri getirildi.", secondaryBanner.Id);
         }
 
-        public async Task<(bool IsSuccess, string Message)> TPermanentDeleteBannerAsync(int id)
+        public async Task<(bool IsSuccess, string Message)> TPermanentDeleteSecondaryBannerAsync(int id)
         {
             var secondaryBanner = await _secondaryBannerRepository.GetByIdAsync(id);
             if (secondaryBanner == null)
                 return (false, "İkincil banner bulunamadı.");
 
             if (!secondaryBanner.IsDeleted)
-                return (false, "İkincil banner soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "İkincil banner silinmemiş. Önce silmeniz gerekir.");
 
             await _secondaryBannerRepository.DeleteAsync(secondaryBanner.Id);
-            return (true, "İkincil banner kalıcı olarak silindi.");
+            return (true, "İkincil banner çöp kutusundan kalıcı olarak silindi.");
         }
 
         public async Task<List<ResultSecondaryBannerDto>> TGetActiveSecondaryBannersAsync()

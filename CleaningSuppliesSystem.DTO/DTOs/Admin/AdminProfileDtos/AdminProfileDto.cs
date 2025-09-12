@@ -1,9 +1,5 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
 
 namespace CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos
 {
@@ -18,5 +14,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos
         public string? PhoneNumber { get; set; }        // Telefon
         public DateTime LastLogoutAt { get; set; }      // Son çıkış zamanı
         public CompanyAddressDto? CompanyAddress { get; set; }
+        public CompanyBankDto? CompanyBank { get; set; }
     }
 }

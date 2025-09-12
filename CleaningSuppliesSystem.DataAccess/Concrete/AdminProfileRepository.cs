@@ -18,11 +18,13 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         {
             _context = context;
         }
-        public async Task<AppUser> GetAdminWithCompanyAddressAsync(int adminId)
+        public async Task<AppUser> GetUserWithCompanyBankAndAddressAsync(int userId)
         {
             return await _context.Users
+                .Include(u => u.CompanyBank)
                 .Include(u => u.CompanyAddress)
-                .FirstOrDefaultAsync(u => u.Id == adminId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
+
     }
 }

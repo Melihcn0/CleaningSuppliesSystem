@@ -14,15 +14,15 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.SecondaryBannerDto
         {
             RuleFor(x => x.Title1)
                 .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
-                .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+                .MaximumLength(15).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
 
             RuleFor(x => x.Title2)
                 .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
-                .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+                .MaximumLength(15).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
 
             RuleFor(x => x.Title3)
                 .NotEmpty().WithMessage("İkincil banner başlığı boş olamaz.")
-                .MaximumLength(25).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
+                .MaximumLength(15).WithMessage("İkincil banner Başlığı en fazla 15 karakter olabilir.");
 
             RuleFor(x => x.Description1)
                 .NotEmpty().WithMessage("İkincil banner açıklaması boş olamaz.")

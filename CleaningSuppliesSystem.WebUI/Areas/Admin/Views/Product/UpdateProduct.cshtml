@@ -11,10 +11,23 @@
     <input type="hidden" asp-for="ImageUrl" />
     <input type="hidden" name="existingImageUrl" value="@ViewBag.ExistingImageUrl" />
 
+    <!-- Kategori -->
+    <div class="form-group">
+        <label asp-for="CategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="CategoryId" asp-items="@ViewBag.Categories" class="form-control" required>
+            <option value="" disabled>Ürün Grubu / Kategori Seçin</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
     <!-- Marka -->
     <div class="form-group">
-        <label for="BrandId">Marka Seçin</label>
-        <select asp-for="BrandId" asp-items="@ViewBag.brands" class="form-control">
+        <label asp-for="BrandId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Marka Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="BrandId" asp-items="@ViewBag.brands" class="form-control" required>
             <option value="" disabled>Marka Seçin</option>
         </select>
         <span asp-validation-for="BrandId" class="text-danger"></span>
@@ -22,21 +35,27 @@
 
     <!-- Ad -->
     <div class="form-group">
-        <label for="Name">Ürün Adı</label>
-        <input asp-for="Name" class="form-control" />
+        <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Ürün Adı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Name" class="form-control" maxlength="70" required/>
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
     <!-- Fiyat -->
     <div class="form-group">
-        <label for="UnitPrice">Birim Fiyatı</label>
-        <input asp-for="UnitPrice" class="form-control" />
+        <label asp-for="UnitPrice" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Birim Fiyatı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="UnitPrice" class="form-control" max="5000" required/>
         <span asp-validation-for="UnitPrice" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label for="VatRate">KDV Oranı</label>
-        <input asp-for="VatRate" class="form-control" />
+        <label asp-for="VatRate" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            % KDV Oranı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="VatRate" class="form-control" max="100" required/>
         <span asp-validation-for="VatRate" class="text-danger"></span>
     </div>
 
@@ -63,20 +82,23 @@
 
     <!-- Görsel Yükleme -->
     <div class="form-group">
-        <label for="ImageFile">Yeni Fotoğraf Yükle (isteğe bağlı)</label>
+        <label asp-for="ImageFile" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Yeni Fotoğraf Yükle(güncellemek için) <span class="text-danger-600">*</span>
+        </label>
         <input asp-for="ImageFile" type="file" class="form-control-file" accept="image/*" onchange="previewImage(event)" />
         <span asp-validation-for="ImageFile" class="text-danger"></span>
     </div>
 
     <br />
-    <button type="button" class="btn btn-outline-warning-600" onclick="updateProduct()">Güncelle</button>
+    <button type="button" class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="updateProduct()">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">update</span>
+        Güncelle
+    </button>
 </form>
-@* 
-<div asp-validation-summary="All" class="text-danger"></div> *@
-
 
 @section Scripts {
     <script>
+        // Görsel önizleme
         function previewImage(event) {
             const input = event.target;
             const previewContainer = document.getElementById('newPreviewContainer');
@@ -97,6 +119,53 @@
             }
         }
 
+        // Kategori değişince markaları yükleme ve mevcut markayı seçili bırakma
+        document.addEventListener('DOMContentLoaded', () => {
+            const categorySelect = document.getElementById('CategoryId');
+            const brandSelect = document.getElementById('BrandId');
+            const currentBrandId = '@Model.BrandId';
+
+            async function loadBrands(categoryId) {
+                brandSelect.innerHTML = '<option value="" disabled selected>Marka Seçin</option>';
+                if (!categoryId) return;
+
+                try {
+                    const response = await fetch(`/Admin/Product/GetBrandsByCategory?categoryId=${categoryId}`);
+                    if (!response.ok) throw new Error('Markalar alınamadı');
+
+                    const brands = await response.json();
+
+                    if (brands.length === 0) {
+                        const placeholder = document.createElement('option');
+                        placeholder.text = 'Bu kategoriye ait marka bulunamadı';
+                        placeholder.disabled = true;
+                        placeholder.selected = true;
+                        brandSelect.appendChild(placeholder);
+                        return;
+                    }
+
+                    brands.forEach(b => {
+                        const option = document.createElement('option');
+                        option.value = b.id;
+                        option.text = b.name;
+                        if (b.id.toString() === currentBrandId) option.selected = true;
+                        brandSelect.appendChild(option);
+                    });
+                } catch (err) {
+                    console.error(err);
+                    alert('Markalar yüklenemedi. Lütfen sayfayı yenileyin.');
+                }
+            }
+
+            categorySelect.addEventListener('change', function () {
+                loadBrands(this.value);
+            });
+
+            // Sayfa yüklendiğinde mevcut kategori varsa markaları yükle
+            if (categorySelect.value) loadBrands(categorySelect.value);
+        });
+
+        // Form submit
         function updateProduct() {
             const form = document.getElementById("updateProductForm");
             const theme = document.documentElement.getAttribute("data-theme");
@@ -117,9 +186,30 @@
                 cancelButtonText: "İptal",
                 background: theme === "dark" ? "#1e1e2f" : "#fff",
                 color: theme === "dark" ? "#fff" : "#000",
+                reverseButtons: true,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
-                allowEnterKey: false
+                allowEnterKey: false,
+                didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
+            }
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

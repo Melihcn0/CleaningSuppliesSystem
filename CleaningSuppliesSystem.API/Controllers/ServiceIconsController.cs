@@ -65,7 +65,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (!isSuccess)
                 return BadRequest(new { message });
 
-            return Ok(new { message = "Icon başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "Icon başarıyla eklendi.", id = createdId });
         }
 
         [HttpPut]
@@ -75,7 +75,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (!isSuccess)
                 return BadRequest(new { message });
 
-            return Ok(new { message = "Icon başarıyla güncellendi.", id = updatedId });
+            return Ok(new { message = "Icon başarıyla eklendi.", id = updatedId });
         }
 
         [HttpPost("softdelete/{id}")]
@@ -97,21 +97,21 @@ namespace CleaningSuppliesSystem.API.Controllers
         {
             var entity = await _serviceIconService.TGetByIdAsync(id);
             if (entity == null)
-                return NotFound("Service icon bulunamadı.");
+                return NotFound("Service ikonu bulunamadı.");
 
             if (!entity.IsDeleted)
-                return BadRequest("Icon soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("Servis ikonu silinmiş değil. Önce silmeniz gerekir.");
 
             await _serviceIconService.TPermanentDeleteServiceIconAsync(id);
-            return Ok("Icon kalıcı olarak silindi.");
+            return Ok("Servis ikonu kalıcı olarak silindi.");
         }
 
-        [HttpGet("unused-active")]
-        public async Task<IActionResult> GetUnusedActiveIcons()
-        {
-            var icons = await _serviceIconService.TGetUnusedActiveServiceIconsAsync();
-            return Ok(icons);
-        }
+        //[HttpGet("unused-active")]
+        //public async Task<IActionResult> GetUnusedActiveIcons()
+        //{
+        //    var icons = await _serviceIconService.TGetUnusedActiveServiceIconsAsync();
+        //    return Ok(icons);
+        //}
 
 
     }

@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DataAccess.Abstract;
-using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using CleaningSuppliesSystem.Entity.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static CleaningSuppliesSystem.Business.Validators.Validators;
 
 namespace CleaningSuppliesSystem.Business.Concrete
@@ -31,14 +27,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
         public async Task<CompanyAddressDto?> TGetCompanyAddressAsync()
         {
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            if (currentUser == null)
-                return null;
-
             var userWithAddress = await _companyAddressRepository.GetUserWithCompanyAddressAsync(currentUser.Id);
-            if (userWithAddress?.CompanyAddress == null)
-                return null;
-
-            // DTO'ya map et
             return _mapper.Map<CompanyAddressDto>(userWithAddress.CompanyAddress);
         }
 
@@ -95,9 +84,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             return (true, "Şirket adresi başarıyla güncellendi.", entity.Id);
         }
-
-
-
 
     }
 }

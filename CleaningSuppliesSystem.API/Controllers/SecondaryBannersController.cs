@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -44,11 +45,10 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok(result);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateSecondaryBannerDto dto)
         {
-            var result = await _secondaryBannerService.TCreateBannerAsync(dto);
+            var result = await _secondaryBannerService.TCreateSecondaryBannerAsync(dto);
             return result.IsSuccess
                 ? Ok(new { result.Message, result.CreatedId })
                 : BadRequest(result.Message);
@@ -57,7 +57,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromForm] UpdateSecondaryBannerDto dto)
         {
-            var result = await _secondaryBannerService.TUpdateBannerAsync(dto);
+            var result = await _secondaryBannerService.TUpdateSecondaryBannerAsync(dto);
             return result.IsSuccess
                 ? Ok(new { result.Message, result.UpdatedId })
                 : BadRequest(result.Message);
@@ -66,7 +66,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpPost("softdelete/{id}")]
         public async Task<IActionResult> SoftDelete(int id)
         {
-            var result = await _secondaryBannerService.TSoftDeleteBannerAsync(id);
+            var result = await _secondaryBannerService.TSoftDeleteSecondaryBannerAsync(id);
             return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
@@ -74,7 +74,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpPost("undosoftdelete/{id}")]
         public async Task<IActionResult> UndoSoftDelete(int id)
         {
-            var result = await _secondaryBannerService.TUndoSoftDeleteBannerAsync(id);
+            var result = await _secondaryBannerService.TUndoSoftDeleteSecondaryBannerAsync(id);
             return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
@@ -86,10 +86,10 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("İkincil banner alanı bulunamadı.");
 
             if (!category.IsDeleted)
-                return BadRequest("İkincil banner soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("İkincil banner alanı silinmiş değil. Önce silmeniz gerekir.");
 
             await _secondaryBannerService.TDeleteAsync(id);
-            return Ok("İkincil banner kalıcı olarak silindi.");
+            return Ok("İkincil banner alanı çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpPost("togglestatus")]
@@ -97,9 +97,9 @@ namespace CleaningSuppliesSystem.API.Controllers
         {
             var result = await _secondaryBannerService.ToggleSecondaryBannerStatusAsync(secondaryBannerId, newStatus);
             if (!result)
-                return BadRequest("İkincil banner durumu güncellenemedi.");
+                return BadRequest("İkincil banner gösterim durumu güncellenemedi.");
 
-            return Ok("İkincil banner durumu güncellendi.");
+            return Ok("İkincil banner gösterim durumu güncellendi.");
         }
 
         [HttpGet("active")]

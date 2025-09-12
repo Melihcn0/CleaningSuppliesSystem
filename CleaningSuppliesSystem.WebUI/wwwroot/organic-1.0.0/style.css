@@ -727,3 +727,17 @@ a.btn-link.text-light:after {
     }
    }
 
+
+/*.marquee-track {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+*/
+
+/* Mobilde yazýlarý sola hizala */
+@media (max-width: 768px) {
+    .banner-section .col-12 {
+        text-align: start !important;
+    }
+}
+

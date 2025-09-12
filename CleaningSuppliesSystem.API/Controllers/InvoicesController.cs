@@ -21,7 +21,6 @@ public class InvoicesController : ControllerBase
         _mapper = mapper;
     }
 
-    // Admin: Tüm faturaları görür, Customer: sadece kendi faturalarını görür
     [HttpGet]
     [Authorize(Roles = "Admin,Customer")]
     public async Task<IActionResult> Get()
@@ -38,20 +37,19 @@ public class InvoicesController : ControllerBase
             if (!int.TryParse(userIdString, out int userId))
                 return Unauthorized();
 
-            var invoices = await _invoiceService.TGetInvoicesByUserIdAsync(userId); // Bu metodu servise eklemelisin
+            var invoices = await _invoiceService.TGetInvoicesByUserIdAsync(userId);
             var invoicesDto = _mapper.Map<List<InvoiceDto>>(invoices);
             return Ok(invoicesDto);
         }
     }
 
-    // ID'ye göre fatura detayını getirir, müşteri sadece kendi faturasını görebilir
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Customer")]
     public async Task<IActionResult> GetById(int id)
     {
         var invoice = await _invoiceService.TGetByIdAsyncWithOrder(id);
         if (invoice == null)
-            return NotFound($"Fatura id={id} bulunamadı.");
+            return NotFound($"Fatura bulunamadı.");
 
         if (User.IsInRole("Customer"))
         {
@@ -67,7 +65,6 @@ public class InvoicesController : ControllerBase
         return Ok(invoiceDto);
     }
 
-    // Sadece Admin fatura oluşturabilir
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreateInvoiceDto createInvoiceDto)
@@ -76,7 +73,7 @@ public class InvoicesController : ControllerBase
             return BadRequest(ModelState);
 
         await _invoiceService.TCreateAdminInvoiceAsync(createInvoiceDto.OrderId);
-        return Ok($"Yeni Fatura Oluşturuldu. Sipariş ID={createInvoiceDto.OrderId}");
+        return Ok($"Yeni fatura oluşturuldu.");
     }
 
     [HttpGet("{id}/deliveryNoteInvoice")]
@@ -175,7 +172,5 @@ public class InvoicesController : ControllerBase
         var safeFileName = $"{firstName}_{lastName}_Fatura.pdf";
         return File(pdfBytes, "application/pdf", safeFileName);
     }
-
-
 
 }

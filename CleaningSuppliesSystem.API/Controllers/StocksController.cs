@@ -21,11 +21,9 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpPost("assign")]
         public async Task<IActionResult> AssignStock([FromBody] CreateStockOperationDto dto)
         {
-            var (isSuccess, message) = await _stockService.AssignStockAsync(dto);
+            var (isSuccess, message) = await _stockService.TAssignStockAsync(dto);
             return isSuccess ? Ok(message) : BadRequest(message);
         }
-
-
 
         [HttpGet("active")]
         public async Task<IActionResult> GetActiveProducts()
@@ -33,5 +31,13 @@ namespace CleaningSuppliesSystem.API.Controllers
             var result = await _stockService.TGetActiveProductsAsync();
             return Ok(result);
         }
+
+        [HttpPost("quickAssign")]
+        public async Task<IActionResult> QuickStockOperation([FromBody] QuickStockOperationDto dto)
+        {
+            var (isSuccess, message) = await _stockService.TQuickStockOperationAsync(dto);
+            return isSuccess ? Ok(message) : BadRequest(message);
+        }
+
     }
 }

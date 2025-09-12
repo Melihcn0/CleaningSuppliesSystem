@@ -32,16 +32,23 @@ namespace CleaningSuppliesSystem.Business.Concrete
         {
             var validator = new UpdateDiscountValidator();
             var validationResult = await validator.ValidateAsync(dto);
-           
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => e.ErrorMessage).ToList();
+                return (false, errors);
+            }
+
             var product = await _productRepository.GetByIdAsync(dto.Id);
             if (product == null)
                 return (false, new List<string> { "Ürün bulunamadı." });
 
+            // İskonto güncelle
             product.DiscountRate = dto.DiscountRate;
-            product.DiscountedPrice = product.UnitPrice * (1 - product.DiscountRate / 100);
+
             await _productRepository.UpdateAsync(product);
             return (true, new List<string>());
         }
+
         public async Task<(bool IsSuccess, string Message, int CreatedId)> TCreateProductAsync(CreateProductDto createProductDto)
         {
             var validator = new CreateProductValidator();
@@ -55,6 +62,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var product = _mapper.Map<Product>(createProductDto);
             product.IsShown = true;
             product.CreatedDate = DateTime.Now;
+
             await _productRepository.CreateAsync(product);
 
             return (true, "Ürün başarıyla oluşturuldu.", product.Id);
@@ -77,11 +85,11 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             _mapper.Map(updateProductDto, product);
             product.UpdatedDate = DateTime.Now;
+
             await _productRepository.UpdateAsync(product);
 
             return (true, "Ürün başarıyla güncellendi.", product.Id);
         }
-
         public async Task<(bool IsSuccess, string Message, int SoftDeletedId)> TSoftDeleteProductAsync(int id)
         {
             var product = await _productRepository.GetByIdAsync(id);
@@ -146,13 +154,11 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var status = isShown ? "gösterilecek" : "gösterilmeyecek";
             return (true, $"Ürün ana sayfa görünürlüğü {status} olarak ayarlandı.");
         }
-
         public async Task<List<ResultProductDto>> TGetActiveByBrandIdAsync(int brandId)
         {
             var entities = await _productRepository.GetActiveByBrandsIdAsync(brandId);
             return _mapper.Map<List<ResultProductDto>>(entities);
         }
-
         public async Task<List<(int Id, bool IsSuccess, string Message)>> TSoftDeleteRangeProductAsync(List<int> ids)
         {
             var results = new List<(int Id, bool IsSuccess, string Message)>();
@@ -200,7 +206,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             return results;
         }
-
         public async Task<List<(int Id, bool IsSuccess, string Message)>> TUndoSoftDeleteRangeProductAsync(List<int> ids)
         {
             var results = new List<(int Id, bool IsSuccess, string Message)>();
@@ -252,6 +257,24 @@ namespace CleaningSuppliesSystem.Business.Concrete
         {
             await _productRepository.PermanentDeleteRangeAsync(ids);
         }
+        public async Task TDecreaseStockAsync(IEnumerable<OrderItem> orderItems)
+        {
+            foreach (var item in orderItems)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId);
+                if (product == null)
+                    throw new Exception($"Ürün bulunamadı: Id={item.ProductId}");
+
+                if (product.StockQuantity < item.Quantity)
+                    throw new Exception($"Yeterli stok yok: {product.Name}");
+
+                product.StockQuantity -= item.Quantity;
+                product.UpdatedDate = DateTime.Now;
+                await _productRepository.UpdateAsync(product);
+            }
+        }
+
+
 
 
     }

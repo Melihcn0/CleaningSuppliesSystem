@@ -24,33 +24,33 @@ namespace CleaningSuppliesSystem.API.Controllers
         public async Task<IActionResult> Get()
         {
             var values = await _orderService.TGetActiveOrdersWithDetailsAsync();
-            var orders = _mapper.Map<List<ResultOrderDto>>(values);
+            var orders = _mapper.Map<List<AdminResultOrderDto>>(values);
             return Ok(orders);
         }
         [HttpGet("completed")]
-        public async Task<ActionResult<List<ResultOrderDto>>> GetCompletedOrders()
+        public async Task<ActionResult<List<AdminResultOrderDto>>> GetCompletedOrders()
         {
             var values = await _orderService.TGetCompletedOrdersAsync();
-            var orders = _mapper.Map<List<ResultOrderDto>>(values);
+            var orders = _mapper.Map<List<AdminResultOrderDto>>(values);
             return Ok(orders);
         }
 
         [HttpGet("cancelled")]
-        public async Task<ActionResult<List<ResultOrderDto>>> GetCancelledOrders()
+        public async Task<ActionResult<List<AdminResultOrderDto>>> GetCancelledOrders()
         {
             var values = await _orderService.TGetCancelledOrdersAsync();
-            var orders = _mapper.Map<List<ResultOrderDto>>(values);
+            var orders = _mapper.Map<List<AdminResultOrderDto>>(values);
             return Ok(orders);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("AdminResult/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var value = await _orderService.TGetOrderByIdWithDetailsAsync(id);
             if (value == null)
                 return NotFound();
 
-            var result = _mapper.Map<ResultOrderDto>(value);
+            var result = _mapper.Map<AdminResultOrderDto>(value);
             return Ok(result);
         }
 
@@ -61,50 +61,20 @@ namespace CleaningSuppliesSystem.API.Controllers
             return NoContent();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateOrderDto createOrderDto)
-        {
-            var newValue = _mapper.Map<Order>(createOrderDto);
-            await _orderService.TCreateAsync(newValue);
-            return CreatedAtAction(nameof(GetById), new { id = newValue.Id }, newValue);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateOrderDto updateOrderDto)
-        {
-            var value = _mapper.Map<Order>(updateOrderDto);
-            await _orderService.TUpdateAsync(value);
-            return NoContent();
-        }
-
         [HttpPost("UpdateStatus")]
         public async Task<ActionResult<OrderStatusUpdateDto>> UpdateStatus([FromBody] OrderStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Geçersiz veri.");
 
-            try
-            {
-                var result = await _orderService.UpdateStatusAsync(dto.Id, dto.Status);
+            var result = await _orderService.TUpdateStatusAsync(dto.Id, dto.Status);
 
-                if (result == null)
-                    return NotFound("Sipariş bulunamadı.");
+            if (result == null)
+                return NotFound("Sipariş bulunamadı.");
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var errorDetail = new
-                {
-                    Message = "Bir hata oluştu.",
-                    ExceptionMessage = ex.Message,
-                    StackTrace = ex.StackTrace,
-                    InnerException = ex.InnerException?.Message
-                };
-
-                return StatusCode(500, errorDetail);
-            }
+            return Ok(result);
         }
+
 
 
     }

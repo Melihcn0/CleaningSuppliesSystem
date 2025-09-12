@@ -7,23 +7,40 @@
 <form id="updateFinanceForm" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <label>Finans Adı</label>
-    <input type="text" asp-for="Title" class="form-control" />
-    <span asp-validation-for="Title" class="text-danger"></span>
-    <br />
-    <label>Finans Tipi</label>
-    <select asp-for="Type" class="form-control">
+
+    <div class="mb-3">
+    <label asp-for="Type" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Finans Tipi <span class="text-danger-600">*</span>
+    </label>
+    <select asp-for="Type" class="form-control d-inline-flex align-items-center" required>
         <option value="" disabled selected>Finans Tipi Seçin</option>
         <option value="Income">Gelir</option>
         <option value="Expense">Gider</option>
     </select>
     <span asp-validation-for="Type" class="text-danger"></span>
-    <br />
-    <label>Finans Miktarı</label>
-    <input type="text" asp-for="Amount" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Finans Adı <span class="text-danger-600">*</span>
+        </label>
+        <input type="text" asp-for="Title" class="form-control" maxlenght="40" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+    <label asp-for="Amount" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Finans Miktarı <span class="text-danger-600">*</span>
+    </label>
+    <input type="number" asp-for="Amount" class="form-control" min="0" max="50000"
+            oninput="if(this.value > 50000) this.value = 50000;" required />
     <span asp-validation-for="Amount" class="text-danger"></span>
-    <br />
-    <button class="btn btn-warning-600">Güncelle</button>
+    </div>
+
+    <button type="button" class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="updateFinance()">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">update</span>
+        Güncelle
+    </button>
 </form>
 
 @section Scripts {
@@ -33,13 +50,11 @@
             const form = document.getElementById("updateFinanceForm");
             const theme = document.documentElement.getAttribute("data-theme");
 
-            // Önce form validasyonunu kontrol et
             if (!form.checkValidity()) {
-                form.reportValidity(); // Hataları göster
-                return; // Onay alerti gösterme
+                form.reportValidity();
+                return;
             }
 
-            // Validasyon geçtiyse onay sor
             Swal.fire({
                 title: "Değişiklikler kaydedilsin mi?",
                 text: "İşlemi onaylıyor musunuz?",
@@ -51,9 +66,30 @@
                 cancelButtonText: "İptal",
                 background: theme === "dark" ? "#1e1e2f" : "#fff",
                 color: theme === "dark" ? "#fff" : "#000",
+                reverseButtons: true,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
-                allowEnterKey: false
+                allowEnterKey: false,
+                didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
+            }
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

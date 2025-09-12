@@ -4,13 +4,13 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 
     ViewData["PermanentDeleteUrl"] = "~/Admin/TopCategory/PermanentDeleteTopCategory";
-    ViewData["PermanentDeleteConfirmTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+    ViewData["PermanentDeleteConfirmTitle"] = "Üst kategori kalıcı olarak silinsin mi?";
 
     ViewData["UndoSoftDeleteUrl"] = "~/Admin/TopCategory/UndoSoftDeleteMultiple";
-    ViewData["UndoSoftDeleteConfirmTitle"] = "Seçilen kategorileri geri almak istediğinize emin misiniz?";
+    ViewData["UndoSoftDeleteConfirmTitle"] = "Seçili üst kategoriler geri alınsın mı?";
     
     ViewData["PermanentDeleteMultipleUrl"] = "~/Admin/TopCategory/PermanentDeleteMultiple";
-    ViewData["PermanentDeleteConfirmMultipleTitle"] = "Bu öğeyi kalıcı olarak silmek istediğinize emin misiniz?";
+    ViewData["PermanentDeleteMultipleConfirmTitle"] = "Seçili üst kategoriler kalıcı olarak silinsin mi?";
 
     int count = 0;
 }
@@ -18,28 +18,26 @@
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Silinen Üst Kategoriler Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <button id="undosoftdeleteSelectedBtn" class="btn rounded-pill btn-success-100 text-success-600 radius-8 d-inline-flex align-items-center me-2" disabled>
-                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Geri Al
+        <h5 class="card-title mb-0 me-1">Silinen Üst Kategoriler Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 md-0 mt-1">
+            <button id="undosoftdeleteSelectedBtn" class="btn rounded-pill btn-success-600 radius-8 d-inline-flex align-items-center" disabled>
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center">undo</span> Seçilenleri Geri Al
             </button>
-            <button id="permanentdeleteSelectedBtn" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center me-2" disabled>
-                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            <button id="permanentdeleteSelectedBtn" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center" disabled>
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center">delete</span> Seçilenleri Kalıcı Sil
             </button>
         </div>
     </div>
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>
-                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    <th class="text-start">
+                        <input type="checkbox" id="selectAll" class="form-check-input"/> #
                     </th>
                     <th>Üst Kategori Adı</th>
-                    <th>Oluşturulma Tarihi</th>
-                    <th>Son Güncelleme Tarihi</th>
-                    <th>Silinme Tarihi</th>
+                    <th>Oluşturma | Son Güncelleme | Silinme Tarihleri</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -54,31 +52,36 @@
                                 @count
                             </label>
                         </td>
-                        <td>@item.Name</td>
-                        <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncelleme yapılmadı")
-                        </td>
-                        <td>
-                            @item.DeletedDate?.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.DeletedDate?.ToString("dd MMMM yyyy dddd")
-                        </td>
+                        <td><b><u>@item.Name</u></b></td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span>
+                                        🟢 <b>Oluşturma:</b>
+                                        @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                    <span>
+                                        🟡 <b>Güncelleme:</b>
+                                        @(item.UpdatedDate != null
+                                            ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                            : "Henüz güncelleme yapılmadı")
+                                    </span>
+                                    <span>
+                                        🔴 <b>Silinme:</b>
+                                        @item.DeletedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                </div>
+                            </td>
                             <td>
                                 <div class="d-flex flex-nowrap gap-2">
                                     <form asp-action="UndoSoftDeletedTopCategory" asp-controller="TopCategory" asp-area="Admin" asp-route-id="@item.Id" method="post" class="d-inline">
-                                        <button type="submit" class="btn rounded-pill btn-success-100 text-success-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
-                                            <span class="material-symbols-outlined">undo</span> Geri al
+                                        <button type="submit" class="btn rounded-pill btn-success-600 radius-8 d-inline-flex align-items-center btn-sm btn-sm action-btn">
+                                            <span class="material-symbols-outlined me-1" style="font-size: 18px;">undo</span> Geri al
                                         </button>
                                     </form>
                                     <button type="button"
-                                            class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn permanent-delete-btn"
+                                            class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn permanent-delete-btn"
                                             data-id="@item.Id">
-                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                        <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete_forever</span> Kalıcı Sil
                                     </button>
                                 </div>
                             </td>

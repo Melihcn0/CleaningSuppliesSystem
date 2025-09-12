@@ -77,12 +77,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "İlçe lokasyonu başarıyla oluşturuldu.";
+                TempData["SuccessMessage"] = "İlçe lokasyonu başarıyla eklendi.";
                 return RedirectToAction(nameof(Index));
             }
 
             await LoadCityDropdownAsync(dto.CityId);
-            TempData["ErrorMessage"] = "İlçe lokasyonu oluşturulamadı.";
+            TempData["ErrorMessage"] = "İlçe lokasyonu eklenemedi.";
             return View(dto);
         }
         [HttpPost]
@@ -106,9 +106,9 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = "İlçe Lokasyonu başarıyla geri alındı.";
+                TempData["SuccessMessage"] = "İlçe lokasyonu başarıyla çöp kutusundan geri alındı.";
             else
-                TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+                TempData["ErrorMessage"] = "İlçe lokasyonunun çöp kutusundan geri alma işlemi başarısız.";
 
             return RedirectToAction(nameof(DeletedDistricts));
         }

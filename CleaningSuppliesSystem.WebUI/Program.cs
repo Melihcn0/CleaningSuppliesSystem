@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿// Program.cs
+using Microsoft.AspNetCore.Identity;
 using System.Reflection;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -7,6 +8,10 @@ using CleaningSuppliesSystem.WebUI.Handlers;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using CleaningSuppliesSystem.DTO.DTOs.LoginDtos;
+using System.Text;
+using CleaningSuppliesSystem.Entity.Entities;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +24,14 @@ builder.Services.AddHttpContextAccessor();
 // TokenService ve DelegatingHandler
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddTransient<TokenHandler>();
+
+// TempData için Session desteği ekleniyor
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // HttpClient + TokenHandler (JWT ile API'ye gidecek client)
 builder.Services.AddHttpClient("CleaningSuppliesSystemClient", client =>
@@ -33,11 +46,84 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         opt.LoginPath = "/Login/SignIn";
         opt.LogoutPath = "/Login/Logout";
         opt.AccessDeniedPath = "/ErrorPage/AccessDenied";
-        opt.Cookie.SameSite = SameSiteMode.Strict;
+
+        opt.Cookie.Name = "CleaningSuppliesSystemCookie";
         opt.Cookie.HttpOnly = true;
         opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        opt.Cookie.Name = "CleaningSuppliesSystemCookie";
+        opt.Cookie.SameSite = SameSiteMode.Strict;
+
+        // Cookie süresi hep 20 dk, sliding expiration kapalı
+        opt.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        opt.SlidingExpiration = false; // artık süre yenilenmeyecek
+        var maxSession = TimeSpan.FromHours(1); // maksimum oturum süresi kontrolü hâlâ geçerli
+
+        opt.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = async context =>
+            {
+                var token = context.Request.Cookies["AccessToken"];
+                var handler = new JwtSecurityTokenHandler();
+
+                async Task LogoutAndUpdateUser(string message)
+                {
+                    var userIdClaim = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int userId))
+                    {
+                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<AppUser>>();
+                        var user = await userManager.FindByIdAsync(userIdClaim);
+                        if (user != null)
+                        {
+                            user.LastLogoutAt = DateTime.UtcNow;
+                            await userManager.UpdateAsync(user);
+                        }
+                    }
+
+                    // Session'a mesaj yaz
+                    context.HttpContext.Session.SetString("SessionExpiredWarning", message);
+
+                    // Principal'ı reddet - redirect işlemini LoginController'a bırak
+                    context.RejectPrincipal();
+                    await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    context.HttpContext.Response.Redirect("/Login/SignIn");
+
+                }
+
+                if (string.IsNullOrEmpty(token))
+                {
+                    await LogoutAndUpdateUser("Oturumunuzun süresi dolmuştur. Lütfen tekrar giriş yapınız.");
+                    return;
+                }
+
+                try
+                {
+                    var jwt = handler.ReadJwtToken(token);
+
+                    if (jwt.ValidTo < DateTime.UtcNow)
+                    {
+                        await LogoutAndUpdateUser("Oturumunuzun süresi dolmuştur. Lütfen tekrar giriş yapınız.");
+                        return;
+                    }
+
+                    var issuedClaim = jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Iat)?.Value;
+                    if (issuedClaim != null && long.TryParse(issuedClaim, out long iatUnix))
+                    {
+                        var issuedTime = DateTimeOffset.FromUnixTimeSeconds(iatUnix).UtcDateTime;
+                        if (DateTime.UtcNow - issuedTime > TimeSpan.FromHours(1))
+                        {
+                            await LogoutAndUpdateUser("Maksimum oturum süreniz dolmuştur. Lütfen tekrar giriş yapınız.");
+                            return;
+                        }
+                    }
+                }
+                catch
+                {
+                    await LogoutAndUpdateUser("Oturumunuz geçersiz hale gelmiştir. Lütfen tekrar giriş yapınız.");
+                }
+            }
+        };
+
     });
+
 
 // Opsiyonel: Identity ayarları
 builder.Services.Configure<IdentityOptions>(options =>
@@ -51,7 +137,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(15);
 });
-
 
 // MVC
 builder.Services.AddControllersWithViews();
@@ -70,44 +155,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Session middleware'i authentication'dan önce eklenmeli
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.Use(async (context, next) =>
-{
-    var token = context.Request.Cookies["AccessToken"];
-    var handler = new JwtSecurityTokenHandler();
-
-    if (!string.IsNullOrEmpty(token))
-    {
-        var jwt = handler.ReadJwtToken(token);
-
-        if (jwt.ValidTo < DateTime.UtcNow ||
-            context.User.Identity?.IsAuthenticated == true &&
-            context.User.FindFirst("Identifier") == null)
-        {
-            context.Response.Cookies.Delete("AccessToken");
-            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            context.User = new ClaimsPrincipal(); // Authenticated false gibi davranır
-            context.Response.Headers["X-Force-Refresh"] = "true"; // false ise refresh
-
-        }
-    }
-
-    await next();
-
-    // Eğer 404 ve 401 ise ve hâlâ authenticated görünüyorsa → login'e yönlendir
-    if ((context.Response.StatusCode == 404 || context.Response.StatusCode == 401) &&
-        context.User.Identity?.IsAuthenticated == true &&
-        !context.Response.HasStarted)
-    {
-        context.Response.Redirect("~/Login/SignIn");
-    }
-});
-
-
 app.UseStatusCodePagesWithReExecute("/ErrorPage/NotFound404/");
-
 
 app.MapControllerRoute(
     name: "areas",

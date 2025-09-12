@@ -17,5 +17,9 @@ namespace CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos
         public ResultProductDto Product { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
+        public decimal? DiscountRate { get; set; }     // İskonto %
+        public decimal? DiscountedUnitPrice { get; set; } // İndirimli fiyat
+        public decimal VatRate { get; set; }
+
     }
 }

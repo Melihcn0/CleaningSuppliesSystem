@@ -15,19 +15,18 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
         }
-        // Admin tüm siparişleri listeler
         public async Task<IActionResult> Index()
         {
             var response = await _client.GetAsync("orders");
 
             if (response.IsSuccessStatusCode)
             {
-                var orders = await response.Content.ReadFromJsonAsync<List<ResultOrderDto>>() ?? new List<ResultOrderDto>();
+                var orders = await response.Content.ReadFromJsonAsync<List<AdminResultOrderDto>>() ?? new List<AdminResultOrderDto>();
                 return View(orders);
             }
 
             TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
-            return View(new List<ResultOrderDto>());
+            return View(new List<AdminResultOrderDto>());
         }
         public async Task<IActionResult> CompletedOrders()
         {
@@ -36,10 +35,10 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
-                return View(new List<ResultOrderDto>());
+                return View(new List<AdminResultOrderDto>());
             }
 
-            var orders = await response.Content.ReadFromJsonAsync<List<ResultOrderDto>>() ?? new List<ResultOrderDto>();
+            var orders = await response.Content.ReadFromJsonAsync<List<AdminResultOrderDto>>() ?? new List<AdminResultOrderDto>();
             return View(orders);
         }
         public async Task<IActionResult> CancelledOrders()
@@ -49,26 +48,24 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
-                return View(new List<ResultOrderDto>());
+                return View(new List<AdminResultOrderDto>());
             }
 
-            var orders = await response.Content.ReadFromJsonAsync<List<ResultOrderDto>>() ?? new List<ResultOrderDto>();
+            var orders = await response.Content.ReadFromJsonAsync<List<AdminResultOrderDto>>() ?? new List<AdminResultOrderDto>();
             return View(orders);
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> OrderDetails(int id)
         {
-            var response = await _client.GetAsync($"orders/{id}");
+            var response = await _client.GetAsync($"orders/AdminResult/{id}");
 
             if (response.IsSuccessStatusCode)
             {
-                var order = await response.Content.ReadFromJsonAsync<ResultOrderDto>();
+                var order = await response.Content.ReadFromJsonAsync<AdminResultOrderDto>();
                 if (order == null)
                 {
-                    // Veri gelmediyse, hata partial view'ını döndür.
                     return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
                 }
-                // Başarılı durumda, sipariş verisiyle birlikte partial view'ı döndür.
                 return PartialView("_OrderDetailPartial", order);
             }
             else
@@ -86,19 +83,49 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 {
                     errorMessage = "Sipariş detayları yüklenirken bir sorun oluştu.";
                 }
-                // Hata durumunda da bir partial view döndür.
                 return PartialView("_ErrorPartial", errorMessage);
+            }
+        }
+        public async Task<IActionResult> ReadOnlyDetails(int id)
+        {
+            var response = await _client.GetAsync($"orders/AdminResult/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var order = await response.Content.ReadFromJsonAsync<AdminResultOrderDto>();
+                if (order == null)
+                {
+                    return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
+                }
+                return PartialView("_ReadOnlyOrderDetailPartial", order);
+            }
+            else
+            {
+                string errorMessage;
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    errorMessage = "Aradığınız sipariş bulunamadı.";
+                }
+                else
+                {
+                    errorMessage = "Sipariş detayları yüklenirken bir sorun oluştu.";
+                }
+                return PartialView("_ReadOnlyOrderDetailPartial", errorMessage);
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> UpdateStatus(int id)
         {
-            var response = await _client.GetAsync($"orders/{id}");
+            var response = await _client.GetAsync($"orders/AdminResult/{id}");
 
             if (response.IsSuccessStatusCode)
             {
-                var order = await response.Content.ReadFromJsonAsync<ResultOrderDto>();
+                var order = await response.Content.ReadFromJsonAsync<AdminResultOrderDto>();
                 if (order == null)
                 {
                     return PartialView("_ErrorPartial", "Belirtilen sipariş bulunamadı.");
@@ -142,6 +169,60 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             fileName = fileName?.Trim('"');
             return File(pdfBytes, "application/pdf", fileName);
         }
+
+        public async Task<IActionResult> DownloadInvoice(int orderId)
+        {
+            var pdfResponse = await _client.GetAsync($"invoices/byorderCustomer/{orderId}");
+            if (!pdfResponse.IsSuccessStatusCode)
+                return RedirectToAction("Index");
+
+            var pdfBytes = await pdfResponse.Content.ReadAsByteArrayAsync();
+            var contentDisposition = pdfResponse.Content.Headers.ContentDisposition;
+            string fileName = contentDisposition?.FileNameStar ?? contentDisposition?.FileName;
+            fileName = fileName?.Trim('"');
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Decrement(int id, int orderId)
+        {
+            try
+            {
+                var response = await _client.PostAsync($"orderitems/decrement/{id}", null);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = "Miktar azaltılamadı." });
+                }
+
+                return Json(new { success = true, message = "Miktar başarıyla azaltıldı." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Remove(int id)
+        {
+            try
+            {
+                var response = await _client.DeleteAsync($"orderitems/{id}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = "Ürün silinemedi." });
+                }
+
+                return Json(new { success = true, message = "Ürün başarıyla silindi." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
 
     }
 }

@@ -10,7 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ess Star | Müşteri Paneli</title>
     <link rel="icon" type="image/png" href="~/images/ess_star_logo_dark.png" sizes="16x16">
-    <!-- Temayı sayfa render olmadan uygula -->
     <script>
         (function () {
             const token = localStorage.getItem("jwt");
@@ -94,12 +93,18 @@
                 <li>
                     <a asp-area="" asp-controller="Home" asp-action="Index">
                         <span class="material-symbols-outlined menu-icon">arrow_menu_close</span>
-                        <span class="menu-text">Ana Sayfaya Dön</span>
+                        <span class="menu-text">Ana Sayfaya Git</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="" asp-controller="Product" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">arrow_menu_close</span>
+                        <span class="menu-text">Ürünler Sayfasına Git</span>
                     </a>
                 </li>
                 <li>
                     <a asp-area="Customer" asp-controller="Order" asp-action="Index">
-                        <span class="material-symbols-outlined menu-icon">fiber_new</span>
+                        <span class="material-symbols-outlined menu-icon">orders</span>
                         <span class="menu-text">Siparişlerim</span>
                     </a>
                 </li>
@@ -146,7 +151,7 @@
                                 </div>
                                 <ul class="to-top-list">
                                     <li>
-                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" asp-area="Customer" asp-controler="CustomerProfile" asp-action="Index">
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" asp-area="Customer" asp-controller="CustomerProfile" asp-action="Index">
                                             <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon>  Profilim
                                         </a>
                                     </li>
@@ -171,7 +176,7 @@
                 <div class="d-flex align-items-center gap-2">
                     @if (ViewBag.ShowBackButton == true)
                     {
-                        <a asp-action="Index" class="btn btn-neutral-500 btn-sm d-flex align-items-center gap-1">
+                        <a asp-action="Index" class="btn btn-info-600 btn-sm d-flex align-items-center gap-1">
                             <span class="material-symbols-outlined">arrow_left</span>
                         </a>
                     }
@@ -358,5 +363,61 @@
 
         // Eğer tema localStorage'da ayrı tutuluyorsa onu da sil
         localStorage.removeItem("theme");
+    }
+</script>
+
+<script>
+        function initOrderDetailDataTable() {
+        const mainTable = $('#dataTable'); // index sayfasındaki tablo
+        const detailTable = $('.js-order-detail-table'); // modal tablosu
+
+        // Tema kopyala
+        if(mainTable.hasClass('table-dark')){
+            detailTable.addClass('table-dark').removeClass('table-light');
+        } else {
+            detailTable.addClass('table-light').removeClass('table-dark');
+        }
+
+        // Eğer DataTable zaten başlatılmışsa destroy
+        if($.fn.DataTable.isDataTable(detailTable)){
+            detailTable.DataTable().destroy();
+        }
+
+        // Başlat
+        detailTable.DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            ordering: false,
+            autoWidth: false
+        });
+    }
+</script>
+
+<script>
+    function initReadOnlyOrderDataTable() {
+        const mainTable = $('#dataTable'); // index sayfasındaki tablo
+        const statusTable = $('.js-readonly-order-table'); // status modal tablosu
+
+        // Tema kopyala
+        if (mainTable.hasClass('table-dark')) {
+            statusTable.addClass('table-dark').removeClass('table-light');
+        } else {
+            statusTable.addClass('table-light').removeClass('table-dark');
+        }
+
+        // Eğer DataTable zaten başlatılmışsa destroy
+        if ($.fn.DataTable.isDataTable(statusTable)) {
+            statusTable.DataTable().destroy();
+        }
+
+        // Başlat
+        statusTable.DataTable({
+            paging: false,
+            searching: false,
+            info: false,
+            ordering: false,
+            autoWidth: false
+        });
     }
 </script>

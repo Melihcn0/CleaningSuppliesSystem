@@ -108,6 +108,9 @@ namespace CleaningSuppliesSystem.API.Extensions
             services.AddScoped<ICompanyAddressService, CompanyAddressManager>();
             services.AddScoped<ICompanyAddressRepository, CompanyAddressRepository>();
 
+            services.AddScoped<ICompanyBankService, CompanyBankManager>();
+            services.AddScoped<ICompanyBankRepository, CompanyBankRepository>();
+
             services.AddHttpClient();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

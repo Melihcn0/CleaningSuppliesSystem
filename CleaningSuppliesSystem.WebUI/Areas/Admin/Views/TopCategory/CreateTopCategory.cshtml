@@ -6,10 +6,15 @@
 
 <form method="post">
     @Html.AntiForgeryToken()
-    <label>Üst Kategori Adı</label>
-    <input type="text" asp-for="Name" class="form-control" />
+    <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Üst Kategori Adı <span class="text-danger-600">*</span>
+    </label>
+    <input type="text" asp-for="Name" class="form-control" minlength="2" maxlength="50" required />
     <span asp-validation-for="Name" class="text-danger"></span>
     <br />
-    <button class="btn btn-primary-600">Kaydet</button>
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
 </form>
 

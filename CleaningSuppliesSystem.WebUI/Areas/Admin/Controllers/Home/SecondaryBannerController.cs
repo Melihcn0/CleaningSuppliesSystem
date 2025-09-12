@@ -47,66 +47,86 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateSecondaryBanner([FromForm] CreateSecondaryBannerDto dto)
         {
-            var validator = new CreateSecondaryBannerValidator();
-            var validationResult = await validator.ValidateAsync(dto);
-
-            if (!validationResult.IsValid)
+            try
             {
-                foreach (var error in validationResult.Errors)
+                // ✅ Validasyon
+                var validator = new CreateSecondaryBannerValidator();
+                var validationResult = await validator.ValidateAsync(dto);
+
+                if (!validationResult.IsValid)
                 {
-                    ModelState.Remove(error.PropertyName);
-                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    foreach (var error in validationResult.Errors)
+                    {
+                        ModelState.Remove(error.PropertyName);
+                        ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    }
+
+                    ViewBag.ShowBackButton = true;
+                    return View(dto);
                 }
 
+                // ✅ Dosyaları WebP olarak kaydet
+                if (dto.ImageFile1 != null)
+                    dto.ImageUrl1 = await SaveImageAsWebPAsync(dto.ImageFile1);
+                if (dto.ImageFile2 != null)
+                    dto.ImageUrl2 = await SaveImageAsWebPAsync(dto.ImageFile2);
+                if (dto.ImageFile3 != null)
+                    dto.ImageUrl3 = await SaveImageAsWebPAsync(dto.ImageFile3);
+
+                // ✅ Form veri paketlemesi (sadece URL gönderiliyor)
+                using var form = new MultipartFormDataContent
+                {
+                    { new StringContent(dto.Title1 ?? ""), "Title1" },
+                    { new StringContent(dto.Title2 ?? ""), "Title2" },
+                    { new StringContent(dto.Title3 ?? ""), "Title3" },
+                    { new StringContent(dto.Description1 ?? ""), "Description1" },
+                    { new StringContent(dto.Description2 ?? ""), "Description2" },
+                    { new StringContent(dto.Description3 ?? ""), "Description3" },
+                    { new StringContent(dto.ButtonTitle1 ?? ""), "ButtonTitle1" },
+                    { new StringContent(dto.ButtonTitle2 ?? ""), "ButtonTitle2" },
+                    { new StringContent(dto.ButtonTitle3 ?? ""), "ButtonTitle3" },
+                    { new StringContent(dto.ImageUrl1 ?? ""), "ImageUrl1" },
+                    { new StringContent(dto.ImageUrl2 ?? ""), "ImageUrl2" },
+                    { new StringContent(dto.ImageUrl3 ?? ""), "ImageUrl3" }
+                };
+
+                // ✅ API çağrısı
+                var response = await _client.PostAsync("secondaryBanners", form);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["SuccessMessage"] = "İkincil banner başarıyla eklendi.";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    // Detaylı hatayı göster
+                    TempData["ErrorMessage"] = $"İkincil banner eklenemedi. Status: {response.StatusCode}, İçerik: {responseContent}";
+                    ViewBag.ShowBackButton = true;
+                    return View(dto);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Tüm beklenmeyen hataları yakala ve detaylı göster
+                TempData["ErrorMessage"] = $"Beklenmeyen bir hata oluştu: {ex.Message}\n{ex.StackTrace}";
                 ViewBag.ShowBackButton = true;
                 return View(dto);
             }
-
-            if (dto.ImageFile1 != null)
-                dto.ImageUrl1 = await SaveImageAsWebPAsync(dto.ImageFile1);
-            if (dto.ImageFile2 != null)
-                dto.ImageUrl2 = await SaveImageAsWebPAsync(dto.ImageFile2);
-            if (dto.ImageFile3 != null)
-                dto.ImageUrl3 = await SaveImageAsWebPAsync(dto.ImageFile3);
-
-            // 📦 Form veri paketlemesi
-            using var form = new MultipartFormDataContent
-            {
-                { new StringContent(dto.Title1 ?? ""), "Title1" },
-                { new StringContent(dto.Title2 ?? ""), "Title2" },
-                { new StringContent(dto.Title3 ?? ""), "Title3" },
-                { new StringContent(dto.Description1 ?? ""), "Description1" },
-                { new StringContent(dto.Description2 ?? ""), "Description2" },
-                { new StringContent(dto.Description3 ?? ""), "Description3" },
-                { new StringContent(dto.ButtonTitle1 ?? ""), "ButtonTitle1" },
-                { new StringContent(dto.ButtonTitle2 ?? ""), "ButtonTitle2" },
-                { new StringContent(dto.ButtonTitle3 ?? ""), "ButtonTitle3" },
-                { new StringContent(dto.ImageUrl1 ?? ""), "ImageUrl1" },
-                { new StringContent(dto.ImageUrl2 ?? ""), "ImageUrl2" },
-                { new StringContent(dto.ImageUrl3 ?? ""), "ImageUrl3" }
-            };
-
-            var response = await _client.PostAsync("SecondaryBanners", form);
-
-            if (response.IsSuccessStatusCode)
-            {
-                TempData["SuccessMessage"] = "İkincil banner başarıyla eklendi.";
-                return RedirectToAction("Index");
-            }
-
-            var errorContent = await response.Content.ReadAsStringAsync();
-            TempData["ErrorMessage"] = $"İkincil banner eklenemedi: {errorContent}";
-            ViewBag.ShowBackButton = true;
-            return View(dto);
         }
-
         [HttpGet]
         public async Task<IActionResult> UpdateSecondaryBanner(int id)
         {
             var dto = await _client.GetFromJsonAsync<UpdateSecondaryBannerDto>($"SecondaryBanners/{id}");
+
+            // BREAKPOINT BURAYA KOY
+            // dto içindeki Title1, Title2, Title3, Description1 vb. dolu mu bak
             if (dto == null) return NotFound();
+
             ViewBag.ShowBackButton = true;
             ViewBag.ExistingImageUrl1 = dto.ImageUrl1;
             ViewBag.ExistingImageUrl2 = dto.ImageUrl2;
@@ -115,8 +135,10 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateSecondaryBanner(UpdateSecondaryBannerDto dto)
         {
+            // ✅ Validasyon
             var validator = new UpdateSecondaryBannerValidator();
             var validationResult = await validator.ValidateAsync(dto);
 
@@ -129,48 +151,72 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
                 }
 
                 ViewBag.ShowBackButton = true;
-                ViewBag.ExistingImageUrl1 = dto.ImageUrl1;
-                ViewBag.ExistingImageUrl2 = dto.ImageUrl2;
-                ViewBag.ExistingImageUrl3 = dto.ImageUrl3;
                 return View(dto);
             }
 
+            // ✅ Resimleri WebP olarak kaydet
             if (dto.ImageFile1 is { Length: > 0 })
             {
                 DeleteImageFileIfExists(dto.ImageUrl1);
                 dto.ImageUrl1 = await SaveImageAsWebPAsync(dto.ImageFile1);
             }
-
             if (dto.ImageFile2 is { Length: > 0 })
             {
                 DeleteImageFileIfExists(dto.ImageUrl2);
                 dto.ImageUrl2 = await SaveImageAsWebPAsync(dto.ImageFile2);
             }
-
             if (dto.ImageFile3 is { Length: > 0 })
             {
                 DeleteImageFileIfExists(dto.ImageUrl3);
                 dto.ImageUrl3 = await SaveImageAsWebPAsync(dto.ImageFile3);
             }
 
-            using var form = new MultipartFormDataContent
-            {
-                { new StringContent(dto.Id.ToString()), "Id" },
-                { new StringContent(dto.Title1 ?? ""), "Title1" },
-                { new StringContent(dto.Title2 ?? ""), "Title2" },
-                { new StringContent(dto.Title3 ?? ""), "Title3" },
-                { new StringContent(dto.Description1 ?? ""), "Description1" },
-                { new StringContent(dto.Description2 ?? ""), "Description2" },
-                { new StringContent(dto.Description3 ?? ""), "Description3" },
-                { new StringContent(dto.ButtonTitle1 ?? ""), "ButtonTitle1" },
-                { new StringContent(dto.ButtonTitle2 ?? ""), "ButtonTitle2" },
-                { new StringContent(dto.ButtonTitle3 ?? ""), "ButtonTitle3" },
-                { new StringContent(dto.ImageUrl1 ?? ""), "ImageUrl1" },
-                { new StringContent(dto.ImageUrl2 ?? ""), "ImageUrl2" },
-                { new StringContent(dto.ImageUrl3 ?? ""), "ImageUrl3" }
-            };
+            // ✅ Multipart form-data içerik
+            using var formData = new MultipartFormDataContent();
 
-            var response = await _client.PutAsync("SecondaryBanners", form);
+            // Text alanları
+            formData.Add(new StringContent(dto.Id.ToString()), "Id");
+            formData.Add(new StringContent(dto.Title1 ?? ""), "Title1");
+            formData.Add(new StringContent(dto.Description1 ?? ""), "Description1");
+            formData.Add(new StringContent(dto.ButtonTitle1 ?? ""), "ButtonTitle1");
+
+            formData.Add(new StringContent(dto.Title2 ?? ""), "Title2");
+            formData.Add(new StringContent(dto.Description2 ?? ""), "Description2");
+            formData.Add(new StringContent(dto.ButtonTitle2 ?? ""), "ButtonTitle2");
+
+            formData.Add(new StringContent(dto.Title3 ?? ""), "Title3");
+            formData.Add(new StringContent(dto.Description3 ?? ""), "Description3");
+            formData.Add(new StringContent(dto.ButtonTitle3 ?? ""), "ButtonTitle3");
+
+            // Resim URL’leri
+            formData.Add(new StringContent(dto.ImageUrl1 ?? ""), "ImageUrl1");
+            formData.Add(new StringContent(dto.ImageUrl2 ?? ""), "ImageUrl2");
+            formData.Add(new StringContent(dto.ImageUrl3 ?? ""), "ImageUrl3");
+
+            // Dosya alanları
+            if (dto.ImageFile1 != null && dto.ImageFile1.Length > 0)
+            {
+                var streamContent = new StreamContent(dto.ImageFile1.OpenReadStream());
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(dto.ImageFile1.ContentType);
+                formData.Add(streamContent, "ImageFile1", dto.ImageFile1.FileName);
+            }
+
+            if (dto.ImageFile2 != null && dto.ImageFile2.Length > 0)
+            {
+                var streamContent = new StreamContent(dto.ImageFile2.OpenReadStream());
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(dto.ImageFile2.ContentType);
+                formData.Add(streamContent, "ImageFile2", dto.ImageFile2.FileName);
+            }
+
+            if (dto.ImageFile3 != null && dto.ImageFile3.Length > 0)
+            {
+                var streamContent = new StreamContent(dto.ImageFile3.OpenReadStream());
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(dto.ImageFile3.ContentType);
+                formData.Add(streamContent, "ImageFile3", dto.ImageFile3.FileName);
+            }
+
+            // ✅ API çağrısı
+            var response = await _client.PutAsync("SecondaryBanners", formData);
 
             if (response.IsSuccessStatusCode)
             {
@@ -180,14 +226,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
 
             var errorDetail = await response.Content.ReadAsStringAsync();
             TempData["ErrorMessage"] = $"İkincil banner güncellenemedi: {errorDetail}";
-
-            ViewBag.ExistingImageUrl1 = dto.ImageUrl1;
-            ViewBag.ExistingImageUrl2 = dto.ImageUrl2;
-            ViewBag.ExistingImageUrl3 = dto.ImageUrl3;
             return View(dto);
         }
 
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeleteSecondaryBanner(int id)
         {
             var response = await _client.PostAsync($"SecondaryBanners/softdelete/{id}", null);
@@ -200,6 +244,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteSecondaryBanner(int id)
         {
             var response = await _client.PostAsync($"SecondaryBanners/undosoftdelete/{id}", null);
@@ -208,6 +253,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteSecondaryBanner(int id)
         {
             var responseBanner = await _client.GetAsync($"SecondaryBanners/{id}");
@@ -229,6 +275,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
 
             return Ok(deleteContent);
         }
+        // ✅ Dosya silme metodu
         private void DeleteImageFileIfExists(string? imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl)) return;
@@ -237,10 +284,25 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
             var fullPath = Path.Combine(_env.WebRootPath, relativePath);
 
             if (System.IO.File.Exists(fullPath))
-                System.IO.File.Delete(fullPath);
+            {
+                try
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+                catch (IOException ex)
+                {
+                    // Dosya başka bir process tarafından kullanılıyor olabilir
+                    // Burada loglayabilirsin ama crash olmasına izin verme
+                    Console.WriteLine($"Dosya silinirken hata: {ex.Message}");
+                }
+            }
         }
+        // ✅ Resmi WebP olarak kaydet
         private async Task<string> SaveImageAsWebPAsync(IFormFile imageFile)
         {
+            if (imageFile == null || imageFile.Length == 0)
+                throw new ArgumentException("Geçersiz resim dosyası.");
+
             var uploads = Path.Combine(_env.WebRootPath, "images", "secondaryBanners");
             Directory.CreateDirectory(uploads);
 
@@ -251,16 +313,15 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers.Home
             await imageFile.CopyToAsync(ms);
             ms.Position = 0;
 
-            using Image<Rgba32> image = Image.Load<Rgba32>(ms);
-
+            using var image = await Image.LoadAsync(ms); // otomatik format algılar
             var encoder = new WebpEncoder { Quality = 100 };
-
             await image.SaveAsync(filePath, encoder);
-            return "/images/SecondaryBanners/" + fileName;
+
+            return "/images/secondaryBanners/" + fileName;
         }
 
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int secondaryBannerId, bool newStatus)
         {
             var content = new StringContent("", Encoding.UTF8, "application/json");

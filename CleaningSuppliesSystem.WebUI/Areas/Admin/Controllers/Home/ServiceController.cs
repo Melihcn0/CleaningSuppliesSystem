@@ -25,7 +25,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
         private async Task LoadUnusedServiceIconsDropdownAsync(int? selectedIconId = null)
         {
-            var icons = await _client.GetFromJsonAsync<List<ResultServiceIconDto>>("ServiceIcons/unused-active");
+            var icons = await _client.GetFromJsonAsync<List<ResultServiceIconDto>>("ServiceIcons/active");
             ViewBag.serviceIcons = new SelectList(icons, "Id", "IconName", selectedIconId);
         }
 
@@ -36,6 +36,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeleteService(int id)
         {
             var response = await _client.PostAsync($"Services/softdelete/{id}", null);
@@ -48,6 +49,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeleteService(int id)
         {
             var response = await _client.PostAsync($"Services/undosoftdelete/{id}", null);
@@ -76,6 +78,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateService(CreateServiceDto createServiceDto)
         {
             var iconResponse = await _client.GetAsync($"ServiceIcons/{createServiceDto.ServiceIconId}");
@@ -129,9 +132,8 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateService(UpdateServiceDto updateServiceDto)
         {
             var validator = new UpdateServiceValidator();
@@ -159,7 +161,9 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             TempData["SuccessMessage"] = "Hizmet başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteService(int id)
         {
             var response = await _client.DeleteAsync($"Services/permanent/{id}");
@@ -169,6 +173,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int serviceId, bool newStatus)
         {
             var content = new StringContent("", Encoding.UTF8, "application/json");

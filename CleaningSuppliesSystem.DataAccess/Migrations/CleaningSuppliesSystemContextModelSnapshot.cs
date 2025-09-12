@@ -334,6 +334,34 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.ToTable("CompanyAddresses");
                 });
 
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CompanyBank", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountHolder")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AppUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IBAN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId")
+                        .IsUnique();
+
+                    b.ToTable("CompanyBanks");
+                });
+
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerCorporateAddress", b =>
                 {
                     b.Property<int>("Id")
@@ -562,47 +590,6 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.ToTable("Invoices");
                 });
 
-            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.InvoiceItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("InvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("VatAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("VatRate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.ToTable("InvoiceItems");
-                });
-
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.LocationCity", b =>
                 {
                     b.Property<int>("CityId")
@@ -718,6 +705,12 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("DiscountRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DiscountedUnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
@@ -755,6 +748,9 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -762,9 +758,6 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("DiscountRate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("DiscountedPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ImageUrl")
@@ -789,8 +782,8 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("VatRate")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("VatRate")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1012,6 +1005,56 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.ToTable("TopCategories");
                 });
 
+            modelBuilder.Entity("InvoiceItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DiscountRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DiscountedUnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("VatAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("VatRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("InvoiceItems");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -1152,6 +1195,17 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CompanyBank", b =>
+                {
+                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppUser", "AppUser")
+                        .WithOne("CompanyBank")
+                        .HasForeignKey("CleaningSuppliesSystem.Entity.Entities.CompanyBank", "AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.CustomerCorporateAddress", b =>
                 {
                     b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppUser", "AppUser")
@@ -1183,17 +1237,6 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.InvoiceItem", b =>
-                {
-                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.Invoice", "Invoice")
-                        .WithMany("InvoiceItems")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.LocationDistrict", b =>
@@ -1270,6 +1313,17 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.Navigation("TopCategory");
                 });
 
+            modelBuilder.Entity("InvoiceItem", b =>
+                {
+                    b.HasOne("CleaningSuppliesSystem.Entity.Entities.Invoice", "Invoice")
+                        .WithMany("InvoiceItems")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("CleaningSuppliesSystem.Entity.Entities.AppRole", null)
@@ -1323,8 +1377,9 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
 
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.AppUser", b =>
                 {
-                    b.Navigation("CompanyAddress")
-                        .IsRequired();
+                    b.Navigation("CompanyAddress");
+
+                    b.Navigation("CompanyBank");
 
                     b.Navigation("CustomerCorporateAddresses");
 

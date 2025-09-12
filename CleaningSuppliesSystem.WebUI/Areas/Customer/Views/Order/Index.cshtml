@@ -1,27 +1,45 @@
-﻿@model List<ResultOrderDto>
+﻿@model List<CustomerResultOrderDto>
 
 @{
     ViewData["Title"] = "Siparişlerim";
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    string formattedIban = "-";
+    if (ViewBag.AdminIban != null)
+    {
+        string iban = (string)ViewBag.AdminIban;
+        formattedIban = "";
+        for (int i = 0; i < iban.Length; i += 4)
+        {
+            if (i + 4 <= iban.Length)
+                formattedIban += iban.Substring(i, 4) + " ";
+            else
+                formattedIban += iban.Substring(i);
+        }
+        formattedIban = formattedIban.Trim();
+    }
+    string accountHolder = ViewBag.AdminNameSurname ?? "-";
 }
 
 <div class="p-16 bg-neutral-100 radius-8 border-start-width-3-px border-neutral-600 border-top-0 border-end-0 border-bottom-0 mb-3 shadow-sm">
-    <h6 class="text-primary-light text-md mb-8">Ödeme Talimatları</h6>
-    <ul class="list-unstyled mb-0 space-y-2" style="font-size: 0.9rem;">
-        <li>Toplam tutarı aşağıdaki IBAN'a havale edin.</li>
-        <li>Açıklama kısmına <strong>Sipariş Numaranızı</strong> yazın.</li>
-        <li>Ödeme yapıldığında siparişiniz işleme alınacaktır.</li>
-    </ul>
+        <h6 class="mb-2" style="font-size: 1rem;">Sipariş İşlemleri Hakkında Bilgilendirme</h6>
+        <ul class="mb-2 ps-3" style="list-style-type: disc; font-size: 0.9rem;">
+            <li>Sepetinizi onayladıktan sonra ödeme gerçekleştirebilirsiniz.</li>
+            <li>Ödenecek tutarı havale ettiğinizde siparişiniz hazırlanacaktır.</li>
+            <li>Siparişiniz kargoya verildiğinde durumu otomatik olarak güncellenecektir.</li>
+            <li>Sipariş detaylarına daha fazla bilgi için "Daha Fazla" butonuna basabilirsiniz.</li>
+        </ul>
+        <strong>
+            <small class="d-block mt-2">
+                Not: Fatura oluşturulduktan sonra sipariş numarasını kontrol etmeyi unutmayın.
+            </small>
+        </strong>
     <div class="mt-2" style="font-size: 0.9rem;">
-        <strong>Alıcı:</strong> Zülküf Aktaş<br>
-        <strong>IBAN:</strong> TR12 3456 7890 1234 5678 9012 34<br>
-        <strong>Açıklama:</strong> [Sipariş Numarası]
+        <strong>Alıcı:</strong> <span id="admin-name">@accountHolder</span><br>
+        <strong>IBAN:</strong> <span id="admin-iban">@formattedIban</span><br>
+        <strong>Açıklama:</strong> [Sipariş No]
     </div>
-    <small class="d-block mt-2" style="font-size: 0.8rem;">
-        Not: Havale tamamlanmadan sipariş işleme alınmaz.
-    </small>
 </div>
-
 
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
@@ -38,6 +56,7 @@
                             <th>#</th>
                             <th>Sipariş No</th>
                             <th>Sipariş Tarihi</th>
+                            <th>Ödenecek Tutar</th>
                             <th>Sipariş Durumu</th>
                             <th>Detay</th>
                         </tr>
@@ -53,176 +72,342 @@
                                 "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
                                 "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
                                 "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
-                                "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+                                "Onaylandı" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
                                 _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
                             };
 
                             <tr>
                                 <td>@(i + 1)</td>
-                                <td><strong>#@order.OrderNumber</strong></td>
+                                <td><strong>#@order.OrderNumber.Substring(order.OrderNumber.IndexOf('-') + 1)</strong></td>
                                 <td>
-                                    @order.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                                    @order.CreatedDate.ToString("dd MMMM yyyy dddd")
+                                    <span>
+                                        🟢 <b>Oluşturma:</b>
+                                        @order.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
                                 </td>
+                                <td>@order.TotalAmountWithVat.ToString("C", new System.Globalization.CultureInfo("tr-TR"))</td>
+
                                 <td>
                                     <span class="@statusClass">@order.Status</span>
                                 </td>
                                 <td>
                                     <div class="d-flex flex-nowrap gap-2">
-                                        <a href="#" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center btn-sm js-show-order-detail" data-order-id="@order.Id" title="Detay">
-                                            <span class="material-symbols-outlined me-1">read_more</span> Daha Fazla..
-                                        </a>
                                         @if (order.Status == "Onay Bekleniyor")
                                         {
+                                            <a href="#" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center btn-sm js-show-order-detail" data-order-id="@order.Id" title="Detay">
+                                                <span class="material-symbols-outlined me-1">read_more</span> Daha Fazla..
+                                            </a>
+                                            <button type="button" class="btn rounded-pill btn-success-100 text-success-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="confirmOrder(@order.Id)">
+                                                <span class="material-symbols-outlined me-1">check_circle</span> Siparişi Onayla
+                                            </button>
                                             <button type="button" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="cancelOrder(@order.Id)">
                                                 <span class="material-symbols-outlined me-1">cancel</span> İptal Et
                                             </button>
-                                        }
-                                        @if (order.Status != "Onay Bekleniyor" && order.Status != "Onaylandı" && order.Status != "İptal Edildi")
+                                        }                                        
+                                        else
                                         {
-                                            <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-orderId="@order.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
-                                                <span class="material-symbols-outlined me-1">download</span> Faturayı İndir
+                                            <a href="#" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center btn-sm js-show-readonly-order" data-order-id="@order.Id" title="Detay">
+                                                <span class="material-symbols-outlined me-1">read_more</span> Daha Fazla..
                                             </a>
+                                            @if (order.Status != "Onay Bekleniyor" && order.Status != "Onaylandı" && order.Status != "İptal Edildi")
+                                            {
+                                                <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-orderId="@order.Id" class="btn rounded-pill btn-neutral-100 text-neutral-600 radius-8 d-inline-flex align-items-center btn-sm" title="Faturayı İndir">
+                                                    <span class="material-symbols-outlined me-1">download</span> Faturayı İndir
+                                                </a>
+                                            }
                                         }
                                     </div>
                                 </td>
-
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
 
-            <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content" id="orderDetailModalContent">
+            <!-- Modal -->
+            <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel"  aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div id="orderDetailModalContent"></div>
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="orderReadOnlyModal" tabindex="-1" aria-labelledby="orderReadOnlyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div id="orderReadOnlyModalContent"></div>
+                    </div>
+                </div>
+            </div>
+
         }
         else
         {
             <div class="text-center py-5">
-                <div class="text-muted">
                     <i class="fas fa-shopping-cart fa-3x mb-3 opacity-25"></i>
                     <h5>Hiç sipariş bulunamadı</h5>
                     <p>Henüz bir siparişiniz bulunmamaktadır.</p>
-                </div>
             </div>
         }
     </div>
 </div>
+
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        $(document).ready(function () {
-            // Sipariş detay modalını açma işlevi
-            $('.js-show-order-detail').on('click', function (e) {
+        $(function(){
+            let currentOrderId = null;
+
+            // --- Detail Modal ---
+            const detailModalEl = $('#orderDetailModal');
+            const modalContent = $('#orderDetailModalContent');  
+            const bsModal = new bootstrap.Modal($('#orderDetailModal')[0], {backdrop:'static', keyboard:false});
+
+
+            // --- Readonly Modal ---
+            const readonlyModalEl = $('#orderReadOnlyModal');
+            const readonlyModalContent = $('#orderReadOnlyModalContent');
+            const bsReadonlyModal = new bootstrap.Modal(readonlyModalEl[0], {backdrop:'static', keyboard:false});
+
+            const getToken = () => $('input[name="__RequestVerificationToken"]').val();
+
+            // Event binding
+            $(document).on('click', '.js-show-order-detail', function(e){
                 e.preventDefault();
-
-                var orderId = $(this).data('order-id');
-                var modal = $('#orderDetailModal');
-                var modalContent = $('#orderDetailModalContent');
-
-                // Modal içeriği yüklenirken geçici yükleniyor ekranı göster
-                modalContent.html(`
-                    <div class="modal-header">
-                        <h5 class="modal-title">Yükleniyor...</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                    </div>
-                    <div class="modal-body text-center p-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Yükleniyor...</span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                    </div>
-                `);
-
-                // Bootstrap 5 modalı açma
-                var bootstrapModal = new bootstrap.Modal(modal[0]);
-                bootstrapModal.show();
-
-                // AJAX ile sipariş detaylarını çek
-                $.ajax({
-                    url: '/Customer/Order/Details/' + orderId,
-                    type: 'GET',
-                    success: function (data) {
-                        modalContent.html(data);
-                    },
-                    error: function (xhr) {
-                        var errorMessage = "Sipariş detayı yüklenirken bir sorun oluştu.";
-                        if (xhr.status === 403) {
-                            errorMessage = "Bu siparişi görüntüleme yetkiniz yok.";
-                        } else if (xhr.status === 404) {
-                            errorMessage = "Belirtilen sipariş bulunamadı.";
-                        }
-
-                        modalContent.html(`
-                            <div class="modal-header">
-                                <h5 class="modal-title text-danger">Hata</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="alert alert-danger">${errorMessage}</div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-                            </div>
-                        `);
-                    }
-                });
+                currentOrderId = $(this).data('order-id');
+                loadOrderDetail(currentOrderId);
             });
 
-            // Sipariş iptal etme işlevi
-            window.cancelOrder = function (orderId) {
-                Swal.fire({
-                    title: 'Siparişi iptal etmek istiyor musunuz?',
-                    text: "Bu işlem geri alınamaz.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Evet, iptal et',
-                    cancelButtonText: 'Hayır',
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#dc3545',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // AJAX isteği için verileri hazırlama
-                        var requestData = {
-                            id: orderId,
-                            // Anti-forgery token'ı otomatik olarak al ve veriye ekle
-                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                        };
+            //readonly tıklaması burada
+            $(document).on('click', '.js-show-readonly-order', function(e){
+                e.preventDefault();
+                currentOrderId = $(this).data('order-id');
+                loadOrderReadOnlyDetail(currentOrderId); // 
+            });
 
-                        $.ajax({
-                            url: '/Customer/Order/Cancel',
+               // Spinner gösterme fonksiyonu
+        function showLoading(contentEl) {
+            contentEl.html(`
+                <div class="modal-header">
+                    <h5 class="modal-title">Yükleniyor...</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+            `);
+        }
+
+        // Sipariş Detay Modalı
+        function loadOrderDetail(orderId) {
+            showLoading(modalContent);
+            bsModal.show(); // ✅ Doğru modal
+
+            $.get('/Customer/Order/OrderDetails/' + orderId)
+                .done(function(data) {
+                    if ($(data).find('tbody tr').length === 0) return location.reload();
+                    modalContent.html(data);
+                    initOrderDetailDataTable();
+                })
+                .fail(function(xhr) {
+                    let msg = xhr.status === 403 ? "Bu siparişi görüntüleme yetkiniz yok." :
+                              xhr.status === 404 ? "Sipariş bulunamadı." : "Sipariş detayı yüklenemedi.";
+                    modalContent.html(`<div class="alert alert-danger">${msg}</div>`);
+                });
+        }
+
+
+        // --- Salt Okunur Modal ---
+        function loadOrderReadOnlyDetail(orderId) {
+            showLoading(readonlyModalContent); // readonlyModalContent = #orderReadOnlyModalContent
+            bsReadonlyModal.show();             // Doğru modal açılıyor
+
+            $.get('/Customer/Order/ReadOnlyDetails/' + orderId)
+                .done(function(data) {
+                    if ($(data).find('tbody tr').length === 0) return location.reload();
+                    readonlyModalContent.html(data);
+                    initReadOnlyOrderDataTable();
+                })
+                .fail(function(xhr) {
+                    let msg = xhr.status === 403 ? "Bu siparişi görüntüleme yetkiniz yok." :
+                              xhr.status === 404 ? "Sipariş bulunamadı." : "Sipariş detayı yüklenemedi.";
+                    readonlyModalContent.html(`<div class="alert alert-danger">${msg}</div>`);
+                });
+        }
+
+        function postOrderAction(url, data, successMsg, errorMsg){
+                $.post(url, data)
+                .done(()=>loadOrderDetail(currentOrderId, successMsg))
+                .fail(()=>loadOrderDetail(currentOrderId, errorMsg, false));
+            }
+
+
+        function showToast(message, type='success', dark=false){
+            Swal.fire({
+                icon: type, // success veya error
+                title: type === 'success' ? 'Başarılı' : 'Hata',
+                html: message,
+                timer: 1500,
+                timerProgressBar: true,
+                showConfirmButton: false, // buton kaldırıldı
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false,
+                didOpen: () => {
+                    const bar = document.querySelector('.swal2-timer-progress-bar');
+                    if(bar) bar.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+                }
+            });
+        }
+
+        // --- Miktar Azalt ---
+        $(document).on('click', '.btn-decrement', function(){
+            const id = $(this).data('id');
+            const dark = $('html').attr('data-theme')==='dark';
+
+            Swal.fire({
+                title:'Emin misiniz?',
+                text:'Bu işlem seçilen üründen yalnızca 1 adet azaltacaktır.',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Evet, azalt',
+                cancelButtonText:'Hayır',
+                confirmButtonColor: dark ? '#0d6efd' : '#007bff',
+                cancelButtonColor: dark ? '#6c757d' : '#6c757d',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false
+            }).then(result=>{
+                if(result.isConfirmed){
+                    $.post('/Customer/Order/Decrement',{id, orderId:currentOrderId,__RequestVerificationToken:getToken()})
+                    .done(()=>{
+                        showToast('Miktar başarıyla azaltıldı.', 'success', dark);
+                        $.get('/Customer/Order/OrderDetails/' + currentOrderId, function(data){
+                            if($(data).find('tbody tr').length === 0) location.reload();
+                            else loadOrderDetail(currentOrderId);
+                        });
+                    })
+                    .fail(()=>showToast('Miktar azaltılamadı.', 'error', dark));
+                }
+            });
+        });
+
+        // --- Ürün Sil ---
+        $(document).on('click', '.btn-remove', function(){
+            const id = $(this).data('id');
+            const dark = $('html').attr('data-theme')==='dark';
+
+            Swal.fire({
+                title:'Emin misiniz?',
+                text:'Bu işlem ile sepetten bu ürünün tamamı çıkarılacaktır.',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Tamam',
+                cancelButtonText:'İptal',
+                confirmButtonColor: dark ? '#0d6efd' : '#007bff',
+                cancelButtonColor: dark ? '#6c757d' : '#6c757d',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick:false, allowEscapeKey:false, allowEnterKey:false
+            }).then(result=>{
+                if(result.isConfirmed){
+                    $.post('/Customer/Order/Remove',{id, orderId:currentOrderId,__RequestVerificationToken:getToken()})
+                    .done(()=>{
+                        showToast('Ürün başarıyla silindi.', 'success', dark);
+                        $.get('/Customer/Order/OrderDetails/' + currentOrderId, function(data){
+                            if($(data).find('tbody tr').length === 0) location.reload();
+                            else loadOrderDetail(currentOrderId);
+                        });
+                    })
+                    .fail(()=>showToast('Ürün silinemedi.', 'error', dark));
+
+                }
+            });
+        });
+
+                window.cancelOrder = function(orderId){
+            const dark = $('html').attr('data-theme') === 'dark';
+
+            Swal.fire({
+                title: 'Siparişi iptal etmek istiyor musunuz?',
+                text: 'Bu işlem geri alınamaz.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Tamam',
+                cancelButtonText: 'İptal',
+                confirmButtonColor: dark ? '#0d6efd' : '#28a745',
+                cancelButtonColor: dark ? '#6c757d' : '#dc3545',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(result => {
+                if(result.isConfirmed){
+                           $.ajax({
+                            url: '/Customer/Order/UpdateStatus',
                             type: 'POST',
-                            data: requestData,
-                            success: function () {
-                                Swal.fire({
-                                    title: 'İptal Edildi!',
-                                    text: 'Siparişiniz iptal edildi.',
-                                    icon: 'success',
-                                    timer: 1500,
-                                    showConfirmButton: false,
-                                    allowOutsideClick: false,
-                                    allowEscapeKey: false,
-                                    timerProgressBar: true
-                                }).then(() => {
-                                    location.reload();
-                                });
+                            contentType: 'application/json',   // JSON olarak gönder
+                            data: JSON.stringify({
+                                id: orderId,
+                                status: "İptal Edildi"
+                            }),
+                            headers: {
+                                'RequestVerificationToken': getToken()   // token varsa header üzerinden
                             },
-                            error: function () {
-                                Swal.fire('Hata', 'Sipariş iptal edilemedi.', 'error');
+                            success: function() {
+                                showToast('Sipariş başarıyla iptal edildi.', 'success', dark);
+                                setTimeout(() => location.reload(), 1500);
+                            },
+                            error: function() {
+                                showToast('Sipariş iptal edilemedi.', 'error', dark);
                             }
                         });
-                    }
-                });
-            }
+
+                }
+            });
+        };
+
+
+        window.confirmOrder = function(orderId){
+            const dark = $('html').attr('data-theme') === 'dark';
+
+            Swal.fire({
+                title: 'Siparişi onaylamak istiyor musunuz?',
+                text: 'Bu işlem geri alınamaz.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Tamam',
+                cancelButtonText: 'İptal',
+                confirmButtonColor: dark ? '#0d6efd' : '#28a745',
+                cancelButtonColor: dark ? '#6c757d' : '#dc3545',
+                background: dark ? '#1e1e2f' : '#fff',
+                color: dark ? '#fff' : '#000',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(result => {
+                if(result.isConfirmed){
+                    $.ajax({
+                        url:'/Customer/Order/UpdateStatus',
+                        type:'POST',
+                        contentType:'application/json',
+                        data: JSON.stringify({Id:orderId, Status:'Onaylandı'}),
+                        headers:{'RequestVerificationToken':getToken()},
+                        success: () => {
+                            showToast('Sipariş başarıyla onaylandı.', 'success', dark);
+                            setTimeout(() => location.reload(), 1500);
+                        },
+                        error: () => showToast('Sipariş onaylanamadı.', 'error', dark)
+                    });
+                }
+            });
+        };
+
+
+
         });
     </script>
+
 }

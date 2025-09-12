@@ -90,7 +90,7 @@ public class TopCategoryController : Controller
 
         if (response.IsSuccessStatusCode)
         {
-            TempData["SuccessMessage"] = "Üst kategori güncellendi.";
+            TempData["SuccessMessage"] = "Üst kategori başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -118,9 +118,9 @@ public class TopCategoryController : Controller
         var response = await _client.PostAsync($"TopCategories/undosoftdelete/{id}", null);
 
         if (response.IsSuccessStatusCode)
-            TempData["SuccessMessage"] = "Üst kategori geri alındı.";
+            TempData["SuccessMessage"] = "Üst kategori çöp kutusundan başarıyla geri alındı.";
         else
-            TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+            TempData["ErrorMessage"] = "Üst kategorinin çöp kutusundan geri alma işlemi başarısız.";
 
         return RedirectToAction(nameof(DeletedTopCategory));
     }

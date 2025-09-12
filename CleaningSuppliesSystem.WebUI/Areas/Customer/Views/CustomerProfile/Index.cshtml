@@ -8,12 +8,13 @@
     <div class="row gy-4">
         <!-- Sol Panel -->
         <div class="col-lg-4">
-            <div class="user-grid-card position-relative border radius-16 overflow-hidden bg-base h-100">
-                <img src="~/images/image6.png" alt="" class="w-100 object-fit-cover">
-                <div class="ms-16 mb-24 me-16 mt--100">
+            <div class="shadow-4 border radius-8 overflow-hidden h-100">
+                <div class="user-grid-card position-relative bg-base h-100">
+                    <img src="~/images/image6.png" alt="" class="w-100 object-fit-cover">
+                    <div class="ms-16 mb-24 me-16 mt--100">
                     <div class="text-center border border-top-0 border-start-0 border-end-0">
-                        <img src="~/images/image7.png" alt=""
-                             class="border br-white border-width-2-px w-200-px h-200-px rounded-circle object-fit-cover">
+                     <img src="~/images/Image7.png" alt=""
+                             class="border br-white border-width-2-px w-160-px h-160-px rounded-circle object-fit-cover">
                         <h6 class="mb-0 mt-16">
                             @(!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) || !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName)
                                 ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}" : "-")
@@ -101,10 +102,12 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- Sağ Panel -->
         <div class="col-lg-8">
+            <div class="shadow-4 border radius-8">
             <div class="card h-100">
                 <div class="card-body p-24">
                     <!-- Tab Nav -->
@@ -210,7 +213,7 @@
                         <div class="tab-pane fade @(ViewBag.ActiveTab == "pills-blank" ? "show active" : "")"
                              id="pills-blank" role="tabpanel"
                              aria-labelledby="pills-blank-tab">
-                            <div class="p-16 bg-info-50 radius-8 border-start-width-3-px border-info mt-3 shadow-sm">
+                                <div class="p-16 bg-transparent radius-8 border-start-width-3-px shadow-4">
                                 <h6 class="text-primary-light text-md mb-8">Hesap Bilgilendirmesi</h6>
                                 <ul class="list-unstyled mb-0 space-y-2">
                                     <li>Profil bilgilerinizi üstteki bölümlerden doldurabilirsiniz.</li>
@@ -224,27 +227,35 @@
             </div>
         </div>
     </div>
+    </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        document.getElementById('PhoneNumber').addEventListener('input', function() {
-            let d = this.value.replace(/\D/g,'').substring(0,12);
-            if(d.startsWith('0')) d='90'+d.slice(1);
-            else if(!d.startsWith('90')) d='90'+d;
-            this.value = '+'
-                + d.slice(0,2)+' '
-                + (d.length>2?d.slice(2,5)+' ':'')
-                + (d.length>5?d.slice(5,8)+' ':'')
-                + (d.length>8?d.slice(8,10)+' ':'')
-                + (d.length>10?d.slice(10,12):'')
-                .trim();
-        });
-    </script>
+                document.getElementById('PhoneNumber').addEventListener('input', function() {
+                    let value = this.value.replace(/\D/g, '');
 
-    <script>
+                    if(value === '') {
+                        this.value = '';
+                        return;
+                    }
+
+                    if(value.startsWith('0')) value = '90' + value.slice(1);
+                    else if(!value.startsWith('90')) value = '90' + value;
+
+                    let formatted = '+' +
+                        value.slice(0,2) + ' ' +
+                        (value.length>2 ? value.slice(2,5)+' ' : '') +
+                        (value.length>5 ? value.slice(5,8)+' ' : '') +
+                        (value.length>8 ? value.slice(8,10)+' ' : '') +
+                        (value.length>10 ? value.slice(10,12) : '');
+
+                    this.value = formatted.trim();
+                });
+
+
               // SweetAlert fonksiyonunuzun güncellenmiş hali
         function updateCustomerProfile() {
             const form = document.getElementById("updateCustomerProfileForm");

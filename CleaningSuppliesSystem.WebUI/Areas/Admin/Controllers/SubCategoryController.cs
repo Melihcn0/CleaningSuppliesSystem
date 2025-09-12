@@ -162,7 +162,12 @@ public class SubCategoryController : Controller
     public async Task<IActionResult> UndoSoftDeletedSubCategory(int id)
     {
         var response = await _client.PostAsync($"subCategories/undosoftdelete/{id}", null);
-        TempData["SuccessMessage"] = response.IsSuccessStatusCode ? "Üst kategori geri alındı." : "Geri alma işlemi başarısız.";
+
+        if (response.IsSuccessStatusCode)
+            TempData["SuccessMessage"] = "Alt kategori başarıyla çöp kutusundan geri alındı.";
+        else
+            TempData["ErrorMessage"] = "Alt kategorinin çöp kutusundan geri alma işlemi başarısız.";
+
         return RedirectToAction(nameof(DeletedSubCategory));
     }
 
@@ -174,12 +179,11 @@ public class SubCategoryController : Controller
         var content = await response.Content.ReadAsStringAsync();
 
         if (response.IsSuccessStatusCode)
-            TempData["SuccessMessage"] = "Alt Kategori başarıyla kalıcı silindi.";
+            return Ok(content);
         else
-            TempData["ErrorMessage"] = "Alt Kategori silinemedi.";
-
-        return RedirectToAction(nameof(Index));
+            return BadRequest(content);
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]

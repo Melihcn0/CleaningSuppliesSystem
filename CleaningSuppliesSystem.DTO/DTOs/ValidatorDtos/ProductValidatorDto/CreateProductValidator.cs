@@ -16,6 +16,9 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.ProductValidatorDto
                 .NotEmpty().WithMessage("Ürün adı boş bırakılamaz.")
                 .MaximumLength(70).WithMessage("Ürün adı en fazla 70 karakter olmalıdır.");
 
+            RuleFor(x => x.CategoryId)
+                .GreaterThan(0).WithMessage("Ürün Grubu / Kategori seçimi zorunludur.");
+
             RuleFor(x => x.BrandId)
                 .GreaterThan(0).WithMessage("Marka seçimi zorunludur.");
 
@@ -24,8 +27,15 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.ProductValidatorDto
                 .LessThanOrEqualTo(5000).WithMessage("Ürün birim fiyatı 5.000₺ geçemez.");
 
             RuleFor(x => x.VatRate)
+                .NotNull().WithMessage("KDV oranı boş bırakılamaz.")
                 .GreaterThanOrEqualTo(0).WithMessage("KDV oranı 0 veya daha büyük olmalı.")
                 .LessThanOrEqualTo(100).WithMessage("KDV 100’ü geçemez.");
+
+            RuleFor(x => x.ImageFile)
+                .Must((dto, file) => file != null || !string.IsNullOrWhiteSpace(dto.ImageUrl))
+                .WithMessage("Ürün fotoğrafı gereklidir.");
+
+
         }
     }
 }

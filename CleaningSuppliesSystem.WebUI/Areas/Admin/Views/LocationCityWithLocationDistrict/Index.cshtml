@@ -9,16 +9,16 @@
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Şehir ve İlçe Lokasyonları Listesi</h5>
+        <h5 class="card-title mb-0 mt-1">Şehir ve İlçe Lokasyonları Listesi</h5>
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
         </div>
     </div>
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
             <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-                <thead class="table-light">
+                <thead>
                     <tr>
-                        <th>#</th>
+                        <th class="text-start">#</th>
                         <th>Şehir Adı</th>
                         <th>İlçe Adı</th>
                     </tr>
@@ -29,13 +29,12 @@
                         count++;
                         <tr>
                             <td>@count</td>
-                            <td>@item.CityName</td>
+                            <td><b><u>@item.CityName</u></b></td>
                             <td>
                                 @(item.Districts?.Any() == true
                                     ? string.Join(", ", item.Districts)
-                                    : $"'{item.CityName}' için henüz ilçe ataması yapılmadı")
+                                    : $"<b><u>{item.CityName}</u></b> için henüz ilçe ataması yapılmadı")
                             </td>
-
                         </tr>
                     }
                 </tbody>

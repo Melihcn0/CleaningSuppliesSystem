@@ -31,6 +31,7 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CustomerProfileValidator
 
             RuleFor(x => x.PhoneNumber)
                 .NotEmpty().WithMessage("Telefon numarası boş bırakılamaz.")
+                .MinimumLength(17).WithMessage("Telefon numarası en az 17 karakter olmalıdır.")
                 .MaximumLength(17).WithMessage("Telefon numarası en fazla 17 karakter olmalıdır.");
 
             RuleFor(x => x.NationalId)

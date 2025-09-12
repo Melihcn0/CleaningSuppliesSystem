@@ -9,9 +9,10 @@ namespace CleaningSuppliesSystem.DTO.DTOs.LoginDtos
 {
     public class LoginResponseDto
     {
-        public InnerTokenDto Token { get; set; }
+        public string Token { get; set; }       // JWT string
+        public DateTime ExpireDate { get; set; }
+        public bool IsActive { get; set; }
         public string Message { get; set; }
-        public string Theme { get; set; }
+        public string Theme { get; set; }       // hep "light"
     }
-
 }

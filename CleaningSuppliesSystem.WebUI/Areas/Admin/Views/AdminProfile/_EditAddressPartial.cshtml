@@ -18,7 +18,7 @@
         <div class="col-sm-6">
             <div class="mb-20">
                 <label asp-for="TaxOffice" class="form-label fw-semibold text-primary-light text-sm mb-8">
-                    Vergi Dairesi
+                    Vergi Dairesi <span class="text-danger-600">*</span>
                 </label>
                 <input asp-for="TaxOffice" class="form-control radius-8" maxlength="100" required />
                 <span asp-validation-for="TaxOffice" class="text-danger"></span>
@@ -28,7 +28,7 @@
         <div class="col-sm-6">
             <div class="mb-20">
                 <label asp-for="TaxNumber" class="form-label fw-semibold text-primary-light text-sm mb-8">
-                    Vergi Numarası
+                    Vergi Numarası <span class="text-danger-600">*</span>
                 </label>
                 <input asp-for="TaxNumber" class="form-control radius-8" maxlength="11" required />
                 <span asp-validation-for="TaxNumber" class="text-danger"></span>
@@ -39,7 +39,7 @@
         <div class="row mb-20">
             <div class="col-md-6">
                 <label asp-for="CityName" class="form-label fw-semibold text-primary-light text-sm mb-2">
-                    Şehir
+                    Şehir <span class="text-danger-600">*</span>
                 </label>
                 <input asp-for="CityName" class="form-control radius-8" maxlength="15" required />
                 <span asp-validation-for="CityName" class="text-danger"></span>
@@ -47,7 +47,7 @@
 
             <div class="col-md-6">
                 <label asp-for="DistrictName" class="form-label fw-semibold text-primary-light text-sm mb-2">
-                    İlçe
+                    İlçe <span class="text-danger-600">*</span>
                 </label>
                 <input asp-for="DistrictName" class="form-control radius-8" maxlength="25" required />
                 <span asp-validation-for="DistrictName" class="text-danger"></span>
@@ -91,8 +91,8 @@
             }
 
             Swal.fire({
-                title: "Değişiklikler kaydedilsin mi?",
-                text: "İşlemi onaylıyor musunuz?",
+                title: "Adres Bilgileri",
+                text: "Değişiklikler kaydedilsin mi?",
                 icon: "question",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",

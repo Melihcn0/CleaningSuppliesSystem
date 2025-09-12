@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using CleaningSuppliesSystem.Entity.Entities;
 using System;
 using System.Collections.Generic;

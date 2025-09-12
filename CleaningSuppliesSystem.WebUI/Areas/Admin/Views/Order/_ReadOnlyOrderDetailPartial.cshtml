@@ -1,0 +1,104 @@
+﻿@model AdminResultOrderDto
+@using System.Globalization
+
+<div class="modal-header">
+    <h5 class="modal-title" id="orderReadOnlyModalLabel">Sipariş Detayı</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+</div>
+<div class="modal-body">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <p><strong>Sipariş No:</strong> #@Model.OrderNumber</p>
+            <p><strong>Sipariş Tarihi:</strong> @Model.CreatedDate.ToString("dd MMMM yyyy HH:mm", new CultureInfo("tr-TR"))</p>
+            <p><strong>Sipariş Veren:</strong> @Model.FirstName @Model.LastName</p>
+        </div>
+        <div class="col-md-6">
+            <p>
+                <strong>Toplam Tutar:</strong>
+                @(
+                    Model.OrderItems?.Sum(x =>
+                    {
+                        var price = (x.DiscountRate.HasValue && x.DiscountRate.Value > 0 && x.DiscountedUnitPrice.HasValue)
+                        ? x.DiscountedUnitPrice.Value
+                        : x.UnitPrice;
+
+                        // KDV dahil toplam
+                        return price * x.Quantity * (1 + x.VatRate / 100);
+                    }).ToString("C", new CultureInfo("tr-TR"))
+                    )
+            </p>
+            <div class="d-flex align-items-center gap-2">
+                <strong>Durum:</strong>
+                <span class="@GetStatusClass(Model.Status)">@Model.Status</span>
+            </div>
+        </div>
+
+    </div>
+
+    <h6 class="fw-bold mt-4 mb-3">Sipariş Edilen Ürünler</h6>
+    @if (Model.OrderItems != null && Model.OrderItems.Any())
+    {
+        <div class="table-responsive custom-datatable-scrollbar" style="overflow-y: hidden;">
+            <table class="table table-hover mb-0 js-readonly-order-table" style="width: 100%; margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th>Ürün Adı</th>
+                        <th>Adet</th>
+                        <th>Birim Fiyat</th>
+                        <th>İndirim Oranı</th>
+                        <th>İndirimli Fiyat</th>
+                        <th>KDV Oranı</th>
+                        <th>Toplam Tutar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        var hasDiscount = item.DiscountRate.HasValue && item.DiscountRate.Value > 0;
+                        var discountedPrice = hasDiscount && item.DiscountedUnitPrice.HasValue
+                        ? item.DiscountedUnitPrice.Value
+                        : item.UnitPrice;
+
+                        // KDV dahil toplam
+                        var total = discountedPrice * item.Quantity * (1 + item.VatRate / 100);
+
+                        <tr>
+                            <td>@item.Product?.Name</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.UnitPrice.ToString("C", new System.Globalization.CultureInfo("tr-TR"))</td>
+                            <td>@(hasDiscount ? item.DiscountRate.Value.ToString("N0") + "%" : "-")</td>
+                            <td>@(hasDiscount ? discountedPrice.ToString("C", new System.Globalization.CultureInfo("tr-TR")) : "-")</td>
+                            <td>@item.VatRate.ToString("N0")%</td>
+                            <td>@total.ToString("C", new System.Globalization.CultureInfo("tr-TR"))</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">Bu siparişte ürün bulunmamaktadır.</div>
+    }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-neutral-600 text-base" data-bs-dismiss="modal">Kapat</button>
+</div>
+
+@functions {
+    public string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Teslim Edildi" => "badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white",
+            "Hazırlanıyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+            "İptal Edildi" => "badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white",
+            "Kargoya Verildi" => "badge text-sm fw-semibold bg-dark-primary-gradient px-20 py-9 radius-4 text-white",
+            "Onay Bekleniyor" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+            "Onaylandı" => "badge text-sm fw-semibold bg-dark-warning-gradient px-20 py-9 radius-4 text-white",
+            _ => "badge text-sm fw-semibold bg-dark-dark-gradient px-20 py-9 radius-4 text-white"
+        };
+    }
+}
+

@@ -1,80 +1,147 @@
 ﻿@model CreateProductDto
+
 @{
     ViewData["Title"] = "Ürün Ekleme Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<script src="https://unpkg.com/htmx.org@1.9.6"></script>
-
-<form asp-action="CreateProduct" method="post" enctype="multipart/form-data" style="margin: 0; padding: 0;">
+<form id="createProductForm" method="post" asp-action="CreateProduct" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-    <div class="container-fluid p-0" style="width: 100vw;">
-        <div class="col-md-10">
-            <div class="row">
-                <!-- Form Alanı -->
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="BrandId">Marka Seçin</label>
-                        <select asp-for="BrandId" asp-items="ViewBag.brands" class="form-control">
-                            <option value="" disabled selected>Marka seçin</option>
-                        </select>
-                        <span asp-validation-for="BrandId" class="text-danger"></span>
-                    </div>
 
-                    <div class="mb-3">
-                        <label for="Name">Ürün Adı</label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
+    <div class="row">
+        <!-- Sol: Form Alanları -->
+        <div class="col-md-6">
+            <!-- Kategori -->
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                    Ürün Grubu / Kategori Seçin <span class="text-danger-600">*</span>
+                </label>
+                <select asp-for="CategoryId" asp-items="@ViewBag.Categories" class="form-control" required>
+                    <option value="">Ürün Grubu / Kategori Seçin</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
 
-                    <div class="mb-3">
-                        <label for="UnitPrice">Birim Fiyat</label>
-                        <input asp-for="UnitPrice" class="form-control" />
-                        <span asp-validation-for="UnitPrice" class="text-danger"></span>
-                    </div>
+            <!-- Marka -->
+            <div class="mb-3">
+                <label asp-for="BrandId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                    Marka Seçin <span class="text-danger-600">*</span>
+                </label>
+                <select asp-for="BrandId" asp-items="@ViewBag.brands" class="form-control" required>
+                    <option value="">Marka Seçin</option>
+                </select>
+                <span asp-validation-for="BrandId" class="text-danger"></span>
+            </div>
 
-                    <div class="mb-3">
-                        <label for="VatRate">KDV Oranı </label>
-                        <input asp-for="VatRate" class="form-control" />
-                        <span asp-validation-for="VatRate" class="text-danger"></span>
-                    </div>
+            <!-- Ad -->
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                    Ürün Adı <span class="text-danger-600">*</span>
+                </label>
+                <input asp-for="Name" class="form-control" maxlength="70" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
 
-                    <div class="mb-3">
-                        <label for="ImageFile">Ürün Fotoğrafı</label>
-                        <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
-                        <span asp-validation-for="ImageFile" class="text-danger"></span>
-                    </div>
+            <!-- Fiyat -->
+            <div class="mb-3">
+                <label asp-for="UnitPrice" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                    Birim Fiyatı <span class="text-danger-600">*</span>
+                </label>
+                <input asp-for="UnitPrice" class="form-control" max="5000" required />
+                <span asp-validation-for="UnitPrice" class="text-danger"></span>
+            </div>
 
-                    <button type="submit" class="btn btn-outline-primary">Kaydet</button>
-                </div>
+            <!-- KDV -->
+            <div class="mb-3">
+                <label asp-for="VatRate" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                    % KDV Oranı <span class="text-danger-600">*</span>
+                </label>
+                <input asp-for="VatRate" class="form-control" max="100" required />
+                <span asp-validation-for="VatRate" class="text-danger"></span>
+            </div>
 
-                <!-- Görsel Önizleme Alanı -->
-                <div class="col-md-6">
-                    <label class="d-block mb-2 fw-bold" style="font-size: 1.2rem;">Fotoğraf Önizlemesi</label>
-                    <div style="aspect-ratio: 4 / 3; max-width: 350px; margin: auto; border: 2px dashed #6c757d; border-radius: 10px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-                        <img id="imagePreview"
-                             src="/images/resim_yok.png"
-                             alt="Ürün Görseli"
-                             style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                    </div>
-                </div>
+            <!-- Görsel Yükleme -->
+            <div class="mb-3">
+                <label asp-for="ImageFile" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                    Ürün Fotoğrafı Yükle <span class="text-danger-600">*</span>
+                </label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" required/>
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            <br />
+            <button type="submit" class="btn rounded-pill btn-primary radius-8 d-inline-flex align-items-center btn-sm">
+                <span class="material-symbols-outlined me-1" style="font-size:18px;">add</span>
+                Ekle
+            </button>
+        </div>
+
+        <!-- Sağ: Görsel Önizleme -->
+        <div class="col-md-6 d-flex flex-column align-items-center">
+            <label class="fw-bold d-block mb-2">Fotoğraf Önizlemesi</label>
+            <div style="display:flex; align-items:center; justify-content:center; border:2px dashed #6c757d; border-radius:10px; background:#f8f9fa; max-width:400px; width:100%; aspect-ratio:4/3;">
+                <img id="imagePreview" src="/images/resim_yok.png" alt="Ürün Görseli" style="max-width:100%; max-height:100%; object-fit:contain;" />
             </div>
         </div>
     </div>
 </form>
 
-<script>
-    function previewImage(event) {
-        const input = event.target;
-        const img = document.getElementById('imagePreview');
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        } else {
-            img.src = "/images/resim_yok.png";
+@section Scripts {
+    <script>
+        // Görsel önizleme
+        function previewImage(event) {
+            const input = event.target;
+            const img = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                img.src = "/images/resim_yok.png";
+            }
         }
-    }
-</script>
+
+        // Kategori değişince markaları yükle
+        document.addEventListener('DOMContentLoaded', () => {
+            const categorySelect = document.getElementById('CategoryId');
+            const brandSelect = document.getElementById('BrandId');
+
+            async function loadBrands(categoryId) {
+                brandSelect.innerHTML = '<option value="" disabled selected>Marka Seçin</option>';
+                if (!categoryId) return;
+
+                try {
+                    const response = await fetch(`/Admin/Product/GetBrandsByCategory?categoryId=${categoryId}`);
+                    if (!response.ok) throw new Error('Markalar alınamadı');
+
+                    const brands = await response.json();
+
+                    if (brands.length === 0) {
+                        const placeholder = document.createElement('option');
+                        placeholder.text = 'Bu kategoriye ait marka bulunamadı';
+                        placeholder.disabled = true;
+                        placeholder.selected = true;
+                        brandSelect.appendChild(placeholder);
+                        return;
+                    }
+
+                    brands.forEach(b => {
+                        const option = document.createElement('option');
+                        option.value = b.id;
+                        option.text = b.name;
+                        brandSelect.appendChild(option);
+                    });
+                } catch (err) {
+                    console.error(err);
+                    alert('Markalar yüklenemedi. Lütfen sayfayı yenileyin.');
+                }
+            }
+
+            categorySelect.addEventListener('change', function () {
+                loadBrands(this.value);
+            });
+        });
+    </script>
+}

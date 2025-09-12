@@ -15,5 +15,7 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public Product Product { get; set; }
         public int Quantity { get; set; } // Alınan adet
         public decimal UnitPrice { get; set; } // Sipariş esnasındaki fiyat
+        public decimal? DiscountRate { get; set; }     // İskonto %
+        public decimal? DiscountedUnitPrice { get; set; } // İndirimli fiyat
     }
 }

@@ -17,12 +17,12 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.FinanceValidatorDto
 
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Finans adı boş bırakılamaz.")
-                .MaximumLength(40).WithMessage("Ürün adı en fazla 40 karakter olmalıdır.");
+                .MaximumLength(40).WithMessage("Finans adı en fazla 40 karakter olmalıdır.");
 
             RuleFor(x => x.Amount)
                 .NotEmpty().WithMessage("Finans miktarı boş bırakılamaz.")
                 .GreaterThan(0).WithMessage("Finans miktarı sıfırdan büyük olmalıdır.")
-                .LessThanOrEqualTo(30000).WithMessage("Finans miktarı 30000 TL'den fazla olamaz.");
+                .LessThanOrEqualTo(50000).WithMessage("Finans miktarı 50000 TL'den fazla olamaz.");
         }
     }
 }

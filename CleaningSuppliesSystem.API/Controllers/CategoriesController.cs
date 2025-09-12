@@ -75,7 +75,7 @@ public class CategoriesController : ControllerBase
         if (!isSuccess)
             return BadRequest(new { message });
 
-        return Ok(new { message = "Kategori başarıyla oluşturuldu.", id = categoryId });
+        return Ok(new { message = "Ürün grubu / Kategori başarıyla eklendi.", id = categoryId });
     }
 
 
@@ -88,7 +88,7 @@ public class CategoriesController : ControllerBase
         {
             return BadRequest(new { message });
         }
-        return Ok(new { message = "Kategori başarıyla güncellendi.", id = createdId });
+        return Ok(new { message = "Ürün grubu / Kategori başarıyla güncellendi.", id = createdId });
     }
 
     [HttpPost("softdelete/{id}")]
@@ -114,13 +114,11 @@ public class CategoriesController : ControllerBase
             return NotFound("Ürün Grubu / Kategori bulunamadı.");
 
         if (!category.IsDeleted)
-            return BadRequest("Ürün Grubu / Kategori soft silinmiş değil. Önce soft silmeniz gerekir.");
+            return BadRequest("Ürün Grubu / Kategori silinmiş değil. Önce silmeniz gerekir.");
 
         await _categoryService.TDeleteAsync(id);
-        return Ok("Ürün Grubu / Kategori kalıcı olarak silindi.");
+        return Ok("Ürün Grubu / Kategori çöp kutusundan kalıcı olarak silindi.");
     }
-
-
 
     [HttpPut("set-home-display/{id}")]
     public async Task<IActionResult> SetCategoryDisplayOnHome(int id, [FromBody] bool isShown)
@@ -143,7 +141,7 @@ public class CategoriesController : ControllerBase
     public async Task<IActionResult> SoftDeleteMultipleAsync([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
-            return BadRequest("Silinecek kategori bulunamadı.");
+            return BadRequest("Silinecek Ürün Grubu / Kategori  bulunamadı.");
 
         var results = await _categoryService.TSoftDeleteRangeCategoryAsync(ids);
 
@@ -154,14 +152,14 @@ public class CategoriesController : ControllerBase
             return BadRequest(messages);
         }
 
-        return Ok("Tüm kategoriler başarıyla silindi.");
+        return Ok("Seçili Ürün Grubu / Kategori başarıyla çöp kutusuna taşındı.");
     }
 
     [HttpPost("UndoSoftDeleteMultiple")]
     public async Task<IActionResult> UndoSoftDeleteMultipleAsync([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
-            return BadRequest("Geri alınacak kategori bulunamadı.");
+            return BadRequest("Geri alınacak Ürün Grubu / Kategori bulunamadı.");
 
         var results = await _categoryService.TUndoSoftDeleteRangeCategoryAsync(ids);
 
@@ -172,17 +170,17 @@ public class CategoriesController : ControllerBase
             return BadRequest(messages);
         }
 
-        return Ok("Tüm kategoriler başarıyla geri alındı.");
+        return Ok("Seçili Ürün Grubu / Kategori başarıyla geri alındı.");
     }
 
     [HttpPost("PermanentDeleteMultiple")]
     public async Task<IActionResult> PermanentDeleteMultipleAsync([FromBody] List<int> ids)
     {
         if (ids == null || !ids.Any())
-            return BadRequest("Silinecek ürün grubu / kategoriler bulunamadı.");
+            return BadRequest("Silinecek ürün Grupları / kategoriler bulunamadı.");
 
         await _categoryService.TPermanentDeleteRangeCategoryAsync(ids);
-        return Ok("Ürün Grubu / Kategoriler başarıyla silindi.");
+        return Ok("Seçili Ürün Grubu / Kategori çöp kutusundan kalıcı olarak silindi.");
     }
 
 

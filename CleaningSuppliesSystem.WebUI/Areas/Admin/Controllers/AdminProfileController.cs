@@ -1,7 +1,11 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddresDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.AdminProfileValidatorDto;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CompanyAddressValidatorDto;
+using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CompanyBankValidatorDto;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,44 +22,26 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
         }
 
-        private async Task<AdminProfileViewModel?> GetAdminProfileViewModel(UpdateAdminProfileDto? updateProfileDto = null, UpdateCompanyAddressDto? updateCompanyAddressDto = null)
+        private async Task<AdminProfileViewModel?> GetAdminProfileViewModel(UpdateAdminProfileDto? updateProfileDto = null, UpdateCompanyAddressDto? updateCompanyAddressDto = null, UpdateCompanyBankDto? updateCompanyBankDto = null)
         {
-            // Admin profili çek
             var profileDto = await _client.GetFromJsonAsync<AdminProfileDto>("AdminProfiles/Profile");
-            if (profileDto == null) return null;
+            var addressDto = await _client.GetFromJsonAsync<CompanyAddressDto>("CompanyAddresses/Address");
+            var bankDto = await _client.GetFromJsonAsync<CompanyBankDto>("CompanyBanks/Bank");
 
-            // Admin profili çek
-            CompanyAddressDto? addressDto = null;
-            try {
-                addressDto = await _client.GetFromJsonAsync<CompanyAddressDto>("CompanyAddresses/Address");
-            }
-            catch {
-                addressDto = null;
-            }
-
-            // Update DTO'ları al
-            var updateAdminDto = updateProfileDto
-                ?? await _client.GetFromJsonAsync<UpdateAdminProfileDto>("AdminProfiles/UpdateAdminProfile");
-
-
-            var updateCompanyDto = updateCompanyAddressDto
-                ?? await _client.GetFromJsonAsync<UpdateCompanyAddressDto>("CompanyAddresses/UpdateCompanyAddress");
-
-            if (profileDto != null && addressDto != null)
-            {
-                profileDto.CompanyAddress = addressDto;
-            }
+            var updateAdminDto = await _client.GetFromJsonAsync<UpdateAdminProfileDto>("AdminProfiles/UpdateAdminProfile");
+            var updateAddressDto = await _client.GetFromJsonAsync<UpdateCompanyAddressDto>("CompanyAddresses/UpdateCompanyAddress");
+            var updateBankDto = await _client.GetFromJsonAsync<UpdateCompanyBankDto>("CompanyBanks/UpdateCompanyBank");
 
             return new AdminProfileViewModel
             {
-                AdminProfile = profileDto,
-                CompanyAddress = addressDto,
+                AdminProfile = profileDto ?? new AdminProfileDto(),
+                CompanyAddress = addressDto ?? new CompanyAddressDto(),
+                CompanyBank = bankDto ?? new CompanyBankDto(),
                 UpdateAdminProfile = updateAdminDto ?? new UpdateAdminProfileDto(),
-                UpdateCompanyAddress = updateCompanyDto ?? new UpdateCompanyAddressDto()
+                UpdateCompanyAddress = updateAddressDto ?? new UpdateCompanyAddressDto(),
+                UpdateCompanyBank = updateBankDto ?? new UpdateCompanyBankDto()
             };
-
         }
-
 
         public async Task<IActionResult> Index(string activeTab = "pills-blank")
         {
@@ -82,7 +68,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 }
 
                 ViewBag.ActiveTab = "pills-edit-profile";
-                return View("Index", await GetAdminProfileViewModel(dto));
+                return View("Index", await GetAdminProfileViewModel( dto));
             }
 
             var response = await _client.PutAsJsonAsync("AdminProfiles", dto);
@@ -95,7 +81,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             }
 
             TempData["ErrorMessage"] = "Yetkili profili güncellenemedi.";
-            TempData["ActiveTab"] = "pills-edit-profile";
+            ViewBag.ActiveTab = "pills-edit-profile";
             return View("Index", await GetAdminProfileViewModel(dto));
         }
 
@@ -103,8 +89,16 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAddressProfile(UpdateCompanyAddressDto dto)
         {
-            if (!ModelState.IsValid)
+            var validator = new UpdateCompanyAddressValidator();
+            var validationResult = await validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
             {
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
                 ViewBag.ActiveTab = "pills-edit-address";
                 return View("Index", await GetAdminProfileViewModel(null, dto));
             }
@@ -113,15 +107,48 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "Şirket adresi başarıyla güncellendi.";
+                TempData["SuccessMessage"] = "Şirket adres bilgisi başarıyla güncellendi.";
                 TempData["ActiveTab"] = "pills-edit-address";
                 return RedirectToAction(nameof(Index));
             }
 
             TempData["ErrorMessage"] = "Şirket adresi güncellenemedi.";
-            TempData["ActiveTab"] = "pills-edit-address";
+            ViewBag.ActiveTab = "pills-edit-address";
             return View("Index", await GetAdminProfileViewModel(null, dto));
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBankProfile(UpdateCompanyBankDto dto)
+        {
+            var validator = new UpdateCompanyBankValidator();
+            var validationResult = await validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                ViewBag.ActiveTab = "pills-edit-address";
+                return View("Index", await GetAdminProfileViewModel(updateCompanyBankDto: dto));
+            }
+
+            var response = await _client.PutAsJsonAsync("CompanyBanks", dto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Şirket banka bilgisi başarıyla güncellendi.";
+                TempData["ActiveTab"] = "pills-edit-bank";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["ErrorMessage"] = "Şirket banka bilgisi güncellenemedi.";
+            ViewBag.ActiveTab = "pills-edit-bank";
+            return View("Index", await GetAdminProfileViewModel(updateCompanyBankDto: dto));
+        }
+    
 
     }
 }

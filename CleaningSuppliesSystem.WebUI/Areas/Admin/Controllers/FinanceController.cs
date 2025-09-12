@@ -29,7 +29,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedFinance(int id)
         {
-            var response = await _client.PostAsync($"Finances/softdelete/{id}", null);
+            var response = await _client.PostAsync($"finances/softdelete/{id}", null);
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
@@ -42,8 +42,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedFinance(int id)
         {
-            var response = await _client.PostAsync($"Finances/undosoftdelete/{id}", null);
-            TempData["SuccessMessage"] = response.IsSuccessStatusCode ? "Finans kaydı geri alındı." : "Geri alma işlemi başarısız.";
+            var response = await _client.PostAsync($"finances/undosoftdelete/{id}", null);
+
+            if (response.IsSuccessStatusCode)
+                TempData["SuccessMessage"] = "Finans kaydı çöp kutusundan başarıyla geri alındı.";
+            else
+                TempData["ErrorMessage"] = "Finans kaydının çöp kutusundan geri alma işlemi başarısız.";
+
             return RedirectToAction(nameof(DeletedFinance));
         }
 
@@ -130,7 +135,10 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var response = await _client.DeleteAsync($"finances/permanent/{id}");
             var content = await response.Content.ReadAsStringAsync();
 
-            return response.IsSuccessStatusCode ? Ok(content) : BadRequest(content);
+            if (response.IsSuccessStatusCode)
+                return Ok(content);
+            else
+                return BadRequest(content);
         }
 
         [HttpPost]
@@ -138,7 +146,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Hiç kategori seçilmedi.");
+                return BadRequest("Hiç finans kaydı seçilmedi.");
             var response = await _client.PostAsJsonAsync("finances/DeleteMultiple", ids);
 
             if (response.IsSuccessStatusCode)
@@ -156,7 +164,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Hiç kategori seçilmedi.");
+                return BadRequest("Hiç finans kaydı seçilmedi.");
             var response = await _client.PostAsJsonAsync("finances/UndoSoftDeleteMultiple", ids);
 
             if (response.IsSuccessStatusCode)
@@ -174,7 +182,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Hiç kategori seçilmedi.");
+                return BadRequest("Hiç finans kaydı seçilmedi.");
             var response = await _client.PostAsJsonAsync("finances/PermanentDeleteMultiple", ids);
 
             if (response.IsSuccessStatusCode)

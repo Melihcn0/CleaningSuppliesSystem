@@ -44,7 +44,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             var topCategory = _mapper.Map<TopCategory>(createTopCategoryDto);
             topCategory.CreatedDate = DateTime.Now;
             await _topCategoryRepository.CreateAsync(topCategory);
-            return (true, "Üst kategori başarıyla oluşturuldu.", topCategory.Id);
+            return (true, "Üst kategori başarıyla eklendi.", topCategory.Id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateTopCategoryAsync(UpdateTopCategoryDto updateTopCategoryDto)
@@ -73,17 +73,17 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, $"ID {id} kategorisi bulunamadı.", 0);
 
             if (category.IsDeleted)
-                return (false, $"'{category.Name}' kategorisi zaten silinmiş durumda.", category.Id);
+                return (false, $"{category.Name} kategorisi zaten çöp kutusunda", category.Id);
 
             var isUsedInSubCategories = await _subCategoryRepository.AnyAsync(x => x.TopCategoryId == id && !x.IsDeleted);
             if (isUsedInSubCategories)
-                return (false, $"'{category.Name}' kategorisi alt kategorilerde kullanılıyor. Silme işlemi yapılamaz.", category.Id);
+                return (false, $"{category.Name} kategorisi alt kategorilerde kullanılıyor. Silme işlemi yapılamaz.", category.Id);
 
             category.IsDeleted = true;
             category.DeletedDate = DateTime.Now;
             await _topCategoryRepository.UpdateAsync(category);
 
-            return (true, $"'{category.Name}' kategorisi başarıyla silindi.", category.Id);
+            return (true, $"{category.Name} kategorisi başarıyla çöp kutusuna taşındı.", category.Id);
         }
 
 
@@ -102,12 +102,12 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 x.Id != topCategory.Id);
 
             if (isDuplicate)
-                return (false, $"'{topCategory.Name}' isminde aktif bir üst kategori mevcut. Lütfen ismini değiştirerek tekrar deneyin.", topCategory.Id);
+                return (false, $"{topCategory.Name} isminde aktif bir üst kategori mevcut. Lütfen ismini değiştirerek tekrar deneyin.", topCategory.Id);
 
             topCategory.IsDeleted = false;
             topCategory.DeletedDate = null;
             await _topCategoryRepository.UpdateAsync(topCategory);
-            return (true, "Üst kategori başarıyla geri getirildi.", topCategory.Id);
+            return (true, "Üst kategori çöp kutusundan başarıyla geri getirildi.", topCategory.Id);
         }
         public async Task<(bool IsSuccess, string Message)> TPermanentDeleteTopCategoryAsync(int id)
         {
@@ -116,7 +116,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Üst kategori bulunamadı.");
 
             if (!topCategory.IsDeleted)
-                return (false, "Üst kategori soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Üst kategori silinmemiş. Önce silmeniz gerekir.");
 
             await _topCategoryRepository.DeleteAsync(topCategory.Id);
             return (true, "Üst kategori kalıcı olarak silindi.");
@@ -169,11 +169,11 @@ namespace CleaningSuppliesSystem.Business.Concrete
             {
                 foreach (var category in categoriesToDelete)
                 {
-                    results.Add((category.Id, false, $"'{category.Name}' silinmeye uygundu ancak işlem iptal edildi."));
+                    results.Add((category.Id, false, $"{category.Name} silinmeye uygundu ancak işlem iptal edildi."));
                 }
 
                 if (usedCategoryNames.Any())
-                    results.Add((0, false, $"{string.Join(", ", usedCategoryNames)} kategorileri alt kategorilerde kullanıldığı için silinemedi."));
+                    results.Add((0, false, $"{string.Join(", ", usedCategoryNames)} kategorileri alt kategorilerde kullanıldığı için işlem yapılamadı.."));
 
                 if (notFoundIds.Any())
                     results.Add((0, false, $"ID {string.Join(", ", notFoundIds)} kategorileri bulunamadı."));
@@ -188,7 +188,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 category.DeletedDate = DateTime.Now;
                 await _topCategoryRepository.UpdateAsync(category);
 
-                results.Add((category.Id, true, $"'{category.Name}' kategorisi başarıyla silindi."));
+                results.Add((category.Id, true, $"{category.Name} kategorisi başarıyla çöp kutusuna taşındı."));
             }
 
             return results;
@@ -251,7 +251,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 category.IsDeleted = false;
                 category.DeletedDate = null;
                 await _topCategoryRepository.UpdateAsync(category);
-                results.Add((category.Id, true, $"'{category.Name}' kategorisi başarıyla geri getirildi."));
+                results.Add((category.Id, true, $"{category.Name} kategorisi başarıyla geri getirildi."));
             }
 
             return results;

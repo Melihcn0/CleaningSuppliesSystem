@@ -15,7 +15,9 @@
 
     <!-- Üst Kategori -->
     <div class="form-group">
-        <label for="TopCategoryId">Üst Kategori</label>
+        <label asp-for="TopCategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Üst Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
         <select asp-for="TopCategoryId"
                 id="TopCategoryId"
                 asp-items="ViewBag.topCategories"
@@ -23,17 +25,20 @@
                 hx-get="@Url.Action("GetSubCategoriesByTopCategory", "Category")"
                 hx-target="#SubCategoryId"
                 hx-trigger="change"
-                hx-include="#TopCategoryId">
-            <option value="" disabled>Üst Kategori Seçin</option>
+                hx-include="#TopCategoryId"
+                required>
+            <option value="" disabled selected>Üst Kategori Seçin</option>
         </select>
         <span asp-validation-for="TopCategoryId" class="text-danger"></span>
     </div>
     <br />
     <!-- Alt Kategori -->
     <div class="form-group">
-        <label for="SubCategoryId">Alt Kategori</label>
-        <select id="SubCategoryId" asp-for="SubCategoryId" class="form-control" asp-items="ViewBag.subCategories">
-            <option value="" disabled>Alt kategori seçin</option>
+        <label asp-for="SubCategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Alt Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select id="SubCategoryId" asp-for="SubCategoryId" class="form-control" asp-items="ViewBag.subCategories" required>
+            <option value="" disabled selected>Alt kategori seçin</option>
         </select>
         <span asp-validation-for="SubCategoryId" class="text-danger"></span>
     </div>
@@ -60,26 +65,50 @@
     }
     <br />
 
-    <!-- Yeni Görsel Yükleme + Önizleme -->
-    <div class="form-group">
-        <label for="ImageFile">Yeni Fotoğraf Yükle (isteğe bağlı)</label>
-        <input asp-for="ImageFile" type="file" class="form-control-file" accept="image/*" onchange="previewImage(event)" />
-        <span asp-validation-for="ImageFile" class="text-danger"></span>
+    <div class="form-group mb-3">
+        <!-- Üstte açıklama label'ı -->
+        <label class="form-label fw-semibold text-primary-light text-sm mb-2">
+            Yeni Fotoğraf Yükle (Güncellemek için) <span class="text-danger-600">*</span>
+        </label>
 
-        <div id="previewContainer" style="display: none; margin-top: 10px;">
-            <label>Değiştirilecek Fotoğraf:</label><br />
-            <img id="imagePreview" src="#" alt="Yeni seçilen görsel" style="max-height: 150px;" class="img-thumbnail" />
+        <!-- Buton olarak label, yeni div ile block display -->
+        <div class="mb-2">
+            <label for="ImageFile"
+                   class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12
+                      d-inline-flex align-items-center gap-2 bg-hover-primary-50"
+                   style="cursor: pointer; width: fit-content;">
+                <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
+                Fotoğraf Seç
+            </label>
+            <input asp-for="ImageFile" type="file" id="ImageFile" accept="image/*"
+                   class="visually-hidden" onchange="previewImage(event)" />
         </div>
+
+        <!-- Önizleme -->
+        <div id="previewContainer" style="display: none; margin-top: 10px;">
+            <label>Seçilen Fotoğraf:</label><br />
+            <img id="imagePreview" src="#" alt="Yeni seçilen görsel"
+                 style="max-height: 150px;" class="img-thumbnail" />
+        </div>
+
+        <!-- Hata mesajı -->
+        <span asp-validation-for="ImageFile" class="text-danger d-block mt-2"></span>
     </div>
+
     <br />
     <!-- Kategori Adı -->
     <div class="form-group">
-        <label for="Name">Kategori Adı</label>
-        <input asp-for="Name" class="form-control" />
+        <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Ürün Grubu / Kategori Seçin <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Name" class="form-control" maxlength="50" required/>
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <br />
-    <button type="button" class="btn btn-outline-warning-600" onclick="updateCategory()">Güncelle</button>
+    <button type="button" class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="updateCategory()">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">update</span>
+        Güncelle
+    </button>
 </form>
 
 @section Scripts {
@@ -120,9 +149,30 @@
                 cancelButtonText: "İptal",
                 background: theme === "dark" ? "#1e1e2f" : "#fff",
                 color: theme === "dark" ? "#fff" : "#000",
+                reverseButtons: true,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
-                allowEnterKey: false
+                allowEnterKey: false,
+                didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+
+                const addHoverEffect = (btn, color) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                };
+
+                addHoverEffect(confirmBtn, "#3085d6");
+                addHoverEffect(cancelBtn, "#ff4d4f");
+            }
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

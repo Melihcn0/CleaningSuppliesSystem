@@ -71,13 +71,13 @@ namespace CleaningSuppliesSystem.Business.Concrete
         {
             var entity = await _serviceIconRepository.GetByIdAsync(id);
             if (entity == null)
-                return (false, "Icon bulunamadı.");
+                return (false, "İkon bulunamadı.");
 
             if (!entity.IsDeleted)
-                return (false, "Önce soft silmeniz gerekir.");
+                return (false, "Önce silmeniz gerekir.");
 
             await _serviceIconRepository.DeleteAsync(id);
-            return (true, "Icon kalıcı olarak silindi.");
+            return (true, "İkon çöp kutusundan kalıcı olarak silindi.");
         }
 
         public async Task<List<ResultServiceIconDto>> TGetActiveServiceIconsAsync()
@@ -96,10 +96,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
         {
             var entity = await _serviceIconRepository.GetByIdAsync(id);
             if (entity == null)
-                return (false, "Icon bulunamadı.", 0);
+                return (false, "İkon bulunamadı.", 0);
 
             if (entity.IsDeleted)
-                return (false, "Icon zaten silinmiş.", id);
+                return (false, "İkon zaten silinmiş.", id);
 
             var isUsed = await _serviceRepository.AnyAsync(s => s.ServiceIconId == id && !s.IsDeleted);
             if (isUsed)
@@ -109,22 +109,22 @@ namespace CleaningSuppliesSystem.Business.Concrete
             entity.DeletedDate = DateTime.Now;
             await _serviceIconRepository.UpdateAsync(entity);
 
-            return (true, "Icon başarıyla soft silindi.", id);
+            return (true, "İkon çöp kutusuna başarıyla taşındı.", id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteServiceIconAsync(int id)
         {
             var entity = await _serviceIconRepository.GetByIdAsync(id);
             if (entity == null)
-                return (false, "Icon bulunamadı.", 0);
+                return (false, "İkon bulunamadı.", 0);
 
             if (!entity.IsDeleted)
-                return (false, "Icon zaten aktif.", id);
+                return (false, "İkon zaten aktif.", id);
 
             entity.IsDeleted = false;
             entity.DeletedDate = null;
             await _serviceIconRepository.UpdateAsync(entity);
-            return (true, "Icon soft silmeden geri getirildi.", id);
+            return (true, "İkon çöp kutusundan başarıyla geri getirildi.", id);
         }
 
         public async Task<List<ResultServiceIconDto>> TGetUnusedActiveServiceIconsAsync()

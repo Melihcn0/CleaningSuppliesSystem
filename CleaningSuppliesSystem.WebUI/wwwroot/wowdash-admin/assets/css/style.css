@@ -495,6 +495,13 @@ abbr[title] {
   text-decoration: underline dotted;
 }
 
+td b u {
+    text-decoration: underline !important;
+    text-underline-offset: 5px;
+}
+
+
+
 b,
 strong {
   font-weight: bolder;
@@ -15378,6 +15385,40 @@ html[data-theme="dark"] table#dataTable tbody tr {
     color: white;
 }
 
+ /*DataTable'ın stilini, table-sm sınıfı için ezmek */
+#dataTable.table-sm th,
+#dataTable.table-sm td {
+    padding-top: 0.3rem !important;
+    padding-bottom: 0.3rem !important;
+}
+
+/* Dark mode uyumlu scrollbar */
+.custom-datatable-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Dikey scrollbar genişliği */
+    height: 8px; /* Yatay scrollbar yüksekliği */
+}
+
+.custom-datatable-scrollbar::-webkit-scrollbar-track {
+    background: #2c2c2c; /* Dark mode track rengi */
+    border-radius: 10px;
+}
+
+.custom-datatable-scrollbar::-webkit-scrollbar-thumb {
+    background: #555; /* Koyu tutamaç */
+    border-radius: 10px;
+}
+
+    .custom-datatable-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #888; /* Hover’da biraz daha açık */
+    }
+
+/* Firefox uyumu */
+.custom-datatable-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #555 #2c2c2c; /* thumb ve track renkleri */
+}
+
+
 /* Satır hover efektleri */
 html[data-theme="light"] table#dataTable tbody tr:hover {
     background-color: #f0f0f0;
@@ -15395,7 +15436,7 @@ html[data-theme="light"] table#dataTable thead th {
     color: black;
     border-bottom: 2px solid #dee2e6;
     padding: 1rem 0.75rem 0.75rem 0.75rem; /* Üst padding biraz artırıldı */
-    text-align: left;
+    text-align: center;
     user-select: none;
 }
 
@@ -15495,4 +15536,18 @@ html[data-theme="dark"] .btn-outline-danger {
     background-color: white !important;
     color: black !important;
 }
+/* Progress bar container'ı kenarlara sıfırla */
+.swal2-timer-progress-bar-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+/* Popup içeriği barı kesmesin */
+.swal2-popup {
+    overflow: hidden !important;
+}
+
 

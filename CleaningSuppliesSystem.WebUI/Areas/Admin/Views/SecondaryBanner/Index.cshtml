@@ -13,27 +13,25 @@
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">İkincil Banner Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="CreateSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni İkincil Banner Ekle
+        <h5 class="card-title mb-0 mt-1">İkincil Banner Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto md-0 mt-1">
+            <a asp-action="CreateSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span> Yeni İkincil Banner Ekle
             </a>
             <a asp-action="DeletedSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
     </div>
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>#</th>
-                    <th>İkincil Banner Seti</th>
-                    <th>Oluşturulma</th>
-                    <th>Güncelleme</th>
-                    <th>Ana Sayfada</th>
-                    <th>Durum</th>
+                    <th class="text-start">#</th>
+                    <th>Banner Alanı</th>
+                    <th>Oluşturma | Son Güncelleme Tarihleri</th>
+                    <th>Ana Sayfada | Durum</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -43,92 +41,141 @@
                     count++;
                     <tr>
                         <td>@count</td>
-                        <td>
-                            <div class="d-flex justify-content-center align-items-start gap-4 py-3 text-center">
-                                <!-- Kart -->
-                                <div class="card shadow-sm" style="width: 180px;">
-                                    <img src="@Url.Content(item.ImageUrl1)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 1" />
-                                    <div class="card-body p-3 d-flex flex-column gap-2 text-start">
-                                        <p class="card-title mb-0">Başlık1 :</p>
-                                        <p class="mb-0">@item.Title1</p>
-                                        <p class="card-title mb-0">Açıklama1 :</p>
-                                        <p class="mb-0">@item.Description1</p>
-                                        <p class="card-title mb-0">Buton Adı1 :</p>
-                                        <p class="mb-0">@item.ButtonTitle1</p>
+                            <td>
+                                <div class="d-flex justify-content-start align-items-start gap-4 py-3 text-center">
+                                    <!-- Kart 1 -->
+                                    <div class="card shadow-sm" style="width: 180px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@item.ImageUrl1">
+                                        <div class="overflow-hidden" style="border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+                                            <img src="@Url.Content(item.ImageUrl1)"
+                                                 class="card-img-top"
+                                                 style="height: 100px; object-fit: cover; transition: transform 0.3s, box-shadow 0.3s;"
+                                                 alt="Banner 1"
+                                                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.25)';"
+                                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" />
+                                        </div>
+                                        <div class="card-body p-3 d-flex flex-column gap-2 text-start">
+                                            <p class="card-title mb-0">Başlık1 :</p>
+                                            <p class="mb-0">@item.Title1</p>
+                                            <p class="card-title mb-0">Açıklama1 :</p>
+                                            <p class="mb-0">@item.Description1</p>
+                                            <p class="card-title mb-0">Buton Adı1 :</p>
+                                            <p class="mb-0">@item.ButtonTitle1</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kart 2 -->
+                                    <div class="card shadow-sm" style="width: 180px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@item.ImageUrl2">
+                                        <div class="overflow-hidden" style="border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+                                            <img src="@Url.Content(item.ImageUrl2)"
+                                                 class="card-img-top"
+                                                 style="height: 100px; object-fit: cover; transition: transform 0.3s, box-shadow 0.3s;"
+                                                 alt="Banner 2"
+                                                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.25)';"
+                                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" />
+                                        </div>
+                                        <div class="card-body p-3 d-flex flex-column gap-2 text-start">
+                                            <p class="card-title mb-0">Başlık2 :</p>
+                                            <p class="mb-0">@item.Title2</p>
+                                            <p class="card-title mb-0">Açıklama2 :</p>
+                                            <p class="mb-0">@item.Description2</p>
+                                            <p class="card-title mb-0">Buton Adı2 :</p>
+                                            <p class="mb-0">@item.ButtonTitle2</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kart 3 -->
+                                    <div class="card shadow-sm" style="width: 180px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@item.ImageUrl3">
+                                        <div class="overflow-hidden" style="border-top-left-radius: .5rem; border-top-right-radius: .5rem;">
+                                            <img src="@Url.Content(item.ImageUrl3)"
+                                                 class="card-img-top"
+                                                 style="height: 100px; object-fit: cover; transition: transform 0.3s, box-shadow 0.3s;"
+                                                 alt="Banner 3"
+                                                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.25)';"
+                                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" />
+                                        </div>
+                                        <div class="card-body p-3 d-flex flex-column gap-2 text-start">
+                                            <p class="card-title mb-0">Başlık3 :</p>
+                                            <p class="mb-0">@item.Title3</p>
+                                            <p class="card-title mb-0">Açıklama3 :</p>
+                                            <p class="mb-0">@item.Description3</p>
+                                            <p class="card-title mb-0">Buton Adı3 :</p>
+                                            <p class="mb-0">@item.ButtonTitle3</p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="card shadow-sm" style="width: 180px;">
-                                    <img src="@Url.Content(item.ImageUrl2)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 2" />
-                                    <div class="card-body p-3 d-flex flex-column gap-2 text-start">
-                                        <p class="card-title mb-0">Başlık2 :</p>
-                                        <p class="mb-0">@item.Title2</p>
-                                        <p class="card-title mb-0">Açıklama2 :</p>
-                                        <p class="mb-0">@item.Description2</p>
-                                        <p class="card-title mb-0">Buton Adı2 :</p>
-                                        <p class="mb-0">@item.ButtonTitle2</p>
+                                <!-- Modallar -->
+                                @foreach (var i in new[] { 1, 2, 3 })
+                                {
+                                    <div class="modal fade" id="imageModal_@(i==1 ? item.ImageUrl1 : i==2 ? item.ImageUrl2 : item.ImageUrl3)" tabindex="-1" aria-hidden="true" style="background-color: rgba(0,0,0,0.6);">
+                                        <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                            <div class="modal-content bg-transparent border-0 position-relative">
+                                                <button type="button" class="btn-close btn-close-white"
+                                                        data-bs-dismiss="modal" aria-label="Close"
+                                                        style="position: fixed; top: 1rem; right: 1rem; width:2.5rem; height:2.5rem; z-index:1050;"></button>
+                                                <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                                                    <img src="@Url.Content(i==1 ? item.ImageUrl1 : i==2 ? item.ImageUrl2 : item.ImageUrl3)" class="img-fluid rounded" alt="Preview @(i)" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="card shadow-sm" style="width: 180px;">
-                                    <img src="@Url.Content(item.ImageUrl3)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 3" />
-                                    <div class="card-body p-3 d-flex flex-column gap-2 text-start">
-                                        <p class="card-title mb-0">Başlık3 :</p>
-                                        <p class="mb-0">@item.Title3</p>
-                                        <p class="card-title mb-0">Açıklama3 :</p>
-                                        <p class="mb-0">@item.Description3</p>
-                                        <p class="card-title mb-0">Buton Adı3 :</p>
-                                        <p class="mb-0">@item.ButtonTitle3</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")<br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncellenmedi")
-                        </td>
-                        <td>
-                            @if (item.IsShown)
-                            {
-                                <span class="badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white">Gösteriliyor</span>
-                            }
-                            else
-                            {
-                                <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Gösterilmiyor</span>
-                            }
-                        </td>
-                            <td class="text-center align-middle">
-                                <form method="post" asp-action="ToggleStatus" asp-controller="SecondaryBanner" id="toggleForm-@item.Id" class="d-inline-block">
-                                    <input type="hidden" name="secondaryBannerId" value="@item.Id" />
-                                    <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
-
-                                    <div class="form-switch">
-                                        <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-warning-600")"
-                                               type="checkbox"
-                                               role="switch"
-                                               id="isShownSwitch-@item.Id"
-                                               name="isShown"
-                                        @(item.IsShown ? "checked" : "")
-                                               onchange="onToggleChange(@item.Id)" />
-                                    </div>
-
-                                </form>
+                                }
                             </td>
 
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <span>
+                                    🟢 <b>Oluşturma:</b>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                                <span>
+                                    🟡 <b>Güncelleme:</b>
+                                    @(item.UpdatedDate != null
+                                        ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                        : "Henüz güncelleme yapılmadı")
+                                </span>
+                            </div>
+                        </td>
+                            <td class="text-center align-middle">
+                                <div class="d-flex flex-nowrap gap-2 align-items-center justify-content-center">
+                                    @if (item.IsShown)
+                                    {
+                                        <span class="badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white">Gösteriliyor</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Gösterilmiyor</span>
+                                    }
+
+                                    <form method="post" asp-action="ToggleStatus" asp-controller="SecondaryBanner" id="toggleForm-@item.Id" class="d-inline-block m-0">
+                                        <input type="hidden" name="secondaryBannerId" value="@item.Id" />
+                                        <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
+
+                                        <div class="form-switch m-0">
+                                            <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-danger-600")"
+                                                   type="checkbox"
+                                                   role="switch"
+                                                   id="isShownSwitch-@item.Id"
+                                                   name="isShown"
+                                            @(item.IsShown ? "checked" : "")
+                                                   onchange="onToggleChange(@item.Id)" />
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+
+
                             <td>
+                                <div class="d-flex flex-nowrap gap-2">
                                 <a asp-action="UpdateSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Admin" asp-route-id="@item.Id"
-                                   class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
-                                    <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                                    class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">edit</span> Düzenle
                                 </a>
 
-                                <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn" data-id="@item.Id">
-                                    <span class="material-symbols-outlined me-1">delete</span> Sil
+                                <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm  action-btn delete-btn" data-id="@item.Id">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                 </button>
+                                </div>
                             </td>
                     </tr>
                 }
@@ -176,5 +223,17 @@
                 btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
             });
         }
+                        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.modal').forEach(function(modalEl){
+                modalEl.addEventListener('click', function (e) {
+                    const img = modalEl.querySelector('img'); // modal içindeki fotoğraf
+                    // Eğer tıklanan fotoğraf değilse modal kapanacak
+                    if (e.target !== img) {
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        modalInstance.hide();
+                    }
+                });
+            });
+        });
     </script>
 }

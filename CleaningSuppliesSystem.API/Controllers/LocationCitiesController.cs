@@ -59,7 +59,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(new { message });
             }
 
-            return Ok(new { message = "Şehir lokasyonu başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "Şehir lokasyonu başarıyla eklendi.", id = createdId });
         }
         [HttpPost("softdelete/{id}")]
         public async Task<IActionResult> SoftDelete(int id)
@@ -86,7 +86,7 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest("Şehir lokasyonu soft silinmiş değil. Önce soft silmeniz gerekir.");
 
             await _locationCityService.TDeleteAsync(id);
-            return Ok("Şehir lokasyonu kalıcı olarak silindi.");
+            return Ok("Şehir lokasyonu çöp kutusundan kalıcı olarak silindi.");
         }
     }
 }

@@ -77,7 +77,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             category.IsDeleted = true;
             await _categoryRepository.UpdateAsync(category);
 
-            return (true, "Kategori başarıyla silindi.", category.Id);
+            return (true, "Kategori başarıyla çöp kutusuna taşındı.", category.Id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteCategoryAsync(int id)
@@ -118,10 +118,8 @@ namespace CleaningSuppliesSystem.Business.Concrete
             if (hasBrands)
                 return (false, "Kategoriye bağlı markalar var. Önce onları kalıcı olarak silmelisiniz.");
 
-            // Görsel silme işlemini burada da yapabilirsin ya da controllerda
-
             await _categoryRepository.DeleteAsync(category.Id);
-            return (true, "Kategori ve bağlı markalar kalıcı olarak silindi.");
+            return (true, "Kategori ve bağlı markalar çöp kutusundan kalıcı olarak silindi.");
         }
 
 

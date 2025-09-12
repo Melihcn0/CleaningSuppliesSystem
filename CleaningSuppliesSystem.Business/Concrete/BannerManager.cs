@@ -81,7 +81,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             banner.IsDeleted = true;
             banner.IsShown = false;
             await _bannerRepository.UpdateAsync(banner);
-            return (true, "Banner başarıyla soft silindi.", banner.Id);
+            return (true, "Banner başarıyla çöp kutusuna taşındı.", banner.Id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteBannerAsync(int id)
@@ -96,7 +96,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             banner.DeletedDate = null;
             banner.IsDeleted = false;
             await _bannerRepository.UpdateAsync(banner);
-            return (true, "Banner başarıyla geri getirildi.", banner.Id);
+            return (true, "Banner çöp kutusundan başarıyla geri getirildi.", banner.Id);
         }
 
         public async Task<(bool IsSuccess, string Message)> TPermanentDeleteBannerAsync(int id)
@@ -106,10 +106,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Banner bulunamadı.");
 
             if (!banner.IsDeleted)
-                return (false, "Banner soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Banner silinmemiş. Önce silmeniz gerekir.");
 
             await _bannerRepository.DeleteAsync(banner.Id);
-            return (true, "Banner kalıcı olarak silindi.");
+            return (true, "Banner çöp kutusundan kalıcı olarak silindi.");
         }
 
         public async Task<List<ResultBannerDto>> TGetActiveBannersAsync()

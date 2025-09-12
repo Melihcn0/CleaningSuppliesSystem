@@ -93,7 +93,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             service.IsDeleted = true;
 
             await _serviceRepository.UpdateAsync(service);
-            return (true, "Hizmet başarıyla silindi.", service.Id);
+            return (true, "Hizmet başarıyla çöp kutusuna taşındı.", service.Id);
         }
 
 
@@ -118,10 +118,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Hizmet bulunamadı.");
 
             if (!Service.IsDeleted)
-                return (false, "Hizmet soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Hizmet silinmemiş. Önce silmeniz gerekir.");
 
             await _serviceRepository.DeleteAsync(Service.Id);
-            return (true, "Hizmet kalıcı olarak silindi.");
+            return (true, "Hizmet çöp kutusundan kalıcı olarak silindi.");
         }
         public async Task<List<ResultServiceDto>> TGetActiveServicesAsync()
         {

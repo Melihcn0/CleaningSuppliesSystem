@@ -121,7 +121,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
-                // WebUI'de dosyayı kaydet ve WebP yap
                 string imageUrl = await SaveImageAsWebPAsync(dto.ImageFile);
                 dto.ImageUrl = imageUrl;
             }
@@ -132,19 +131,18 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             if (dto.SubCategoryId.HasValue)
                 formContent.Add(new StringContent(dto.SubCategoryId.Value.ToString()), "SubCategoryId");
 
-            // WebUI’de işlenmiş WebP dosya ismini API’ye gönderiyoruz sadece, dosya değil
             formContent.Add(new StringContent(dto.ImageUrl ?? ""), "ImageUrl");
 
             var response = await _client.PostAsync("categories", formContent);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "Kategori başarıyla oluşturuldu.";
+                TempData["SuccessMessage"] = "Ürün Grubu / Kategori başarıyla eklendi.";
                 return RedirectToAction("Index");
             }
 
             var errorMsg = await response.Content.ReadAsStringAsync();
-            TempData["ErrorMessage"] = $"Kategori oluşturulamadı";
+            TempData["ErrorMessage"] = $"Ürün Grubu / Kategori eklenemedi";
 
             await LoadDropdownsAsync(dto.TopCategoryId, dto.SubCategoryId);
             return View(dto);
@@ -289,42 +287,46 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             ViewBag.ExistingImageUrl = dto.ImageUrl;
             await LoadDropdownsAsync(dto.TopCategoryId, dto.SubCategoryId);
             return View(dto);
-        }    
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedCategory(int id)
         {
-            var response = await _client.PostAsync($"Categories/softdelete/{id}", null);
+            var response = await _client.PostAsync($"categories/softdelete/{id}", null);
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = "Kategori başarıyla soft silindi.";
+                return Ok(msg);
             else
-                TempData["ErrorMessage"] = "Kategori silinemedi.";
-
-            return RedirectToAction(nameof(Index));
+                return BadRequest(msg);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UndoSoftDeletedCategory(int id)
         {
-            var response = await _client.PostAsync($"Categories/undosoftdelete/{id}", null);
+            var response = await _client.PostAsync($"categories/undosoftdelete/{id}", null);
+            var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = "Kategori geri alındı.";
+            {
+                TempData["SuccessMessage"] = msg;
+            }
             else
-                TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+            {
+                TempData["ErrorMessage"] = msg;
+            }
 
             return RedirectToAction(nameof(DeletedCategory));
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PermanentDeleteCategory(int id)
         {
-            // Kategori bilgilerini al
             var categoryResponse = await _client.GetAsync($"categories/{id}");
             if (!categoryResponse.IsSuccessStatusCode)
                 return BadRequest("Kategori bilgisi alınamadı.");
@@ -332,15 +334,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var categoryJson = await categoryResponse.Content.ReadAsStringAsync();
             var category = JsonConvert.DeserializeObject<ResultCategoryDto>(categoryJson);
 
-            // Kalıcı silme isteği
             var response = await _client.DeleteAsync($"categories/permanent/{id}");
             var content = await response.Content.ReadAsStringAsync();
 
-            // API başarısızsa cevapla
             if (!response.IsSuccessStatusCode)
                 return BadRequest(content);
 
-            // Görsel varsa fiziksel olarak sil
             if (!string.IsNullOrWhiteSpace(category.ImageUrl))
             {
                 var relativePath = category.ImageUrl.TrimStart('~', '/').Replace('/', Path.DirectorySeparatorChar);
@@ -396,14 +395,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             if (ids == null || !ids.Any())
                 return BadRequest("Hiç kategori seçilmedi.");
 
-            // Tüm kategori bilgilerini topla
             var categoryImages = new List<string>();
 
             foreach (var id in ids)
             {
                 var detailResponse = await _client.GetAsync($"categories/{id}");
                 if (!detailResponse.IsSuccessStatusCode)
-                    continue; // Bilgi alınamazsa görseli silmeyi deneme
+                    continue;
 
                 var json = await detailResponse.Content.ReadAsStringAsync();
                 var category = JsonConvert.DeserializeObject<ResultCategoryDto>(json);
@@ -412,14 +410,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                     categoryImages.Add(category.ImageUrl);
             }
 
-            // API'ye kalıcı silme isteği gönder
             var response = await _client.PostAsJsonAsync("categories/PermanentDeleteMultiple", ids);
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
                 return BadRequest(content);
 
-            // Görsel dosyalarını fiziksel olarak sil
             foreach (var imageUrl in categoryImages)
             {
                 var relativePath = imageUrl.TrimStart('~', '/').Replace('/', Path.DirectorySeparatorChar);

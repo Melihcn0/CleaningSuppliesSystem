@@ -31,26 +31,42 @@ namespace CleaningSuppliesSystem.API.Controllers
             var result = _mapper.Map<ResultOrderItemDto>(value);
             return Ok(result);
         }
+
+        [HttpPost("decrement/{id}")]
+        public async Task<IActionResult> Decrement(int id)
+        {
+            try
+            {
+                await _orderItemService.TDecrementQuantityAsync(id);
+                var item = await _orderItemService.TGetByIdAsync(id);
+                return Ok(new { message = "Başarılı", newQuantity = item?.Quantity ?? 0 });
+            }
+            catch
+            {
+                return NotFound(new { message = "Ürün bulunamadı" });
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await _orderItemService.TDeleteAsync(id);
-            return Ok("Siparişteki Ürün Silindi");
+            return Ok(new { message = "Siparişteki ürün silindi" });
         }
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOrderItemDto createOrderItemDto)
         {
             var newValue = _mapper.Map<OrderItem>(createOrderItemDto);
             await _orderItemService.TCreateAsync(newValue);
-            return Ok($"Siparişe Yeni Ürün Oluşturuldu Sipariş ID={newValue.Id}");
+            return Ok($"Siparişe yeni ürün eklendi.");
         }
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateOrderItemDto updateOrderItemDto)
-        {
-            var value = _mapper.Map<OrderItem>(updateOrderItemDto);
-            await _orderItemService.TUpdateAsync(value);
-            return Ok("Sipariş İçeriği Güncellendi");
-        }
+        //[HttpPut]
+        //public async Task<IActionResult> Update([FromBody] UpdateOrderItemDto updateOrderItemDto)
+        //{
+        //    var value = _mapper.Map<OrderItem>(updateOrderItemDto);
+        //    await _orderItemService.TUpdateAsync(value);
+        //    return Ok("Sipariş içeriği Güncellendi");
+        //}
 
     }
 }

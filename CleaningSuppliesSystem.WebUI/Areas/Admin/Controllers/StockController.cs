@@ -31,7 +31,6 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
         }
         private async Task LoadAllDropdownsAsync(CreateStockOperationDto dto)
         {
-            // Top Categories
             var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topcategories/active");
             ViewBag.topCategories = topCategories.Select(x => new SelectListItem
             {
@@ -40,7 +39,6 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 Selected = x.Id == dto.TopCategoryId
             }).ToList();
 
-            // Sub Categories
             if (dto.TopCategoryId > 0)
             {
                 var subCategories = await _client.GetFromJsonAsync<List<ResultSubCategoryDto>>($"subCategories/GetSubCategories/{dto.TopCategoryId}");
@@ -56,7 +54,6 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 ViewBag.subCategories = new List<SelectListItem>();
             }
 
-            // Categories
             if (dto.SubCategoryId > 0)
             {
                 var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>($"categories/GetCategories/{dto.SubCategoryId}");
@@ -72,7 +69,6 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 ViewBag.categories = new List<SelectListItem>();
             }
 
-            // Brands
             if (dto.CategoryId > 0)
             {
                 var brands = await _client.GetFromJsonAsync<List<ResultBrandDto>>($"brands/GetBrands/{dto.CategoryId}");
@@ -88,7 +84,6 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 ViewBag.brands = new List<SelectListItem>();
             }
 
-            // Products
             if (dto.BrandId > 0)
             {
                 var products = await _client.GetFromJsonAsync<List<ResultProductDto>>($"products/GetProducts/{dto.BrandId}");
@@ -191,5 +186,26 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
             var products = await _client.GetFromJsonAsync<List<ResultProductDto>>($"products/GetProducts/{id}");
             return Json(products);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuickStockOperation([FromForm] QuickStockOperationDto dto)
+        {
+            if (dto.Quantity <= 0)
+                return BadRequest("Geçersiz miktar.");
+
+            var response = await _client.PostAsJsonAsync("stocks/quickAssign", dto);
+
+            var apiMessage = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+                return Ok(string.IsNullOrEmpty(apiMessage) ? "İşlem başarılı." : apiMessage);
+
+            return BadRequest(string.IsNullOrEmpty(apiMessage) ? "Stok işlemi gerçekleştirilemedi." : apiMessage);
+        }
+
+
+
+
     }
 }

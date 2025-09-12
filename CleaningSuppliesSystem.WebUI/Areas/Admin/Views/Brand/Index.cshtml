@@ -6,40 +6,36 @@
     ViewData["DeleteUrlPrefix"] = "/Admin/Brand/SoftDeletedBrand/";
 
     ViewData["MultiDeleteUrl"] = "/Admin/Brand/DeleteMultiple";
-    ViewData["MultiDeleteConfirmTitle"] = "Seçilen tüm kategorileri silmek istediğinize emin misiniz?";
+    ViewData["MultiDeleteConfirmTitle"] = "Seçilen marka çöp kutusuna taşınsın mı?";
     int count = 0;
 }
 
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Marka Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="CreateBrand" asp-controller="Brand" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Marka Ekle
+        <h5 class="card-title mb-0 mt-1">Marka Listesi</h5>
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto md-0 mt-1">
+            <a asp-action="CreateBrand" asp-controller="Brand" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span> Yeni Marka Ekle
             </a>
-            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center" disabled>
-                <span class="material-symbols-outlined me-1">delete</span> Seçilenleri Sil
+            <button id="deleteSelectedBtn" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center" disabled>
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center">delete</span> Seçilenleri Sil
             </button>
             <a asp-action="DeletedBrands" asp-controller="Brand" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
     </div>
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>
-                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                    <th class="text-start">
+                        <input type="checkbox" id="selectAll" class="form-check-input" /> #
                     </th>
-                    <th>Üst Kategori Adı</th>
-                    <th>Alt Kategori Adı</th>
-                    <th>Kategori Adı</th>
-                    <th>Marka Adı</th>
-                    <th>Oluşturulma Tarihi</th>
-                    <th>Son Güncelleme Tarihi</th>
+                    <th>Üst Kategori | Alt Kategori | Ürün Grubu | Marka Adı</th>
+                    <th>Oluşturma | Son Güncelleme Tarihleri</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -54,28 +50,30 @@
                                 @count
                             </label>
                         </td>
-                        <td>@item.TopCategoryName</td>
-                        <td>@item.SubCategoryName</td>
-                        <td>@item.CategoryName</td>
-                        <td>@item.Name</td>
-                        <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncelleme yapılmadı")
-                        </td>
+                        <td>@item.TopCategoryName - @item.SubCategoryName - @item.CategoryName - <b><u>@item.Name</u></b></td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span>
+                                        🟢 <b>Oluşturma:</b>
+                                        @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                    <span>
+                                        🟡 <b>Güncelleme:</b>
+                                        @(item.UpdatedDate != null
+                                            ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                            : "Henüz güncelleme yapılmadı")
+                                    </span>
+                                </div>
+                            </td>
                             <td>
                                 <div class="d-flex flex-nowrap gap-2">
                                     <a asp-action="UpdateBrand" asp-controller="Brand" asp-area="Admin" asp-route-id="@item.Id"
-                                       class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
-                                        <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                                       class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">edit</span> Düzenle
                                     </a>
-                                    <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
+                                    <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
                                             data-id="@item.Id">
-                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                     </button>
                                 </div>
                             </td>
@@ -86,6 +84,7 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     <script>
         const selectAll = document.getElementById('selectAll');

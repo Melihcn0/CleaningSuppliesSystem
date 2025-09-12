@@ -50,7 +50,6 @@ namespace CleaningSuppliesSystem.API.Controllers
 
             return Ok(assignRoleList);
         }
-
         [HttpPost("assignrole")]
         public async Task<IActionResult> AssignRole([FromBody] UserAssignRoleDto dto)
         {
@@ -60,26 +59,23 @@ namespace CleaningSuppliesSystem.API.Controllers
                 {
                     var result = await _userService.AssignRoleToUserAsync(dto.UserId, role.RoleName);
                     if (!result)
-                        return BadRequest("Rol atama işlemi başarısız.");
+                        return Content("Kullanıcıya rol atama işlemi başarısız.", "text/plain");
                 }
             }
 
-            return Ok("Rol atama başarılı.");
+            return Content("Kullanıcıya başarıyla rol atandı.", "text/plain");
         }
 
-
-        // POST api/roleassign/togglestatus
         [HttpPost("togglestatus")]
         public async Task<IActionResult> ToggleStatus([FromQuery] int userId, [FromQuery] bool newStatus)
         {
             var result = await _userService.ToggleUserStatusAsync(userId, newStatus);
             if (!result)
-                return BadRequest("Kullanıcı durumu güncellenemedi.");
+                return BadRequest("Kullanıcı rol durumu güncellenemedi.");
 
-            return Ok("Kullanıcı durumu güncellendi.");
+            return Ok("Kullanıcı rol durumu güncellendi.");
         }
 
-        // GET api/roleassign/rolesindex
         [HttpGet("rolesindex")]
         public async Task<IActionResult> RolesIndex()
         {

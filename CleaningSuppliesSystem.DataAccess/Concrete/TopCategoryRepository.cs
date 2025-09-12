@@ -20,22 +20,22 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
             _context = context;
         }
 
-        public async Task<TopCategory> GetByIdAsync(int id)
-        {
-            return await _context.TopCategories.FirstOrDefaultAsync(p => p.Id == id);
-        }
+        //public async Task<TopCategory> GetByIdAsync(int id)
+        //{
+        //    return await _context.TopCategories.FirstOrDefaultAsync(p => p.Id == id);
+        //}
 
-        public async Task CreateAsync(TopCategory topCategory)
-        {
-            await _context.TopCategories.AddAsync(topCategory);
-            await _context.SaveChangesAsync();
-        }
+        //public async Task CreateAsync(TopCategory topCategory)
+        //{
+        //    await _context.TopCategories.AddAsync(topCategory);
+        //    await _context.SaveChangesAsync();
+        //}
 
-        public async Task UpdateAsync(TopCategory topCategory)
-        {
-            _context.TopCategories.Update(topCategory);
-            await _context.SaveChangesAsync();
-        }
+        //public async Task UpdateAsync(TopCategory topCategory)
+        //{
+        //    _context.TopCategories.Update(topCategory);
+        //    await _context.SaveChangesAsync();
+        //}
 
         public async Task SoftDeleteAsync(TopCategory topCategory)
         {

@@ -3,7 +3,7 @@
     const token = tokenEl ? tokenEl.value : "";
     const theme = document.documentElement.getAttribute("data-theme") || "light";
 
-    function massAction(endpoint, confirmTitle, confirmText) {
+    function massAction(endpoint, confirmTitle, confirmTitle) {
         const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked'))
             .map(cb => cb.dataset.id);
 
@@ -21,7 +21,23 @@
             background: theme === "dark" ? "#1e1e2f" : "#fff",
             color: theme === "dark" ? "#fff" : "#000",
             allowOutsideClick: false,
-            allowEscapeKey: false
+            allowEscapeKey: false,
+            didOpen: () => {
+                const confirmBtn = Swal.getConfirmButton();
+                const cancelBtn = Swal.getCancelButton();
+                [[confirmBtn, "#d33"], [cancelBtn, "#3085d6"]].forEach(([btn, color]) => {
+                    if (!btn) return;
+                    btn.style.transition = "all 0.3s ease";
+                    btn.addEventListener("mouseenter", () => {
+                        btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                        btn.style.transform = "translateY(-2px)";
+                    });
+                    btn.addEventListener("mouseleave", () => {
+                        btn.style.boxShadow = "none";
+                        btn.style.transform = "translateY(0)";
+                    });
+                });
+            }
         }).then(result => {
             if (!result.isConfirmed) return;
 
@@ -41,12 +57,21 @@
                         title: isSuccess ? "Başarılı!" : "Hata!",
                         text: msg,
                         icon: isSuccess ? "success" : "error",
-                        confirmButtonText: "Tamam",
-                        confirmButtonColor: "#d33",
+                        showConfirmButton: false,
+                        timer: isSuccess ? 1250 : 2500,
+                        timerProgressBar: true,
                         background: theme === "dark" ? "#1e1e2f" : "#fff",
-                        color: theme === "dark" ? "#fff" : "#000"
-                    }).then(() => {
-                        if (isSuccess) window.location.reload();
+                        color: theme === "dark" ? "#fff" : "#000",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                        didOpen: () => {
+                            const pb = Swal.getPopup().querySelector('.swal2-timer-progress-bar');
+                            if (pb) pb.style.backgroundColor = isSuccess ? "#28a745" : "#dc3545";
+                        },
+                        willClose: () => {
+                            if (isSuccess) window.location.reload();
+                        }
                     });
                 })
                 .catch(() => {
@@ -54,21 +79,20 @@
                         title: "Sunucuya ulaşılamadı!",
                         text: "Lütfen tekrar deneyin.",
                         icon: "error",
-                        confirmButtonText: "Tamam",
-                        confirmButtonColor: "#d33",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
                         background: theme === "dark" ? "#1e1e2f" : "#fff",
-                        color: theme === "dark" ? "#fff" : "#000"
+                        color: theme === "dark" ? "#fff" : "#000",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                        didOpen: () => {
+                            const pb = Swal.getPopup().querySelector('.swal2-timer-progress-bar');
+                            if (pb) pb.style.backgroundColor = "#dc3545";
+                        }
                     });
                 });
         });
     }
-
-    const deleteBtn = document.getElementById("undosoftdeleteSelectedBtn");
-    if (!deleteBtn) return console.warn("Soft delete butonu bulunamadı.");
-
-    deleteBtn.addEventListener("click", () => {
-        const config = window.massActionsConfig?.undoSoftDelete;
-        if (!config) return console.warn("Soft delete config'i eksik.");
-        massAction(config.url, config.title, "");
-    });
 });

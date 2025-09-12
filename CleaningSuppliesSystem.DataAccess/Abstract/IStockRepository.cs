@@ -11,6 +11,7 @@ namespace CleaningSuppliesSystem.DataAccess.Abstract
     {
         Task<bool> AssignStockAsync(int productId, int quantity, bool isStockIn);
         Task<List<Product>> GetActiveProductsAsync();
+        Task<bool> QuickStockAsync(int productId, int quantity, bool isIncrease);
 
     }
 }

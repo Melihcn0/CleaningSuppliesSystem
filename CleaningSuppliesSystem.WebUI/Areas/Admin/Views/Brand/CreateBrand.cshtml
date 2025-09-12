@@ -7,19 +7,25 @@
 <form method="post">
     @Html.AntiForgeryToken()
     <div class="form-group">
-        <label for="CategoryId">Ürün Grubu / Kategori</label>
-        <select id="CategoryId" name="CategoryId" asp-items="ViewBag.categories" class="form-control">
+        <label asp-for="CategoryId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Ürün Grubu Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select id="CategoryId" name="CategoryId" asp-items="ViewBag.categories" class="form-control" required>
             <option value="" disabled selected>Ürün Grubu / Kategori Seçin</option>
         </select>
         <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
     <br />
     <div class="form-group">
-        <label for="Name">Marka Adı</label>
-        <input asp-for="Name" class="form-control" />
+        <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Marka Adı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Name" class="form-control" minlength="2" maxlength="50" required/>
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
     <br />
-    <button type="submit" class="btn btn-primary-600">Kaydet</button>
-    <br />
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
 </form>

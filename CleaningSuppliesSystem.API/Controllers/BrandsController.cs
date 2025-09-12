@@ -28,6 +28,15 @@ namespace CleaningSuppliesSystem.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("bycategory/{categoryId}")]
+        public async Task<IActionResult> GetBrandsByCategory(int categoryId)
+        {
+            var brands = await _brandService.TGetActiveByCategoryIdAsync(categoryId);
+            var result = brands.Select(b => new { b.Id, b.Name }).ToList();
+            return Ok(result);
+        }
+
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Get()
@@ -109,10 +118,10 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("Marka bulunamadı.");
 
             if (!brand.IsDeleted)
-                return BadRequest("Marka soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("Marka silinmiş değil. Önce silmeniz gerekir.");
 
             await _brandService.TDeleteAsync(id);
-            return Ok("Marka kalıcı olarak silindi.");
+            return Ok("Marka çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpGet("GetBrands/{categoryId}")]
@@ -126,7 +135,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         public async Task<IActionResult> SoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek kategori bulunamadı.");
+                return BadRequest("Silinecek marka bulunamadı.");
 
             var results = await _brandService.TSoftDeleteRangeBrandAsync(ids);
 
@@ -137,14 +146,14 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm kategoriler başarıyla silindi.");
+            return Ok("Seçili marka başarıyla çöp kutusuna taşındı.");
         }
 
         [HttpPost("UndoSoftDeleteMultiple")]
         public async Task<IActionResult> UndoSoftDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Geri alınacak kategori bulunamadı.");
+                return BadRequest("Geri alınacak marka bulunamadı.");
 
             var results = await _brandService.TUndoSoftDeleteRangeBrandAsync(ids);
 
@@ -155,16 +164,16 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return BadRequest(messages);
             }
 
-            return Ok("Tüm kategoriler başarıyla geri alındı.");
+            return Ok("Seçili marka başarıyla geri alındı.");
         }
         [HttpPost("PermanentDeleteMultiple")]
         public async Task<IActionResult> PermanentDeleteMultipleAsync([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Silinecek kategoriler bulunamadı.");
+                return BadRequest("Silinecek marka bulunamadı.");
 
             await _brandService.TPermanentDeleteRangeBrandAsync(ids);
-            return Ok("Kategoriler başarıyla silindi.");
+            return Ok("Seçili marka çöp kutusundan kalıcı olarak silindi.");
         }
 
     }

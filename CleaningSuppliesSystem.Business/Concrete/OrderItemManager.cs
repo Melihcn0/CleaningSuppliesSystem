@@ -26,6 +26,21 @@ namespace CleaningSuppliesSystem.Business.Concrete
         {
             return _orderItemRepository.GetByIdAsyncWithProductandCategories(id);
         }
+        public async Task TDecrementQuantityAsync(int id)
+        {
+            var item = await _orderItemRepository.GetByIdAsync(id);
+            if (item == null) throw new Exception("Ürün bulunamadı");
+
+            if (item.Quantity > 1)
+            {
+                item.Quantity--;
+                await _orderItemRepository.UpdateAsync(item);
+            }
+            else
+            {
+                await _orderItemRepository.DeleteAsync(id);
+            }
+        }
     }
 }
 

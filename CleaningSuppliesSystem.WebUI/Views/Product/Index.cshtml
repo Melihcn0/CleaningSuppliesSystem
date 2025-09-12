@@ -11,9 +11,11 @@
         --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
         --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        --info-dark-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
         --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
         --hover-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
     }
+
 
     body {
         font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -28,7 +30,7 @@
     }
 
     .page-header {
-        background: var(--primary-gradient);
+        background: var(--info-dark-gradient);
         color: white;
         padding: 3rem 0;
         margin-bottom: 3rem;
@@ -78,7 +80,7 @@
         margin-bottom: 2rem;
         padding-bottom: 1rem;
         border-bottom: 3px solid transparent;
-        background: var(--primary-gradient);
+        background: var(--info-dark-gradient);
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -92,7 +94,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: var(--primary-gradient);
+            background: var(--info-dark-gradient);
             border-radius: 3px;
         }
 
@@ -118,7 +120,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: var(--primary-gradient);
+            background: var(--info-dark-gradient);
             transition: left 0.3s ease;
             z-index: -1;
         }
@@ -135,7 +137,7 @@
             }
 
         .category-item.active {
-            background: var(--primary-gradient);
+            background: var(--info-dark-gradient);
             color: white;
             font-weight: 600;
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
@@ -216,9 +218,9 @@
 
     .status-badge {
         position: absolute;
-        top: 15px;
-        left: 15px;
-        padding: 0.6rem 1.2rem;
+        top: 5px;
+        left: 5px;
+        padding: 0.2rem 0.6rem;
         border-radius: 50px;
         font-size: 0.8rem;
         font-weight: 700;
@@ -258,11 +260,11 @@
 
     .discount-badge {
         position: absolute;
-        top: 15px;
-        right: 15px;
+        top: 5px;
+        right: 5px;
         background: var(--secondary-gradient);
         color: white;
-        padding: 0.6rem 1.2rem;
+        padding: 0.3rem 0.6rem;
         border-radius: 50px;
         font-size: 0.9rem;
         font-weight: 800;
@@ -313,7 +315,7 @@
     .current-price {
         font-size: 1.5rem;
         font-weight: 800;
-        background: var(--primary-gradient);
+        background: var(--info-dark-gradient);
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -322,8 +324,9 @@
     .quantity-controls {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: nowrap;
     }
 
     .quantity-input-group {
@@ -357,21 +360,31 @@
         }
 
     .quantity-input {
-        border: none;
-        background: transparent;
+        flex: 1 1 auto;
+        min-width: 50px;
+        max-width: 80px;
+        font-size: 0.9rem;
+        border: 1px solid #cbd5e0;
+        background: #fff;
+        border-radius: 8px;
         text-align: center;
-        width: 60px;
-        padding: 0.75rem 0;
+        padding: 0.5rem;
         font-weight: 600;
         color: #2d3748;
+        /* Okları geri getir */
+        appearance: auto !important;
+        -webkit-appearance: auto !important; /* Chrome, Safari */
+        -moz-appearance: auto !important; /* Firefox */
     }
+
+
 
         .quantity-input:focus {
             outline: none;
         }
 
     .add-to-cart-btn {
-        background: var(--primary-gradient);
+        background: var(--info-dark-gradient);
         color: white;
         border: none;
         padding: 1rem 2rem;
@@ -438,7 +451,7 @@
         .empty-state i {
             margin-bottom: 2rem;
             opacity: 0.6;
-            background: var(--primary-gradient);
+            background: var(--info-dark-gradient);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -563,14 +576,15 @@
                                     <div class="price-container">
                                         @if (product.DiscountRate > 0)
                                         {
-                                            <span class="original-price">@product.UnitPrice.ToString("0.00") ₺</span>
-                                            <span class="current-price">@product.DiscountedPrice.ToString("0.00") ₺</span>
+                                            <span class="original-price">@product.PriceWithVat.ToString("0.00") ₺</span>
+                                            <span class="current-price">@product.DiscountedPriceWithVat.ToString("0.00") ₺</span>
                                         }
                                         else
                                         {
-                                            <span class="current-price">@product.UnitPrice.ToString("0.00") ₺</span>
+                                            <span class="current-price">@product.PriceWithVat.ToString("0.00") ₺</span>
                                         }
                                     </div>
+
 
 
 
@@ -611,22 +625,80 @@
     </div>
 </div>
 
+@if (TempData["ValidateProfileErrorMessage"] != null)
+{
+    <script>
+        window.addEventListener("load", function () {
+            Swal.fire({
+                icon: 'error', // hata için kırmızı
+                title: 'Hata!',
+                html: '@Html.Raw(TempData["ValidateProfileErrorMessage"])',
+                timer: 3500, // 3.5 saniye
+                timerProgressBar: true, // alt bar
+                showConfirmButton: false, // buton yok
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    // Bar rengini kırmızı yap
+                    const timerBar = document.querySelector('.swal2-timer-progress-bar');
+                    if(timerBar) timerBar.style.backgroundColor = '#dc3545'; // danger kırmızı
+                }
+            });
+        });
+    </script>
+}
+
 @if (TempData["ErrorMessage"] != null)
 {
     <script>
         window.addEventListener("load", function () {
             Swal.fire({
-                icon: 'info',
-                title: 'Bilgi',
+                icon: 'error', // hata için kırmızı
+                title: 'Hata!',
                 html: '@Html.Raw(TempData["ErrorMessage"])',
+                timer: 1250, // 1.25 saniye
+                timerProgressBar: true, // alt bar
+                showConfirmButton: false, // buton yok
                 allowEscapeKey: false,
                 allowEnterKey: false,
                 allowOutsideClick: false,
-                confirmButtonText: 'Tamam'
+                didOpen: () => {
+                    // Bar rengini kırmızı yap
+                    const timerBar = document.querySelector('.swal2-timer-progress-bar');
+                    if(timerBar) timerBar.style.backgroundColor = '#dc3545'; // danger kırmızı
+                }
             });
         });
     </script>
 }
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        window.addEventListener("load", function () {
+            Swal.fire({
+                icon: 'success', // başarılı için yeşil
+                title: 'Başarılı!',
+                html: '@Html.Raw(TempData["SuccessMessage"])<br><br>Siparişlerinizi <strong>Müşteri Paneli</strong> üzerinden görüntüleyebilirsiniz.',
+                timer: 1000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    // Bar rengini yeşil yap
+                    const timerBar = document.querySelector('.swal2-timer-progress-bar');
+                    if(timerBar) timerBar.style.backgroundColor = '#28a745'; // success yeşil
+                }
+            });
+        });
+    </script>
+}
+
+
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -664,6 +736,39 @@
                 if (val > max) val = max;
 
                 input.value = val;
+
+            // Klavye ile değişiklik fark etiketi
+            if (e.isTrusted) {
+                input.dataset.changedBy = "keyboard";
+            }
             });
         });
+
+    document.querySelectorAll('.quantity-input-group').forEach(group => {
+        const input = group.querySelector('.quantity-input');
+        const btnMinus = group.querySelector('.minus');
+        const btnPlus = group.querySelector('.plus');
+
+        btnMinus?.addEventListener('click', () => {
+            let val = parseInt(input.value) || 1;
+            const min = parseInt(input.min) || 1;
+            if (val > min) {
+                input.value = val - 1;
+                input.dataset.changedBy = "button"; // fark etiketi
+                input.dispatchEvent(new Event('input'));
+            }
+        });
+
+        btnPlus?.addEventListener('click', () => {
+            let val = parseInt(input.value) || 1;
+            const max = parseInt(input.max) || 9999;
+            if (val < max) {
+                input.value = val + 1;
+                input.dataset.changedBy = "button"; // fark etiketi
+                input.dispatchEvent(new Event('input'));
+            }
+        });
+    });
+
+
     </script>

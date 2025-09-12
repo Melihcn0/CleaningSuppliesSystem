@@ -19,7 +19,8 @@ namespace CleaningSuppliesSystem.Entity.Entities
         public ICollection<Order> Orders { get; set; }   // Kullanıcının siparişleri
         public ICollection<CustomerIndividualAddress> CustomerIndividualAddresses { get; set; }
         public ICollection<CustomerCorporateAddress> CustomerCorporateAddresses { get; set; }
-        public CompanyAddress CompanyAddress { get; set; }
+        public CompanyAddress? CompanyAddress { get; set; }
+        public CompanyBank? CompanyBank { get; set; }
         public string PreferredTheme { get; set; } = "light"; // "light" veya "dark"
     }
 }

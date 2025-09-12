@@ -13,11 +13,11 @@
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="card-title mb-0">Hizmetlerimiz Listesi</h5>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="Index" asp-controller="ServiceIcon" asp-area="Admin" class="btn rounded-pill btn-lilac-100 text-lilac-600 radius-8 d-inline-flex align-items-center">
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto md-0 mt-1">
+            <a asp-action="Index" asp-controller="ServiceIcon" asp-area="Admin" class="btn rounded-pill btn-lilac-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">emoji_symbols</span> Hizmet İkonları
             </a>
-            <a asp-action="CreateService" asp-controller="Service" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
+            <a asp-action="CreateService" asp-controller="Service" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
                 <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Hizmet Ekle
             </a>
             <a asp-action="DeletedService" asp-controller="Service" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
@@ -28,17 +28,14 @@
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-            <thead class="table-light">
+            <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Icon Adı</th>
-                    <th>Icon Url</th>
+                    <th class="text-start">#</th>
+                    <th>Icon Adı | Icon Url</th>
                     <th>Hizmet Adı</th>
                     <th>Hizmet Açıklaması</th>
-                    <th>Eklenme</th>
-                    <th>Düzenleme</th>
-                    <th>Ana Sayfada</th>
-                    <th>Durum</th>
+                    <th>Oluşturma | Son Güncelleme Tarihleri</th>
+                    <th>Ana Sayfada | Durum</th>
                     <th>İşlem</th>
                 </tr>
             </thead>
@@ -48,37 +45,40 @@
                     count++;
                     <tr>
                         <td>@count</td>
-                        <td>@item.IconName</td>
-                        <td>@item.IconUrl</td>
-                        <td>@item.Title</td>
+                        <td>@item.IconName - @item.IconUrl</td>
+                        <td><b><u>@item.Title</u></b></td>
                         <td>@item.Description</td>
                         <td>
-                            @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                            @item.CreatedDate.ToString("dd MMMM yyyy dddd")
-                        </td>
-                        <td>
-                            @(item.UpdatedDate.HasValue
-                                ? Html.Raw(item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm") + "<br />" + item.UpdatedDate.Value.ToString("dd MMMM yyyy dddd"))
-                                : "Henüz güncelleme yapılmadı")
-                        </td>
-                        <td>
-                            @if (item.IsShown)
-                            {
-                                <span class="badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white">Gösteriliyor</span>
-                            }
-                            else
-                            {
-                                <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Gösterilmiyor</span>
-                            }
+                            <div class="d-flex flex-column small gap-1">
+                                <span>
+                                    🟢 <b>Oluşturma:</b>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                                <span>
+                                    🟡 <b>Güncelleme:</b>
+                                    @(item.UpdatedDate != null
+                                        ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                        : "Henüz güncelleme yapılmadı")
+                                </span>
+                            </div>
                         </td>
                             <td class="text-center align-middle">
+                                <div class="d-flex flex-nowrap gap-2 align-items-center justify-content-center">
+                                @if (item.IsShown)
+                                {
+                                    <span class="badge text-sm fw-semibold bg-dark-success-gradient px-20 py-9 radius-4 text-white">Gösteriliyor</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-sm fw-semibold bg-dark-danger-gradient px-20 py-9 radius-4 text-white">Gösterilmiyor</span>
+                                }
                                 <form method="post" asp-action="ToggleStatus" asp-controller="Service" id="toggleForm-@item.Id" class="d-inline-block">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="serviceId" value="@item.Id" />
                                     <input type="hidden" name="newStatus" id="newStatus-@item.Id" value="@item.IsShown.ToString().ToLower()" />
 
                                     <div class="form-switch">
-                                        <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-warning-600")"
+                                        <input class="form-check-input @(item.IsShown ? "bg-success-600" : "bg-danger-600")"
                                                type="checkbox"
                                                role="switch"
                                                id="isShownSwitch-@item.Id"
@@ -87,16 +87,19 @@
                                                onchange="onToggleChange(@item.Id)" />
                                     </div>
                                 </form>
+                                </div>
                             </td>
                             <td>
+                                <div class="d-flex flex-nowrap gap-2">
                                 <a asp-action="UpdateService" asp-controller="Service" asp-area="Admin" asp-route-id="@item.Id"
-                                   class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center me-2 action-btn">
-                                    <span class="material-symbols-outlined me-1">edit</span> Düzenle
+                                   class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">edit</span> Düzenle
                                 </a>
-                                <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center me-2 action-btn delete-btn"
-                                        data-id="@item.Id">
-                                    <span class="material-symbols-outlined me-1">delete</span> Sil
+                                <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center action-btn delete-btn"
+                                    data-id="@item.Id">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                 </button>
+                                </div>
                             </td>
                     </tr>
                 }

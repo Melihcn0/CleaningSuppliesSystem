@@ -1,110 +1,139 @@
-﻿@using CleaningSuppliesSystem.DTO.DTOs.Home.BannerDtos
-@model CreateBannerDto
+﻿@model CreateBannerDto
 
 @{
-    ViewData["Title"] = "Banner Oluştur";
+    ViewData["Title"] = "Yeni Banner Oluşturma Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <form asp-action="CreateBanner" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-    <div class="container-fluid p-0" style="width: 100vw;">
-        <div class="col-md-10">
-            <div class="row">
+    <div class="row gx-3 gy-4">
 
-                <!-- 🖊️ Sol: Form Alanı -->
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label">Başlık</label>
-                        <input asp-for="Title" class="form-control" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
+        <!-- Banner Kartı -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header text-center">
+                    <h5>Banner</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+
+                    <!-- Görsel Önizleme -->
+                    <div class="mb-3 text-center">
+                        <label>Görsel Önizlemesi</label><br />
+                        <img id="imagePreview" src="/images/resim_yok.png" alt="Mevcut Görsel" class="img-thumbnail" style="max-height: 150px;" />
                     </div>
 
+                    <!-- Görsel Yükleme -->
                     <div class="mb-3">
-                        <label asp-for="Subtitle" class="form-label">Alt Başlık</label>
-                        <input asp-for="Subtitle" class="form-control" />
-                        <span asp-validation-for="Subtitle" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ImageFile" class="form-label">Banner Görseli</label>
-                        <input asp-for="ImageFile" type="file" accept="image/*" class="form-control" onchange="previewImage(event)" />
+                        <label for="basic-upload" class="border border-primary-600 fw-medium text-primary-600 px-16 py-12 radius-12 d-inline-flex align-items-center gap-2 bg-hover-primary-50">
+                            <iconify-icon icon="solar:upload-linear" class="text-xl"></iconify-icon>
+                            Görsel Yükle
+                            <input asp-for="ImageFile" type="file" accept="image/*" class="visually-hidden" id="basic-upload" onchange="previewImage(this)" required />
+                        </label>
                         <span asp-validation-for="ImageFile" class="text-danger"></span>
                     </div>
 
-                    <!-- 🔢 İstatistikler -->
+                    <!-- Başlık -->
                     <div class="mb-3">
-                        <label asp-for="Statistic1Title">İstatistik 1 Başlığı</label>
-                        <input asp-for="Statistic1Title" class="form-control" />
-                        <span asp-validation-for="Statistic1Title" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Statistic1">İstatistik 1 Değeri</label>
-                        <input asp-for="Statistic1" class="form-control" />
-                        <span asp-validation-for="Statistic1" class="text-danger"></span>
+                        <label asp-for="Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner Başlık Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Title" class="form-control" placeholder="Başlık" maxlength="40" required />
+                        <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
 
+                    <!-- Alt Başlık -->
                     <div class="mb-3">
-                        <label asp-for="Statistic2Title">İstatistik 2 Başlığı</label>
-                        <input asp-for="Statistic2Title" class="form-control" />
-                        <span asp-validation-for="Statistic2Title" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Statistic2">İstatistik 2 Değeri</label>
-                        <input asp-for="Statistic2" class="form-control" />
-                        <span asp-validation-for="Statistic2" class="text-danger"></span>
+                        <label asp-for="Subtitle" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                            Banner Alt Başlık Adı <span class="text-danger-600">*</span>
+                        </label>
+                        <input asp-for="Subtitle" class="form-control" placeholder="Alt Başlık" maxlength="50" required />
+                        <span asp-validation-for="Subtitle" class="text-danger"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Statistic3Title">İstatistik 3 Başlığı</label>
-                        <input asp-for="Statistic3Title" class="form-control" />
-                        <span asp-validation-for="Statistic3Title" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Statistic3">İstatistik 3 Değeri</label>
-                        <input asp-for="Statistic3" class="form-control" />
-                        <span asp-validation-for="Statistic3" class="text-danger"></span>
-                    </div>
+                    <!-- İstatistik Alanları (Başlık + Değer Yan Yana) -->
+                    <div class="mb-3 row gx-2">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Statistic1Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 1 Adı <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic1Title" class="form-control" placeholder="İstatistik 1 Başlığı" maxlength="15" required />
+                            <span asp-validation-for="Statistic1Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Statistic1" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 1 Değeri <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic1" class="form-control" placeholder="İstatistik 1 Değeri" maxlength="7" required />
+                            <span asp-validation-for="Statistic1" class="text-danger"></span>
+                        </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Statistic4Title">İstatistik 4 Başlığı</label>
-                        <input asp-for="Statistic4Title" class="form-control" />
-                        <span asp-validation-for="Statistic4Title" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Statistic4">İstatistik 4 Değeri</label>
-                        <input asp-for="Statistic4" class="form-control" />
-                        <span asp-validation-for="Statistic4" class="text-danger"></span>
-                    </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Statistic2Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 2 Adı <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic2Title" class="form-control" placeholder="İstatistik 2 Başlığı" maxlength="15" required />
+                            <span asp-validation-for="Statistic2Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Statistic2" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 2 Değeri <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic2" class="form-control" placeholder="İstatistik 2 Değeri" maxlength="7" required />
+                            <span asp-validation-for="Statistic2" class="text-danger"></span>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Statistic3Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 3 Adı <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic3Title" class="form-control" placeholder="İstatistik 3 Başlığı" maxlength="15"  required />
+                            <span asp-validation-for="Statistic3Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Statistic3" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 3 Değeri <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic3" class="form-control" placeholder="İstatistik 3 Değeri" maxlength="7"  required />
+                            <span asp-validation-for="Statistic3" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Statistic4Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 4 Adı <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic4Title" class="form-control" placeholder="İstatistik 4 Başlığı" maxlength="15"  required />
+                            <span asp-validation-for="Statistic4Title" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Statistic4" class="form-label fw-semibold text-primary-light text-sm mb-8">
+                                İstatistik 4 Değeri <span class="text-danger-600">*</span>
+                            </label>
+                            <input asp-for="Statistic4" class="form-control" placeholder="İstatistik 4 Değeri" maxlength="7" required />
+                            <span asp-validation-for="Statistic4" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+                            <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span>
+                            Ekle
+                        </button>
+                    </div>
                 </div>
-
-                <!-- 🖼️ Sağ: Görsel Önizleme -->
-                <div class="col-md-6">
-                    <label class="d-block mb-2 fw-bold" style="font-size: 1.2rem;">Fotoğraf Önizlemesi</label>
-                    <div style="aspect-ratio: 4 / 3; max-width: 350px; margin: auto; border: 2px dashed #6c757d; border-radius: 10px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
-                        <img id="imagePreview" src="/images/resim_yok.png" alt="Banner Görseli" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                    </div>
-                </div>
-
             </div>
         </div>
+
     </div>
 </form>
 
 <script>
-    function previewImage(event) {
-        const input = event.target;
-        const img = document.getElementById('imagePreview');
+    function previewImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = function (e) {
-                img.src = e.target.result;
-            };
+            reader.onload = e => document.getElementById('imagePreview').src = e.target.result;
             reader.readAsDataURL(input.files[0]);
         } else {
-            img.src = "/images/resim_yok.png";
+            document.getElementById('imagePreview').src = "/images/resim_yok.png";
         }
     }
 </script>

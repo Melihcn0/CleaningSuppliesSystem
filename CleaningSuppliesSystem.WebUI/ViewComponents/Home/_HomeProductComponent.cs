@@ -20,7 +20,7 @@ namespace CleaningSuppliesSystem.WebUI.ViewComponents.Home
             var products = allProducts?
                 .Where(p => p.IsShown && !p.IsDeleted)
                 .OrderBy(x => rnd.Next())
-                .Take(10)                
+                .Take(5)                
                 .ToList()
                 ?? new List<ResultProductDto>();
 

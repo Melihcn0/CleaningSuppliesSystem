@@ -7,44 +7,67 @@
 <form id="updateTopCategoryForm" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <label>Üst Kategori Adı</label>
-    <input type="text" asp-for="Name" class="form-control" />
+    <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Üst Kategori Adı <span class="text-danger-600">*</span>
+    </label>
+    <input type="text" asp-for="Name" class="form-control" minlength="2" maxlength="50" required/>
     <span asp-validation-for="Name" class="text-danger"></span>
     <br />
-    <button type="button" onclick="updateTopCategory()" class="btn btn-warning-600">Güncelle</button>
+    <button type="button" class="btn rounded-pill btn-warning-600 radius-8 d-inline-flex align-items-center btn-sm" onclick="updateTopCategory()">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">update</span>
+        Güncelle
+    </button>
 </form>
 
-@section Scripts {
-    <script>
+<script>
         function updateTopCategory() {
-            const form = document.getElementById("updateTopCategoryForm");
-            const theme = document.documentElement.getAttribute("data-theme");
+        const form = document.getElementById("updateTopCategoryForm");
+        const theme = document.documentElement.getAttribute("data-theme");
 
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            Swal.fire({
-                title: "Değişiklikler kaydedilsin mi?",
-                text: "İşlemi onaylıyor musunuz?",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Evet, kaydet!",
-                cancelButtonText: "İptal",
-                background: theme === "dark" ? "#1e1e2f" : "#fff",
-                color: theme === "dark" ? "#fff" : "#000",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
         }
 
-    </script>
-}
+        Swal.fire({
+            title: "Üst kategori güncellensin mi?",
+            text: "Değişiklikleri onaylıyor musunuz?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Evet, güncelle!",
+            cancelButtonText: "İptal",
+            background: theme === "dark" ? "#1e1e2f" : "#fff",
+            color: theme === "dark" ? "#fff" : "#000",
+            reverseButtons: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            didOpen: () => {
+            const confirmBtn = Swal.getConfirmButton();
+            const cancelBtn = Swal.getCancelButton();
+
+            const addHoverEffect = (btn, color) => {
+                if (!btn) return;
+                btn.style.transition = "all 0.3s ease";
+                btn.addEventListener("mouseenter", () => {
+                    btn.style.boxShadow = `0 4px 20px 0 ${color}80`;
+                    btn.style.transform = "translateY(-2px)";
+                });
+                btn.addEventListener("mouseleave", () => {
+                    btn.style.boxShadow = "none";
+                    btn.style.transform = "translateY(0)";
+                });
+            };
+
+            addHoverEffect(confirmBtn, "#3085d6");
+            addHoverEffect(cancelBtn, "#ff4d4f");
+        }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+</script>

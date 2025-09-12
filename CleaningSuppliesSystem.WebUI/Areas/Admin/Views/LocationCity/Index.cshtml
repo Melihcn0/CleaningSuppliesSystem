@@ -11,24 +11,24 @@
 <div class="card basic-data-table">
     @Html.AntiForgeryToken()
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="card-title mb-0">Şehir Lokasyonları Listesi</h5>
+        <h5 class="card-title mb-0 mt-1">Şehir Lokasyonları Listesi</h5>
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto mt-2 mt-md-0">
-            <a asp-action="CreateCity" asp-controller="LocationCity" asp-area="Admin" class="btn rounded-pill btn-info-100 text-info-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">add</span> Yeni Şehir Ekle
+            <a asp-action="CreateCity" asp-controller="LocationCity" asp-area="Admin" class="btn rounded-pill btn-info-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span> Yeni Şehir Ekle
             </a>
-            <a asp-action="DeletedCities" asp-controller="LocationCity" asp-area="Admin" class="btn btn-danger-600 radius-8 d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" style="font-size: 18px;">delete</span> Çöp Kutusu
+            <a asp-action="DeletedCities" asp-controller="LocationCity" asp-area="Admin" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center">
+                <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Çöp Kutusu
             </a>
         </div>
     </div>
     <div class="card-body">
         <div class="table-responsive" style="overflow-y: hidden;">
             <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
-                <thead class="table-light">
+                <thead>
                     <tr>
-                        <th>#</th>
+                        <th class="text-start">#</th>
                         <th>Şehir Adı</th>
-                        <th>Oluşturulma Tarihi</th>
+                        <th>Oluşturma Tarihi</th>
                         <th>İşlem</th>
                     </tr>
                 </thead>
@@ -38,16 +38,18 @@
                         count++;
                         <tr>
                             <td>@count</td>
-                            <td>@item.CityName</td>
+                            <td><b><u>@item.CityName</u></b></td>
                             <td>
-                                @item.CreatedDate.ToString("dd.MM.yyyy HH:mm") <br />
-                                @item.CreatedDate.ToString("dd MMMM yyyy dddd")
+                                <span>
+                                    🟢 <b>Oluşturma:</b>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
                             </td>
                             <td>
-                                <div class="d-flex flex-nowrap gap-2">
-                                    <button class="btn rounded-pill btn-danger-100 text-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
+                                <div class="d-flex flex-nowrap">
+                                    <button class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn delete-btn"
                                             data-id="@item.Id">
-                                        <span class="material-symbols-outlined me-1">delete</span> Sil
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete</span> Sil
                                     </button>
                                 </div>
                             </td>

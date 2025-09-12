@@ -42,7 +42,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRole(CreateRoleDto createRoleDto)

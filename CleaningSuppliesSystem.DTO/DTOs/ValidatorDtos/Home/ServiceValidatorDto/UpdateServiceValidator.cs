@@ -19,9 +19,6 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.ServiceValidatorDto
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Hizmet açıklaması boş bırakılamaz.")
                 .MaximumLength(100).WithMessage("Hizmet açıklaması en fazla 100 karakter olmalıdır.");
-
-            RuleFor(x => x.ServiceIconId)
-                .NotNull().WithMessage("Hizmet iconu seçmelisiniz.");
         }
     }
 }

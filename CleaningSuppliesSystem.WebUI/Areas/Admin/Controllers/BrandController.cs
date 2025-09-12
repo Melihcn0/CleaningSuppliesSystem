@@ -81,12 +81,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "Marka başarıyla oluşturuldu.";
+                TempData["SuccessMessage"] = "Marka başarıyla eklendi.";
                 return RedirectToAction(nameof(Index));
             }
 
             await LoadCategoriesDropdownAsync(dto.CategoryId);
-            TempData["ErrorMessage"] = "Marka oluşturulamadı.";
+            TempData["ErrorMessage"] = "Marka eklenemedi.";
             return View(dto);
         }
 
@@ -156,9 +156,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var msg = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = "İlçe Lokasyonu başarıyla geri alındı.";
+            {
+                TempData["SuccessMessage"] = msg;
+            }
             else
-                TempData["ErrorMessage"] = "Geri alma işlemi başarısız.";
+            {
+                TempData["ErrorMessage"] = msg;
+            }
 
             return RedirectToAction(nameof(DeletedBrands));
         }
@@ -181,7 +185,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Hiç kategori seçilmedi.");
+                return BadRequest("Hiç marka seçilmedi.");
             var response = await _client.PostAsJsonAsync("brands/DeleteMultiple", ids);
 
             if (response.IsSuccessStatusCode)
@@ -199,7 +203,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> UndoSoftDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Hiç kategori seçilmedi.");
+                return BadRequest("Hiç marka seçilmedi.");
             var response = await _client.PostAsJsonAsync("brands/UndoSoftDeleteMultiple", ids);
 
             if (response.IsSuccessStatusCode)
@@ -217,7 +221,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> PermanentDeleteMultiple([FromBody] List<int> ids)
         {
             if (ids == null || !ids.Any())
-                return BadRequest("Hiç kategori seçilmedi.");
+                return BadRequest("Hiç marka seçilmedi.");
             var response = await _client.PostAsJsonAsync("brands/PermanentDeleteMultiple", ids);
 
             if (response.IsSuccessStatusCode)

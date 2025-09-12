@@ -74,7 +74,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             finance.DeletedDate = DateTime.Now;
             finance.IsDeleted = true;
             await _financeRepository.UpdateAsync(finance);
-            return (true, "Finans kaydı başarıyla silindi.", finance.Id);
+            return (true, "Finans başarıyla çöp kutusuna taşındı.", finance.Id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteFinanceAsync(int id)
@@ -98,10 +98,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Finans Kaydı bulunamadı.");
 
             if (!finance.IsDeleted)
-                return (false, "Finans kaydı soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Finans kaydı silinmemiş. Önce silmeniz gerekir.");
 
             await _financeRepository.DeleteAsync(finance.Id);
-            return (true, "Finans kaydı kalıcı olarak silindi.");
+            return (true, "Finans kaydı çöp kutusundan kalıcı olarak silindi.");
         }
         public async Task<List<ResultFinanceDto>> TGetActiveFinancesAsync()
         {

@@ -66,7 +66,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             {
                 return BadRequest(new { message });
             }
-            return Ok(new { message = "Hizmet başarıyla oluşturuldu.", id = createdId });
+            return Ok(new { message = "Hizmet başarıyla eklendi..", id = createdId });
         }
 
         [HttpPut]
@@ -77,28 +77,21 @@ namespace CleaningSuppliesSystem.API.Controllers
             {
                 return BadRequest(new { message });
             }
-            return Ok(new { message = "Hizmet başarıyla oluşturuldu.", id = updatedId });
+            return Ok(new { message = "Hizmet başarıyla güncellendi.", id = updatedId });
         }
 
-        // Soft Delete
         [HttpPost("softdelete/{id}")]
         public async Task<IActionResult> SoftDelete(int id)
         {
-            var (IsSuccess, Message, _) = await _serviceService.TSoftDeleteServiceAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            var result = await _serviceService.TSoftDeleteServiceAsync(id);
+            return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
 
-        // Undo Soft Delete
         [HttpPost("undosoftdelete/{id}")]
         public async Task<IActionResult> UndoSoftDelete(int id)
         {
-            var product = await _serviceService.TGetByIdAsync(id);
-            var (IsSuccess, Message, UndoSoftDeleteId) = await _serviceService.TUndoSoftDeleteServiceAsync(id);
-            if (!IsSuccess)
-                return BadRequest(Message);
-            return Ok(Message);
+            var result = await _serviceService.TUndoSoftDeleteServiceAsync(id);
+            return result.IsSuccess ? Ok(result.Message) : BadRequest(result.Message);
         }
         // Permanent Delete
         [HttpDelete("permanent/{id}")]
@@ -109,11 +102,11 @@ namespace CleaningSuppliesSystem.API.Controllers
                 return NotFound("Hizmet bulunamadı");
 
             if (!entity.IsDeleted)
-                return BadRequest("Hizmet soft silinmiş değil. Önce soft silmeniz gerekir.");
+                return BadRequest("Hizmet silinmiş değil. Önce silmeniz gerekir.");
 
             await _serviceService.TDeleteAsync(id);
 
-            return Ok("Hizmet kalıcı olarak silindi");
+            return Ok("Hizmet çöp kutusundan kalıcı olarak silindi.");
         }
 
         [HttpPost("togglestatus")]
