@@ -2,6 +2,7 @@
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.LocationValidatorDto;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,38 +14,33 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class LocationDistrictController : Controller
     {
         private readonly HttpClient _client;
-        public LocationDistrictController(IHttpClientFactory clientFactory)
+        private readonly PaginationHelper _paginationHelper;
+        public LocationDistrictController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
         private async Task LoadCityDropdownAsync(int? selectedCategoryId = null)
         {
-            var categories = await _client.GetFromJsonAsync<List<ResultLocationCityDto>>("locationCities/active");
+            var categories = await _client.GetFromJsonAsync<List<ResultLocationCityDto>>("locationCities/active-all");
             ViewBag.cities = new SelectList(categories, "Id", "CityName", selectedCategoryId);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var resultDtos = await _client.GetFromJsonAsync<List<ResultLocationDistrictDto>>("LocationDistricts/active");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultLocationDistrictDto>(
+                $"LocationDistricts/active?page={page}&pageSize={pageSize}");
 
-            var vm = new LocationDistrictViewModel
-            {
-                DistrictViewList = resultDtos
-            };
-
-            return View(vm);
+            return View(response);
         }
 
-        public async Task<IActionResult> DeletedDistricts()
+        public async Task<IActionResult> DeletedDistricts(int page = 1, int pageSize = 10)
         {
             ViewBag.ShowBackButton = true;
-            var resultdeletedDtos = await _client.GetFromJsonAsync<List<ResultLocationDistrictDto>>("LocationDistricts/deleted");
-            var vm = new LocationDistrictViewModel
-            {
-                DistrictViewList = resultdeletedDtos
-            };
+            var response = await _paginationHelper.GetPagedDataAsync<ResultLocationDistrictDto>(
+                $"LocationDistricts/deleted?page={page}&pageSize={pageSize}");
 
-            return View(vm);
+            return View(response);
         }
 
         public async Task<IActionResult> CreateDistrict()

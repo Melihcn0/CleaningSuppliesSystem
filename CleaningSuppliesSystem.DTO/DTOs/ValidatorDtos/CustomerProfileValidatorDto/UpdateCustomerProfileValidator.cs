@@ -22,7 +22,8 @@ namespace CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CustomerProfileValidator
 
             RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
-                .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.");
+                .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.")
+                .Matches("^[a-zA-Z0-9._-]+$").WithMessage("Kullanıcı adı yalnızca harf, rakam, nokta, tire ve alt tire içerebilir.");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("E-posta boş bırakılamaz.")

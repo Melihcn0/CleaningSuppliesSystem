@@ -1,10 +1,7 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
-using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
-using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
-using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.SubCategoryDto;
-using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,14 +11,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 public class SubCategoryController : Controller
 {
     private readonly HttpClient _client;
+    private readonly PaginationHelper _paginationHelper;
 
-    public SubCategoryController(IHttpClientFactory clientFactory)
+    public SubCategoryController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
     {
         _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        _paginationHelper = paginationHelper;
     }
     private async Task LoadTopCategoriesDropdown()
     {
-        var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active");
+        var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active-all");
         ViewBag.TopCategories = topCategories.Select(tc => new SelectListItem
         {
             Text = tc.Name,
@@ -45,28 +44,21 @@ public class SubCategoryController : Controller
         return Content(string.Join("", options), "text/html");
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
-        var resultDtos = await _client.GetFromJsonAsync<List<ResultSubCategoryDto>>("subCategories/active");
+        var response = await _paginationHelper.GetPagedDataAsync<ResultSubCategoryDto>(
+            $"SubCategories/active?page={page}&pageSize={pageSize}");
 
-        var vm = new SubCategoryViewModel
-        {
-            SubCategoryViewList = resultDtos
-        };
-
-        return View(vm);
+        return View(response);
     }
 
-    public async Task<IActionResult> DeletedSubCategory()
+    public async Task<IActionResult> DeletedSubCategory(int page = 1, int pageSize = 10)
     {
         ViewBag.ShowBackButton = true;
-        var resultdeletedDtos = await _client.GetFromJsonAsync<List<ResultSubCategoryDto>>("subCategories/deleted");
-        var vm = new SubCategoryViewModel
-        {
-            SubCategoryViewList = resultdeletedDtos
-        };
+        var response = await _paginationHelper.GetPagedDataAsync<ResultSubCategoryDto>(
+            $"SubCategories/deleted?page={page}&pageSize={pageSize}");
 
-        return View(vm);
+        return View(response);
     }
 
     public async Task<IActionResult> CreateSubCategory()

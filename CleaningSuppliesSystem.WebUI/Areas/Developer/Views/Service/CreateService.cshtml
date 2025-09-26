@@ -1,0 +1,40 @@
+﻿@model CreateServiceDto
+@{
+    ViewData["Title"] = "Hizmet Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label asp-for="ServiceIconId" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Hizmet İkonu <span class="text-danger-600">*</span>
+        </label>
+        <select id="ServiceIconId" name="ServiceIconId" asp-items="@ViewBag.serviceIcons" class="form-control" required>
+            <option value="" disabled selected>İkon Seçiniz</option>
+        </select>
+        <span asp-validation-for="ServiceIconId" class="text-danger"></span>
+    </div>
+    <br />
+    <div class="form-group">
+        <label asp-for="Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Hizmet Başlığı <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Title" class="form-control" maxlength="50" required/>
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <br />
+    <div class="form-group">
+        <label asp-for="Description" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Hizmet Açıklaması <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Description" class="form-control" maxlength="100" required/>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <br />
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
+</form>
+

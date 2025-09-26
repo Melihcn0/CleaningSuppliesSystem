@@ -47,6 +47,21 @@ namespace CleaningSuppliesSystem.API.Controllers
             }
         }
 
+        [HttpPost("increment/{id}")]
+        public async Task<IActionResult> Increment(int id)
+        {
+            try
+            {
+                await _orderItemService.TIncrementQuantityAsync(id);
+                var item = await _orderItemService.TGetByIdAsync(id);
+                return Ok(new { message = "Başarılı", newQuantity = item?.Quantity ?? 0 });
+            }
+            catch
+            {
+                return NotFound(new { message = "Ürün bulunamadı" });
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

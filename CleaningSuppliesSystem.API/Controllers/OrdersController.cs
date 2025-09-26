@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.Entity.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,26 +23,78 @@ namespace CleaningSuppliesSystem.API.Controllers
     {
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10)
         {
             var values = await _orderService.TGetActiveOrdersWithDetailsAsync();
-            var orders = _mapper.Map<List<AdminResultOrderDto>>(values);
-            return Ok(orders);
-        }
-        [HttpGet("completed")]
-        public async Task<ActionResult<List<AdminResultOrderDto>>> GetCompletedOrders()
-        {
-            var values = await _orderService.TGetCompletedOrdersAsync();
-            var orders = _mapper.Map<List<AdminResultOrderDto>>(values);
-            return Ok(orders);
+            var totalCount = values.Count;
+
+            var pagedData = values
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var mappedData = _mapper.Map<List<AdminResultOrderDto>>(pagedData);
+
+            var response = new PagedResponse<AdminResultOrderDto>
+            {
+                Data = mappedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
 
+
+        [HttpGet("completed")]
+        public async Task<IActionResult> GetCompletedOrders(int page = 1, int pageSize = 10)
+        {
+            var values = await _orderService.TGetCompletedOrdersAsync();
+            var totalCount = values.Count;
+
+            var pagedData = values
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var mappedData = _mapper.Map<List<AdminResultOrderDto>>(pagedData);
+
+            var response = new PagedResponse<AdminResultOrderDto>
+            {
+                Data = mappedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
+        }
         [HttpGet("cancelled")]
-        public async Task<ActionResult<List<AdminResultOrderDto>>> GetCancelledOrders()
+        public async Task<IActionResult> GetCancelledOrders(int page = 1, int pageSize = 10)
         {
             var values = await _orderService.TGetCancelledOrdersAsync();
-            var orders = _mapper.Map<List<AdminResultOrderDto>>(values);
-            return Ok(orders);
+            var totalCount = values.Count;
+
+            var pagedData = values
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var mappedData = _mapper.Map<List<AdminResultOrderDto>>(pagedData);
+
+            var response = new PagedResponse<AdminResultOrderDto>
+            {
+                Data = mappedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("AdminResult/{id}")]
@@ -75,7 +129,12 @@ namespace CleaningSuppliesSystem.API.Controllers
             return Ok(result);
         }
 
-
+        [HttpGet("expired")]
+        public async Task<IActionResult> GetExpiredOrders()
+        {
+            var result = await _orderService.TGetExpiredOrdersAsync();
+            return Ok(result);
+        }
 
     }
 }

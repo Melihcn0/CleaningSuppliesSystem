@@ -45,8 +45,15 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
         public async Task<List<LocationCity>> GetLocationCityWithLocationDistrictAsync()
         {
             return await _context.LocationCitys
-                .Include(c => c.Districts)
-                .Where(tc => !tc.IsDeleted)
+                .Where(city => !city.IsDeleted)
+                .Select(city => new LocationCity
+                {
+                    CityId = city.CityId,
+                    CityName = city.CityName,
+                    Districts = city.Districts
+                        .Where(d => !d.IsDeleted)
+                        .ToList()
+                })
                 .ToListAsync();
         }
     }

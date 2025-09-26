@@ -16,25 +16,25 @@ namespace CleaningSuppliesSystem.Business.Concrete
             _roleRepository = roleRepository;
         }
 
-        public async Task<List<AppRole>> GetAllRolesAsync()
+        public async Task<List<AppRole>> TGetAllRolesAsync()
         {
             return await _roleRepository.GetAllAsync();
         }
 
-        public async Task<AppRole> GetRoleByIdAsync(int id)
+        public async Task<AppRole> TGetRoleByIdAsync(int id)
         {
             return await _roleRepository.GetByIdAsync(id);
         }
 
-        public async Task<IdentityResult> CreateRoleAsync(AppRole role)
+        public async Task<IdentityResult> TCreateRoleAsync(AppRole role)
         {
             return await _roleRepository.CreateAsync(role);
         }
 
-        public async Task<bool> ShouldShowCreateRoleButtonAsync()
+        public async Task<bool> TShouldShowCreateRoleButtonAsync()
         {
             var roles = await _roleRepository.GetAllAsync();
-            return roles.Count < 2;
+            return roles.Count < 4;
         }
     }
 }

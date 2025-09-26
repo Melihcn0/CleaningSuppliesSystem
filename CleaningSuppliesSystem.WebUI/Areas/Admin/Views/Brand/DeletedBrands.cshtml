@@ -1,4 +1,4 @@
-﻿@model BrandViewModel
+﻿@model PagedResponse<ResultBrandDto>
 @{
     ViewData["Title"] = "Silinen Markalar Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
@@ -12,7 +12,6 @@
     ViewData["PermanentDeleteMultipleUrl"] = "~/Admin/Brand/PermanentDeleteMultiple";
     ViewData["PermanentDeleteMultipleConfirmTitle"] = "Seçili marka kalıcı olarak silinsin mi?";
 
-    int count = 0;
 }
 
 <div class="card basic-data-table">
@@ -29,27 +28,51 @@
         </div>
     </div>
     <div class="card-body">
+        <!-- Filtreleme ve sayfa başına veri dropdown'u -->
+        <div class="d-flex align-items-center mb-2 gap-3">
+            <!-- Arama label + input -->
+            <div class="d-flex align-items-center">
+                <label for="customSearch" class="me-3">Ara :</label>
+                <input type="text" id="customSearch" class="form-control" placeholder="Ara..." style="width: 200px;" />
+            </div>
+
+            <!-- Sayfa başına dropdown -->
+            <div class="d-flex align-items-center">
+                <label for="pageSizeSelect" class="me-3">Sayfa başına :</label>
+                <select id="pageSizeSelect" class="form-select w-auto select-balanced">
+                    @foreach (var size in new int[] { 10, 30, 50, 100 })
+                    {
+                        if (Model.PageSize == size)
+                        {
+                            <option value="@size" selected>@size</option>
+                        }
+                        else
+                        {
+                            <option value="@size">@size</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
         <div class="table-responsive" style="overflow-y: hidden;">
         <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
             <thead>
                 <tr>
-                    <th class="text-start">
+                    <th class="text-start no-sort">
                         <input type="checkbox" id="selectAll" class="form-check-input" /> #
                     </th>
                     <th>Üst Kategori | Alt Kategori | Ürün Grubu | Marka Adı</th>
-                    <th>Oluşturma | Son Güncelleme Tarihleri</th>
-                    <th>İşlem</th>
+                    <th class="no-sort">Oluşturma | Son Güncelleme Tarihleri</th>
+                    <th class="no-sort">İşlem</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.BrandViewList)
+                @foreach (var item in Model.Data)
                 {
-                    count++;
                     <tr>
                         <td>
                             <label class="d-flex align-items-center mb-0" style="cursor:pointer;">
                                 <input type="checkbox" class="form-check-input row-checkbox me-3" data-id="@item.Id" />
-                                @count
                             </label>
                         </td>
                         <td>@item.TopCategoryName - @item.SubCategoryName - @item.CategoryName - <b><u>@item.Name</u></b></td>
@@ -89,42 +112,63 @@
                 }
             </tbody>
         </table>
+            @if (Model.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-end my-1">
+                    <ul class="pagination d-flex flex-wrap align-items-center justify-content-end" style="gap:2px;">
+                        <!-- İlk sayfa -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-end-0"
+                               href="@Url.Action("DeletedBrands", new { page = 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-left" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Önceki -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("DeletedBrands", new { page = Model.Page - 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-left-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Sayfa numaraları -->
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px @(i == Model.Page ? "bg-primary-600 text-white" : "")"
+                                   href="@Url.Action("DeletedBrands", new { page = i, pageSize = Model.PageSize })">@i</a>
+                            </li>
+                        }
+
+                        <!-- Sonraki -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("DeletedBrands", new { page = Model.Page + 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-right-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Son sayfa -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-start-0"
+                               href="@Url.Action("DeletedBrands", new { page = Model.TotalPages, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-right" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            }
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.row-checkbox');
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                checkboxes.forEach(cb => cb.checked = this.checked);
-                toggleMultiDeleteUI();
-            });
-        }
-
-        document.addEventListener('change', e => {
-            if (e.target.classList.contains('row-checkbox')) {
-                toggleMultiDeleteUI();
-            }
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            window.location.href = '@Url.Action("DeletedBrand", "Brand", new { area = "Admin" })?page=1&pageSize=' + pageSize;
         });
-
-        function toggleMultiDeleteUI() {
-            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
-
-            const undoBtn = document.getElementById('undosoftdeleteSelectedBtn');
-            const permanentDeleteBtn = document.getElementById('permanentdeleteSelectedBtn');
-
-            if (undoBtn) undoBtn.disabled = selectedCount === 0;
-            if (permanentDeleteBtn) permanentDeleteBtn.disabled = selectedCount === 0;
-
-            document.querySelectorAll('.action-btn').forEach(btn => {
-                btn.disabled = selectedCount > 0;
-                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
-                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
-            });
-        }
     </script>
 }
+

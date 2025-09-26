@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos
+namespace CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos
 {
     public class UpdateAdminProfileDto
     {

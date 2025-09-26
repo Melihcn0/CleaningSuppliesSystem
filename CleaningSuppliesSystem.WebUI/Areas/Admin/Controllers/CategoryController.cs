@@ -2,18 +2,17 @@
 using CleaningSuppliesSystem.DTO.DTOs.SubCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CategoryValidatorDto;
-using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
-using System.Drawing;
 using SixLabors.ImageSharp.Processing;
 using Image = SixLabors.ImageSharp.Image;
 using Size = SixLabors.ImageSharp.Size;
 using Newtonsoft.Json;
+using CleaningSuppliesSystem.WebUI.Helpers;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
 {
@@ -23,15 +22,17 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     {
         private readonly HttpClient _client;
         private readonly IWebHostEnvironment _env;
+        private readonly PaginationHelper _paginationHelper;
 
-        public CategoryController(IHttpClientFactory clientFactory, IWebHostEnvironment env)
+        public CategoryController(IHttpClientFactory clientFactory, IWebHostEnvironment env, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
             _env = env;
+            _paginationHelper = paginationHelper;
         }
         private async Task LoadDropdownsAsync(int? topCategoryId = null, int? subCategoryId = null)
         {
-            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active");
+            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active-all");
             ViewBag.topCategories = topCategories?.Select(tc => new SelectListItem
             {
                 Text = tc.Name,
@@ -67,29 +68,21 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return Content(string.Join("", options), "text/html");
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var resultDtos = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultCategoryDto>(
+                $"Categories/active?page={page}&pageSize={pageSize}");
 
-            var vm = new CategoryViewModel
-            {
-                CategoryViewList = resultDtos
-            };
-
-            return View(vm);
+            return View(response);
         }
 
-
-        public async Task<IActionResult> DeletedCategory()
+        public async Task<IActionResult> DeletedCategory(int page = 1, int pageSize = 10)
         {
             ViewBag.ShowBackButton = true;
-            var resultdeletedDtos = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/deleted");
-            var vm = new CategoryViewModel
-            {
-                CategoryViewList = resultdeletedDtos
-            };
+            var response = await _paginationHelper.GetPagedDataAsync<ResultCategoryDto>(
+                $"Categories/deleted?page={page}&pageSize={pageSize}");
 
-            return View(vm);
+            return View(response);
         }
 
         [HttpGet]

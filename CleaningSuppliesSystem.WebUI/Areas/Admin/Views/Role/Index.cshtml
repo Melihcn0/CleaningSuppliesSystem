@@ -2,7 +2,6 @@
 @{
     ViewData["Title"] = "Rol Listesi Sayfası";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-    int count = 0;
 }
 
 
@@ -32,19 +31,20 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    count++;
                     <tr>
-                        <td>@count</td>
+                        <td></td>
                         <td>
-                            @{
-                                var badgeClass = item.Name == "Customer" ? "bg-dark-dark-gradient"
-                                : item.Name == "Admin" ? "bg-dark-info-gradient"
-                                : "bg-dark-warning-gradient";
+                                @{
+                                    var badgeClass = item.Name == "Customer" ? "bg-dark-dark-gradient"
+                                    : item.Name == "Admin" ? "bg-dark-info-gradient"
+                                    : item.Name == "Developer" ? "bg-dark-danger-gradient"
+                                    : "bg-dark-warning-gradient";
 
-                                var displayText = item.Name == "Customer" ? "Müşteri"
-                                : item.Name == "Admin" ? "Yetkili"
-                                : "Admin";
-                            }
+                                    var displayText = item.Name == "Customer" ? "Müşteri"
+                                    : item.Name == "Admin" ? "Yetkili"
+                                    : item.Name == "Developer" ? "Geliştirici"
+                                    : "Admin";
+                                }
 
                             <span class="badge text-sm fw-semibold @badgeClass px-20 py-9 radius-4 text-white">@displayText</span>
                         </td>

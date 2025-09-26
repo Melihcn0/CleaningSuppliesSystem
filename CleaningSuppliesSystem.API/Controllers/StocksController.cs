@@ -1,5 +1,8 @@
-﻿using CleaningSuppliesSystem.Business.Abstract;
+﻿using CleaningSuppliesSystem.API.Models;
+using CleaningSuppliesSystem.Business.Abstract;
+using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.StockDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,10 +29,33 @@ namespace CleaningSuppliesSystem.API.Controllers
         }
 
         [HttpGet("active")]
-        public async Task<IActionResult> GetActiveProducts()
+        public async Task<IActionResult> GetActiveStocks(int page = 1, int pageSize = 10)
         {
-            var result = await _stockService.TGetActiveProductsAsync();
-            return Ok(result);
+            var stocks = await _stockService.TGetActiveProductsAsync();
+            var totalCount = stocks.Count;
+
+            var pagedData = stocks
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultStockOperationDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("active-all")]
+        public async Task<IActionResult> GetActiveStock()
+        {
+            var stocks = await _stockService.TGetActiveProductsAsync();
+            return Ok(stocks);
         }
 
         [HttpPost("quickAssign")]

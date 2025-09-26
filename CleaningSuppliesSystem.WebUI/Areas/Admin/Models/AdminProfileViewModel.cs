@@ -1,6 +1,6 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Models
 {

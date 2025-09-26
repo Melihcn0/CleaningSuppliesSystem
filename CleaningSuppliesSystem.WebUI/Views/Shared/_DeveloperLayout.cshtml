@@ -1,0 +1,506 @@
+﻿@{
+    Layout = null;
+}
+
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ess Star | Geliştirici Paneli</title>
+    <link rel="icon" type="image/png" href="~/images/kysolutions_logo_light.png" sizes="16x16">
+    <script>
+        (function () {
+            const token = localStorage.getItem("jwt");
+            if (!token) {
+                document.documentElement.setAttribute("data-theme", "light");
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const theme = payload.theme || "light";
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
+
+    <style>
+        /* Tablolar başlangıçta şeffaf */
+        #dataTable {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+            /* Hazır olduğunda görünür */
+            #dataTable.loaded {
+                opacity: 1;
+            }
+    </style>
+    <!-- remix icon font css  -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/remixicon.css">
+    <!-- BootStrap css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/bootstrap.min.css">
+    <!-- Apex Chart css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/apexcharts.css">
+    <!-- Data Table css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/dataTables.min.css">
+    <!-- Text Editor css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/editor-katex.min.css">
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/editor.atom-one-dark.min.css">
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/editor.quill.snow.css">
+    <!-- Date picker css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/flatpickr.min.css">
+    <!-- Calendar css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/full-calendar.css">
+    <!-- Vector Map css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/jquery-jvectormap-2.0.5.css">
+    <!-- Popup css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/magnific-popup.css">
+    <!-- Slick Slider css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/slick.css">
+    <!-- prism css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/prism.css">
+    <!-- file upload css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/file-upload.css">
+
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/lib/audioplayer.css">
+    <!-- main css -->
+    <link rel="stylesheet" href="~/wowdash-admin/assets/css/style.css">
+
+    <!-- Google Material Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+</head>
+<body>
+    <aside class="sidebar">
+        <button type="button" class="sidebar-close-btn">
+            <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
+        </button>
+        <div>
+            <a href="javascript:void(0)" class="sidebar-logo user-select-none">
+                <img src="~/images/kysolutions_yatay_logo_dark.png" alt="site logo" class="light-logo">
+                <img src="~/images/kysolutions_yatay_logo_light.png" alt="site logo" class="dark-logo">
+                <img id="theme-logo" src="~/images/kysolutions_logo_light.png" alt="site logo" class="logo-icon ">
+            </a>
+        </div>
+        <div class="sidebar-menu-area">
+            <ul class="sidebar-menu" id="sidebar-menu">
+                <li class="sidebar-menu-group-title">Araçlar</li>
+                <li>
+                    <a asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">arrow_menu_close</span>
+                        <span class="menu-text">Ana Sayfaya Git</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Developer" asp-controller="DeveloperProfile" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">settings</span>
+                        <span class="menu-text">Ayarlar</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Developer" asp-controller="RoleAssign" asp-action="RolesIndex">
+                        <span class="material-symbols-outlined menu-icon">manage_accounts</span>
+                        <span class="menu-text">Rol Atama</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Developer" asp-controller="Role" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">assignment_ind</span>
+                        <span class="menu-text">Rol Listesi</span>
+                    </a>
+                </li>
+
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <span class="material-symbols-outlined menu-icon">person_celebrate</span>
+                        <span class="menu-text">Ana Sayfa Ayarları</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a asp-area="Developer" asp-controller="Banner" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
+                                <span class="menu-text">Banner Alanı</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Developer" asp-controller="SecondaryBanner" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
+                                <span class="menu-text">İkincil Banner Alanı</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Developer" asp-controller="Service" asp-action="Index">
+                                <span class="material-symbols-outlined menu-icon">linked_services</span>
+                                <span class="menu-text">Hizmetler Alanı</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="navbar-header">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto">
+                    <div class="d-flex flex-wrap align-items-center gap-4">
+                        <button type="button" class="sidebar-toggle">
+                            <iconify-icon icon="heroicons:bars-3-solid" class="icon text-2xl non-active"></iconify-icon>
+                            <iconify-icon icon="iconoir:arrow-right" class="icon text-2xl active"></iconify-icon>
+                        </button>
+                        <button type="button" class="sidebar-mobile-toggle">
+                            <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <button type="button" data-theme-toggle class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
+                        <div class="dropdown">
+                            <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
+                                <span class="material-symbols-outlined fs-2">account_circle</span>
+                            </button>
+                            <div class="dropdown-menu to-top dropdown-menu-sm">
+                                <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
+                                    <div>
+                                        <h6 class="text-lg text-primary-light fw-semibold mb-2">@User.Identity.Name</h6>
+                                        <span class="text-secondary-light fw-medium text-sm">@(User.IsInRole("Developer") ? "Geliştirici" : "Yetkisiz Erişim!")</span>
+                                    </div>
+                                    <button type="button" class="hover-text-danger">
+                                        <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
+                                    </button>
+                                </div>
+                                <ul class="to-top-list">
+                                    <li>
+                                        <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" asp-area="Developer" asp-controller="DeveloperProfile" asp-action="Index">
+                                            <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon>  Profilim
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <form id="logoutForm" method="post" action="/Login/Logout">
+                                            <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3" href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit(); resetThemeOnLogout();">
+                                                <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Çıkış Yap
+                                            </a>
+                                            @Html.AntiForgeryToken()
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-main-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    @if (ViewBag.ShowBackButton == true)
+                    {
+                        <a asp-action="Index" class="btn btn-info-600 px-1 py-1 mb-1 d-flex align-items-center gap-1">
+                            <span class="material-symbols-outlined">arrow_left</span>
+                        </a>
+                    }
+                    @if (ViewBag.ServiceShowBackButton == true)
+                    {
+                        <a asp-action="Index" asp-controller="Service" class="btn btn-info-600 px-1 py-1 mb-1 d-flex align-items-center gap-1">
+                            <span class="material-symbols-outlined">arrow_left</span>
+                        </a>
+                    }
+                    <h6 class="fw-semibold mb-0">@ViewData["Title"]</h6>
+                </div>
+            </div>
+
+            @RenderBody()
+        </div>
+
+        <footer class="d-footer">
+            <div class="row align-items-center justify-content-between">
+                <div class="col-auto">
+                    <p class="mb-0">© 2025 KySolutions. Tüm Hakları Saklıdır.</p>
+                </div>
+                <div class="col-auto">
+                    <p class="mb-0">Geliştirici Melihcan Kaya</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Genel config scriptleri -->
+    <script>
+        window.appConfig = window.appConfig || {};
+        window.appConfig.deleteFunctionName = @Html.Raw(Json.Serialize(ViewData["DeleteFunction"] ?? ""));
+        window.appConfig.deleteUrlPrefix = @Html.Raw(Json.Serialize(ViewData["DeleteUrlPrefix"] ?? ""));
+
+        window.permanentDeleteConfig = {
+            url: '@Url.Content(ViewData["PermanentDeleteUrl"]?.ToString() ?? "")',
+            confirmTitle: @Html.Raw(Json.Serialize(ViewData["PermanentDeleteConfirmTitle"] ?? ""))
+        };
+
+         window.undoSoftDeleteConfig = {
+            url: '@Url.Content(ViewData["UndoSoftDeleteUrl"]?.ToString() ?? "")',
+            confirmTitle: @Html.Raw(Json.Serialize(ViewData["UndoSoftDeleteConfirmTitle"] ?? ""))
+        };
+
+        window.permanentDeleteMultipleConfig = {
+            url: '@Url.Content(ViewData["PermanentDeleteMultipleUrl"]?.ToString() ?? "")',
+            confirmTitle: @Html.Raw(Json.Serialize(ViewData["PermanentDeleteMultipleConfirmTitle"] ?? ""))
+        };
+    </script>
+
+    <!-- JS dosyaları: config’lerden sonra çağır -->
+    <script src="~/wowdash-admin/assets/js/global-action.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-Single-SoftDelete.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-UndoSoftDeleteMultiple.js"></script>
+    <script src="~/wowdash-admin/assets/js/Global-PermanentDelete.js"></script>
+
+    <!-- jQuery library js -->
+    <script src="~/wowdash-admin/assets/js/lib/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap js -->
+    <script src="~/wowdash-admin/assets/js/lib/bootstrap.bundle.min.js"></script>
+    <!-- Apex Chart js -->
+    <script src="~/wowdash-admin/assets/js/lib/apexcharts.min.js"></script>
+    <!-- Data Table js -->
+    <script src="~/wowdash-admin/assets/js/lib/dataTables.min.js"></script>
+    <!-- Iconify Font js -->
+    <script src="~/wowdash-admin/assets/js/lib/iconify-icon.min.js"></script>
+        <!-- jQuery UI js -->
+    <script src="~/wowdash-admin/assets/js/lib/jquery-ui.min.js"></script>
+    <!-- Vector Map js -->
+    <script src="~/wowdash-admin/assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
+    <script src="~/wowdash-admin/assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
+    <!-- Popup js -->
+    <script src="~/wowdash-admin/assets/js/lib/magnifc-popup.min.js"></script>
+    <!-- Slick Slider js -->
+    <script src="~/wowdash-admin/assets/js/lib/slick.min.js"></script>
+    <!-- prism js -->
+    <script src="~/wowdash-admin/assets/js/lib/prism.js"></script>
+    <!-- file upload js -->
+    <script src="~/wowdash-admin/assets/js/lib/file-upload.js"></script>
+    <!-- audioplayer -->
+    <script src="~/wowdash-admin/assets/js/lib/audioplayer.js"></script>
+    <!-- main js -->
+    <script src="~/wowdash-admin/assets/js/app.js"></script>
+
+    <script src="~/wowdash-admin/assets/js/homeOneChart.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        $(document).ready(function () {
+            const updateThemeElements = () => {
+                const theme = document.documentElement.getAttribute("data-theme") || "light";
+
+                // DataTable tema
+                $('#dataTable').toggleClass('table-dark', theme === 'dark');
+
+                // Tablolar (ekstra varsa)
+                document.querySelectorAll("table").forEach(table => {
+                    table.classList.toggle("table-dark", theme === "dark");
+                });
+
+                // Logo değişimi
+                const logo = document.getElementById("theme-logo");
+                if (logo) {
+                    logo.src = theme === "dark"
+                        ? "/images/kysolutions_logo_light.png"
+                        : "/images/kysolutions_logo_dark.png";
+                }
+            };
+
+            // DataTable hazır olduğunda çalışır
+            $('#dataTable').on('init.dt', function () {
+                const theme = document.documentElement.getAttribute("data-theme") || "light";
+                if (theme === 'dark') {
+                    $(this).addClass('table-dark');
+                }
+                $(this).addClass('loaded'); // fade-in başlar
+            });
+
+            // Sayfa ilk yüklemede uygula
+            updateThemeElements();
+
+            // Tema değişikliklerini dinle
+            const observer = new MutationObserver(() => updateThemeElements());
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ["data-theme"]
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            if ($('#dataTable').length) {
+                const selectedIds = new Set();
+
+                // DataTable başlat
+                const table = $('#dataTable').DataTable({
+                    responsive: true,
+                    paging: false,
+                    info: false,
+                    searching: true,
+                    ordering: true,
+                    language: { url: '/wowdash-admin/assets/js/dataTable-tr.json' },
+                    columnDefs: [
+                        { targets: 'no-sort', orderable: false },
+                        { targets: 0, width: "75px" }
+                    ],
+                    order: [],
+                    dom: 'lrtip'
+                });
+
+                // Tema değişikliklerini dinle
+                const updateThemeElements = () => {
+                    const theme = document.documentElement.getAttribute("data-theme") || "light";
+                    $('#dataTable').toggleClass('table-dark', theme === 'dark');
+                };
+                const observer = new MutationObserver(() => updateThemeElements());
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ["data-theme"]
+                });
+
+                // Custom search input
+                $('#customSearch').on('keyup', function () {
+                    table.search(this.value).draw();
+                });
+
+                // Info ve sıra numarası güncelle
+                function updateTableInfo() {
+                    const totalCount = table.rows({ search: 'applied' }).count();
+                    if (totalCount > 0) {
+                        const start = 1;
+                        const end = totalCount;
+                        $('#tableInfo').text(`Toplam ${totalCount} kayıttan ${start} - ${end} arası gösteriliyor`);
+                    } else {
+                        $('#tableInfo').text('');
+                    }
+                }
+                updateTableInfo();
+
+                // Checkbox yönetimi
+                const deleteBtn = $('#deleteSelectedBtn');
+                const undoBtn = $('#undosoftdeleteSelectedBtn');
+                const permanentBtn = $('#permanentdeleteSelectedBtn');
+
+                function toggleMultiDeleteUI() {
+                    const selectedCount = $('.row-checkbox:checked').length;
+                    deleteBtn.prop('disabled', selectedCount === 0);
+                    undoBtn.prop('disabled', selectedCount === 0);
+                    permanentBtn.prop('disabled', selectedCount === 0);
+                    $('.action-btn').prop('disabled', selectedCount > 0).css({
+                        pointerEvents: selectedCount > 0 ? 'none' : 'auto',
+                        opacity: selectedCount > 0 ? 0.5 : 1
+                    });
+                    $('#selectAll').prop('checked', $('.row-checkbox').length === selectedCount);
+                }
+
+                // Satır checkbox click
+                $(document).on('change', '.row-checkbox', function () {
+                    const id = $(this).data('id');
+                    if (this.checked) selectedIds.add(id);
+                    else selectedIds.delete(id);
+                    toggleMultiDeleteUI();
+                });
+
+                // Select all
+                $(document).on('change', '#selectAll', function () {
+                    $('.row-checkbox').prop('checked', this.checked).trigger('change');
+                });
+
+                // Satırın ilk hücresine tıklayınca checkbox toggle
+                $(document).on('click', '#dataTable tbody tr td:first-child', function (e) {
+                    if (!$(e.target).is('input[type="checkbox"]')) {
+                        const checkbox = $(this).find('input.row-checkbox');
+                        if (checkbox.length) {
+                            checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+                        }
+                    }
+                });
+
+                // Sıralama / arama sonrası sıra numarası ve info güncelle
+                table.on('order.dt search.dt', function () {
+                    table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                        const checkbox = $(cell).find('input.row-checkbox');
+                        $(cell).empty().append(checkbox).append(' ' + (i + 1));
+                    });
+                    updateTableInfo();
+                }).draw();
+            }
+        });
+    </script>
+
+
+</body>
+</html>
+
+
+@{
+    var successMsg = TempData["SuccessMessage"]?.ToString();
+    var errorMsg = TempData["ErrorMessage"]?.ToString();
+    var isSuccess = !string.IsNullOrEmpty(successMsg);
+    var toastId = isSuccess ? "successToast" : "errorToast";
+    var toastMessage = isSuccess ? successMsg : errorMsg;
+    var bgColor = isSuccess ? "bg-success-100" : "bg-danger-100";
+    var textColor = isSuccess ? "text-success-700" : "text-danger-700";
+    var borderColor = isSuccess ? "border-success-600" : "border-danger-600";
+    var iconHtml = isSuccess
+        ? "<iconify-icon icon='akar-icons:double-check' class='icon text-xl'></iconify-icon>"
+        : "<iconify-icon icon='mingcute:delete-2-line' class='icon text-xl'></iconify-icon>";
+}
+
+@if (toastMessage != null)
+{
+    <div aria-live="polite" aria-atomic="true"
+         class="position-fixed top-0 end-0 p-3"
+         style="z-index:1080; margin-top:20px;">
+        <div id="@toastId"
+             class="alert @bgColor @textColor @borderColor border-start-width-4-px border-top-0 border-end-0 border-bottom-0 px-24 py-13 mb-0 fw-semibold text-lg radius-4 d-flex align-items-center justify-content-between shadow-lg fade show"
+             role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <div class="toast-body d-flex align-items-center">
+                    @Html.Raw(iconHtml) <span class="ms-1">@toastMessage</span>
+                </div>
+                <button type="button" class="remove-button @textColor text-xxl line-height-1" onclick="closeCustomToast('@toastId')">
+                    <iconify-icon icon="iconamoon:sign-times-light" class="icon"></iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeCustomToast(id) {
+            const toast = document.getElementById(id);
+            if (toast) {
+                toast.style.transition = "opacity 0.3s ease";
+                toast.style.opacity = "0";
+                toast.style.pointerEvents = "none";
+                setTimeout(() => toast.remove(), 300);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => closeCustomToast('@toastId'), 4000);
+        });
+    </script>
+}
+
+
+<script>
+    function resetThemeOnLogout() {
+        document.documentElement.setAttribute("data-theme", "light");
+        localStorage.removeItem("jwt");
+        localStorage.removeItem("theme");
+    }
+</script>

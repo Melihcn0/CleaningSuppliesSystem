@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace CleaningSuppliesSystem.API.Controllers
 {
     [ApiExplorerSettings(GroupName = "Roles")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Developer")]
     [Route("api/[controller]")]
     [ApiController]
     public class RolesController : ControllerBase
@@ -32,7 +32,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var roles = await _roleService.GetAllRolesAsync();
+            var roles = await _roleService.TGetAllRolesAsync();
             var result = _mapper.Map<List<ResultRoleDto>>(roles);
             return Ok(result);
         }
@@ -51,7 +51,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             }
 
             var role = _mapper.Map<AppRole>(model);
-            var result = await _roleService.CreateRoleAsync(role);
+            var result = await _roleService.TCreateRoleAsync(role);
 
             if (!result.Succeeded)
             {
@@ -67,7 +67,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         [HttpGet("show-create-button")]
         public async Task<IActionResult> ShouldShowCreateRoleButton()
         {
-            bool showButton = await _roleService.ShouldShowCreateRoleButtonAsync();
+            bool showButton = await _roleService.TShouldShowCreateRoleButtonAsync();
             return Ok(showButton);
         }
     }

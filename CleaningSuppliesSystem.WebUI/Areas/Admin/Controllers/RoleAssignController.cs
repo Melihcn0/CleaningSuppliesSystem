@@ -1,8 +1,11 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.ToggleDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.UserDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.RoleValidatorDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.ToggleStatusValidatorDto;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
+using CleaningSuppliesSystem.WebUI.Models;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,69 +21,33 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class RoleAssignController : Controller
     {
         private readonly HttpClient _client;
+        private readonly PaginationHelper _paginationHelper;
 
-        public RoleAssignController(IHttpClientFactory clientFactory)
+        public RoleAssignController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var response = await _client.GetAsync("roleassign");
-            if (!response.IsSuccessStatusCode)
-                return View(new List<UserListDto>());
+            var response = await _paginationHelper.GetPagedDataAsync<UserListDto>(
+                $"RoleAssign/users-including-developers?page={page}&pageSize={pageSize}");
 
-            var users = await response.Content.ReadFromJsonAsync<List<UserListDto>>();
-            ViewBag.AllRoles = new List<string> { "Admin", "Customer" };
+            if (response == null)
+                response = new PagedResponse<UserListDto>
+                {
+                    Data = new List<UserListDto>(),
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    TotalPages = 0
+                };
 
-            return View(users);
-        }
-        public async Task<IActionResult> RolesIndex()
-        {
-            var response = await _client.GetAsync("roleassign/rolesindex");
-            if (!response.IsSuccessStatusCode)
-                return View(new List<UserViewModel>());
+            ViewBag.AllRoles = new List<string> { "Admin", "Customer", "Developer" };
 
-            var users = await response.Content.ReadFromJsonAsync<List<UserViewModel>>();
-            return View(users);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignRole(List<AssignRoleDto> assignRoleList, int userId)
-        {
-            var dto = new UserAssignRoleDto
-            {
-                UserId = userId,
-                Roles = assignRoleList.Where(r => r.RoleExist).ToList()
-            };
-
-            var validator = new UserAssignRoleValidator();
-            var result = await validator.ValidateAsync(dto);
-
-            if (!result.IsValid)
-            {
-                TempData["ErrorMessage"] = string.Join("<br>", result.Errors.Select(e => e.ErrorMessage));
-                return RedirectToAction("RolesIndex");
-            }
-
-            var response = await _client.PostAsJsonAsync("roleassign/assignrole", dto);
-            var msg = await response.Content.ReadAsStringAsync(); // Düz metin olarak al
-
-            if (response.IsSuccessStatusCode)
-                TempData["SuccessMessage"] = msg;
-            else
-                TempData["ErrorMessage"] = msg;
-
-            return RedirectToAction("RolesIndex");
+            return View(response);
         }
 
-
-
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int userId, bool newStatus)
         {
             var dto = new ToggleStatusDto
@@ -102,15 +69,11 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            var response = await _client.PostAsJsonAsync($"roleassign/togglestatus?userId={userId}&newStatus={newStatus}", new { });
-
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToAction("Index");
-            }
+            var response = await _client.PostAsync($"roleassign/togglestatus?userId={userId}&newStatus={newStatus}", null);
 
             return RedirectToAction("Index");
         }
+
 
     }
 }

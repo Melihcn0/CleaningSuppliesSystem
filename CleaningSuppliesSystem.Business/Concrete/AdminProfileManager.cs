@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DataAccess.Abstract;
-using CleaningSuppliesSystem.DataAccess.Concrete;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.AdminProfileValidatorDto;
 using CleaningSuppliesSystem.Entity.Entities;
 using Microsoft.AspNetCore.Http;

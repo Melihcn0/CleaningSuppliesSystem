@@ -1,7 +1,7 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
 
-namespace CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos
+namespace CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos
 {
     public class AdminProfileDto
     {

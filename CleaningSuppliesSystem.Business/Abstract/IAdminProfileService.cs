@@ -1,4 +1,4 @@
-﻿using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,6 @@ namespace CleaningSuppliesSystem.Business.Abstract
     {
         Task<AdminProfileDto> TGetAdminProfileAsync();
         Task<UpdateAdminProfileDto> TGetUpdateAdminProfileAsync();
-        Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateAdminProfileAsync(UpdateAdminProfileDto updateCustomerProfileDto);
+        Task<(bool IsSuccess, string Message, int UpdatedId)> TUpdateAdminProfileAsync(UpdateAdminProfileDto updateAdminProfileDto);
     }
 }

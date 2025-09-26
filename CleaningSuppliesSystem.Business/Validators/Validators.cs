@@ -5,10 +5,12 @@ using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerIndivivualDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Developer.DeveloperProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ForgotPasswordDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.BannerDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.PromoAlertDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
@@ -294,7 +296,8 @@ namespace CleaningSuppliesSystem.Business.Validators
                 RuleFor(x => x.UserName)
                     .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
                     .MinimumLength(3).WithMessage("Kullanıcı adı en az 3 karakter olmalıdır.")
-                    .MaximumLength(20).WithMessage("Kullanıcı adı en fazla 20 karakter olabilir.");
+                    .MaximumLength(20).WithMessage("Kullanıcı adı en fazla 20 karakter olabilir.")
+                    .Matches("^[a-zA-Z0-9._-]+$").WithMessage("Kullanıcı adı sadece harf, rakam, nokta, tire ve alt tire içerebilir.");
 
                 RuleFor(x => x.Email)
                     .NotEmpty().WithMessage("Email alanı boş bırakılamaz.")
@@ -743,7 +746,9 @@ namespace CleaningSuppliesSystem.Business.Validators
 
                 RuleFor(x => x.UserName)
                     .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
-                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.");
+                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.")
+                    .Matches("^[a-zA-Z0-9._-]+$").WithMessage("Kullanıcı adı yalnızca harf, rakam, nokta, tire ve alt tire içerebilir.");
+
 
                 RuleFor(x => x.Email)
                     .NotEmpty().WithMessage("E-posta boş bırakılamaz.")
@@ -931,7 +936,8 @@ namespace CleaningSuppliesSystem.Business.Validators
 
                 RuleFor(x => x.UserName)
                     .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
-                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.");
+                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.")
+                    .Matches("^[a-zA-Z0-9._-]+$").WithMessage("Kullanıcı adı yalnızca harf, rakam, nokta, tire ve alt tire içerebilir.");
 
                 RuleFor(x => x.Email)
                     .NotEmpty().WithMessage("E-posta boş bırakılamaz.")
@@ -964,6 +970,76 @@ namespace CleaningSuppliesSystem.Business.Validators
                 RuleFor(x => x.IBAN)
                     .NotEmpty().WithMessage("IBAN boş bırakılamaz.")
                     .Length(26).WithMessage("Türkiye IBAN'ı 26 karakter olmalı.");
+            }
+        }
+
+        public class UpdateDeveloperProfileValidator : AbstractValidator<UpdateDeveloperProfileDto>
+        {
+            public UpdateDeveloperProfileValidator()
+            {
+                RuleFor(x => x.FirstName)
+                    .NotEmpty().WithMessage("Ad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Ad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.LastName)
+                    .NotEmpty().WithMessage("Soyad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Soyad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.UserName)
+                    .NotEmpty().WithMessage("Kullanıcı adı boş bırakılamaz.")
+                    .MaximumLength(30).WithMessage("Kullanıcı adı en fazla 30 karakter olabilir.")
+                    .Matches("^[a-zA-Z0-9._-]+$").WithMessage("Kullanıcı adı yalnızca harf, rakam, nokta, tire ve alt tire içerebilir.");
+
+                RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("E-posta boş bırakılamaz.")
+                    .EmailAddress().WithMessage("Geçerli bir e-posta giriniz.")
+                    .MaximumLength(100).WithMessage("E-posta en fazla 100 karakter olabilir.");
+
+                RuleFor(x => x.PhoneNumber)
+                    .NotEmpty().WithMessage("Telefon numarası boş bırakılamaz.")
+                    .MinimumLength(17).WithMessage("Telefon numarası en az 17 karakter olmalıdır.")
+                    .MaximumLength(17).WithMessage("Telefon numarası en fazla 17 karakter olmalıdır.");
+
+                RuleFor(x => x.NationalId)
+                    .NotEmpty().WithMessage("Kimlik numarası boş bırakılamaz.")
+                    .MaximumLength(11).WithMessage("Kimlik numarası en fazla 11 karakter olmalıdır.");
+            }
+        }
+
+        public class CreatePromoAlertValidator : AbstractValidator<CreatePromoAlertDto>
+        {
+            public CreatePromoAlertValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Başlık boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Başlık en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Description)
+                    .NotEmpty().WithMessage("Açıklama boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Açıklama en fazla 100 karakter olabilir.");
+
+                RuleFor(x => x.Icon)
+                    .NotEmpty().WithMessage("Lütfen bir ikon seçin.")
+                    .Must(icon => new[] { "question", "success", "warning", "error", "info" }.Contains(icon))
+                    .WithMessage("Geçersiz ikon seçimi.");
+            }
+        }
+        public class UpdatePromoAlertValidator : AbstractValidator<UpdatePromoAlertDto>
+        {
+            public UpdatePromoAlertValidator()
+            {
+                RuleFor(x => x.Title)
+                    .NotEmpty().WithMessage("Başlık boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Başlık en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Description)
+                    .NotEmpty().WithMessage("Açıklama boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Açıklama en fazla 100 karakter olabilir.");
+
+                RuleFor(x => x.Icon)
+                    .NotEmpty().WithMessage("Lütfen bir ikon seçin.")
+                    .Must(icon => new[] { "question", "success", "warning", "error", "info" }.Contains(icon))
+                    .WithMessage("Geçersiz ikon seçimi.");
             }
         }
     }

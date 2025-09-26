@@ -1,15 +1,10 @@
 ﻿ using CleaningSuppliesSystem.DTO.DTOs.Customer.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
-using CleaningSuppliesSystem.DTO.DTOs.OrderItemDtos;
+using CleaningSuppliesSystem.WebUI.Helpers;
+using CleaningSuppliesSystem.WebUI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Net;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using System.Text.Json;
 
 [Authorize(Roles = "Customer")]
@@ -17,39 +12,38 @@ using System.Text.Json;
 public class OrderController : Controller
 {
     private readonly HttpClient _client;
+    private readonly PaginationHelper _paginationHelper;
 
-    public OrderController(IHttpClientFactory clientFactory)
+    public OrderController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
     {
         _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        _paginationHelper = paginationHelper;
     }
-
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
-        var response = await _client.GetAsync("customerOrders");
+        var response = await _paginationHelper.GetPagedDataAsync<CustomerResultOrderDto>(
+            $"customerOrders?page={page}&pageSize={pageSize}");
 
-        if (!response.IsSuccessStatusCode)
+        if (response == null || response.Data == null)
         {
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                TempData["ErrorMessage"] = "Siparişlerinizi görüntülemek için lütfen giriş yapın.";
-                return RedirectToAction("SignIn", "Login");
-            }
-
             TempData["ErrorMessage"] = "Siparişleriniz yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.";
-            return View(new List<CustomerResultOrderDto>());
+            return View(new PagedResponse<CustomerResultOrderDto>
+            {
+                Data = new List<CustomerResultOrderDto>(),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = 0,
+                TotalPages = 0
+            });
         }
 
-        // API’den DTO listesi alıyoruz
-        var orders = await response.Content.ReadFromJsonAsync<List<CustomerResultOrderDto>>();
-
-        if (orders != null && orders.Any())
+        if (response.Data.Any())
         {
-            // Admin banka bilgisi zaten DTO içinde var
-            ViewBag.AdminIban = orders.First().AdminBank?.IBAN ?? "-";
-            ViewBag.AdminNameSurname = orders.First().AdminBank?.AccountHolder ?? "-";
+            ViewBag.AdminIban = response.Data.First().AdminBank?.IBAN ?? "-";
+            ViewBag.AdminNameSurname = response.Data.First().AdminBank?.AccountHolder ?? "-";
         }
 
-        return View(orders ?? new List<CustomerResultOrderDto>());
+        return View(response);
     }
     public async Task<IActionResult> OrderDetails(int id)
     {
@@ -131,6 +125,26 @@ public class OrderController : Controller
             }
 
             return Json(new { success = true, message = "Miktar başarıyla azaltıldı." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Increment(int id, int orderId)
+    {
+        try
+        {
+            var response = await _client.PostAsync($"orderitems/increment/{id}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                return Json(new { success = false, message = "Miktar arttırılamadı." });
+            }
+
+            return Json(new { success = true, message = "Miktar başarıyla arttırıldı." });
         }
         catch (Exception ex)
         {

@@ -81,7 +81,7 @@
             <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
         </button>
         <div>
-            <a href="index.html" class="sidebar-logo">
+            <a href="javascript:void(0)" class="sidebar-logo user-select-none">
                 <img src="~/images/ess_star_yatay_logo_dark1.png" alt="site logo" class="light-logo">
                 <img src="~/images/ess_star_yatay_logo_light1.png" alt="site logo" class="dark-logo">
                 <img id="theme-logo" src="~/images/ess_star_logo_light.png" alt="site logo" class="logo-icon ">
@@ -254,8 +254,8 @@
                 const logo = document.getElementById("theme-logo");
                 if (logo) {
                     logo.src = theme === "dark"
-                        ? "/images/ess_star_logo_light.png"
-                        : "/images/ess_star_logo_dark.png";
+                        ? "/images/kysolutions_logo_light.png"
+                        : "/images/kysolutions_logo_dark.png";
                 }
             };
 
@@ -279,6 +279,109 @@
             });
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+            if ($('#dataTable').length) {
+                const selectedIds = new Set();
+
+                // DataTable başlat
+                const table = $('#dataTable').DataTable({
+                    responsive: true,
+                    paging: false,
+                    info: false,
+                    searching: true,
+                    ordering: true,
+                    language: { url: '/wowdash-admin/assets/js/dataTable-tr.json' },
+                    columnDefs: [
+                        { targets: 'no-sort', orderable: false },
+                        { targets: 0, width: "75px" }
+                    ],
+                    order: [],
+                    dom: 'lrtip'
+                });
+
+                // Tema değişikliklerini dinle
+                const updateThemeElements = () => {
+                    const theme = document.documentElement.getAttribute("data-theme") || "light";
+                    $('#dataTable').toggleClass('table-dark', theme === 'dark');
+                };
+                const observer = new MutationObserver(() => updateThemeElements());
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ["data-theme"]
+                });
+
+                // Custom search input
+                $('#customSearch').on('keyup', function () {
+                    table.search(this.value).draw();
+                });
+
+                // Info ve sıra numarası güncelle
+                function updateTableInfo() {
+                    const totalCount = table.rows({ search: 'applied' }).count();
+                    if (totalCount > 0) {
+                        const start = 1;
+                        const end = totalCount;
+                        $('#tableInfo').text(`Toplam ${totalCount} kayıttan ${start} - ${end} arası gösteriliyor`);
+                    } else {
+                        $('#tableInfo').text('');
+                    }
+                }
+                updateTableInfo();
+
+                // Checkbox yönetimi
+                const deleteBtn = $('#deleteSelectedBtn');
+                const undoBtn = $('#undosoftdeleteSelectedBtn');
+                const permanentBtn = $('#permanentdeleteSelectedBtn');
+
+                function toggleMultiDeleteUI() {
+                    const selectedCount = $('.row-checkbox:checked').length;
+                    deleteBtn.prop('disabled', selectedCount === 0);
+                    undoBtn.prop('disabled', selectedCount === 0);
+                    permanentBtn.prop('disabled', selectedCount === 0);
+                    $('.action-btn').prop('disabled', selectedCount > 0).css({
+                        pointerEvents: selectedCount > 0 ? 'none' : 'auto',
+                        opacity: selectedCount > 0 ? 0.5 : 1
+                    });
+                    $('#selectAll').prop('checked', $('.row-checkbox').length === selectedCount);
+                }
+
+                // Satır checkbox click
+                $(document).on('change', '.row-checkbox', function () {
+                    const id = $(this).data('id');
+                    if (this.checked) selectedIds.add(id);
+                    else selectedIds.delete(id);
+                    toggleMultiDeleteUI();
+                });
+
+                // Select all
+                $(document).on('change', '#selectAll', function () {
+                    $('.row-checkbox').prop('checked', this.checked).trigger('change');
+                });
+
+                // Satırın ilk hücresine tıklayınca checkbox toggle
+                $(document).on('click', '#dataTable tbody tr td:first-child', function (e) {
+                    if (!$(e.target).is('input[type="checkbox"]')) {
+                        const checkbox = $(this).find('input.row-checkbox');
+                        if (checkbox.length) {
+                            checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+                        }
+                    }
+                });
+
+                // Sıralama / arama sonrası sıra numarası ve info güncelle
+                table.on('order.dt search.dt', function () {
+                    table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                        const checkbox = $(cell).find('input.row-checkbox');
+                        $(cell).empty().append(checkbox).append(' ' + (i + 1));
+                    });
+                    updateTableInfo();
+                }).draw();
+            }
+        });
+    </script>
+
 
 </body>
 </html>
@@ -333,25 +436,6 @@
         });
     </script>
 }
-
-<script>
-    $(document).ready(function () {
-        $('#dataTable').DataTable({
-            responsive: true,
-            language: {
-                url: '/wowdash-admin/assets/js/dataTable-tr.json'
-            },
-            columnDefs: [
-                {
-                    targets: 0,
-                    orderable: false,
-                    searchable: false,
-                    width: "75px" // 0. kolonun genişliğini 50 piksel olarak ayarlar
-                }
-            ]
-        });
-    });
-</script>
 
 <script>
     function resetThemeOnLogout() {

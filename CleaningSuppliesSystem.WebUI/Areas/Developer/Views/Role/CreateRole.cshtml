@@ -1,0 +1,35 @@
+﻿@model CreateRoleDto
+@{
+    ViewData["Title"] = "Rol Ekleme Sayfası";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <label asp-for="Name" class="form-label fw-semibold text-primary-light text-sm mb-8">
+        Rol Seçin <span class="text-danger-600">*</span>
+    </label>
+    <select asp-for="Name" class="form-control">
+        <option value="" disabled selected>-- Rol Seçiniz --</option>
+        @if (ViewBag.SelectableRoles != null)
+        {
+            foreach (var role in (List<string>)ViewBag.SelectableRoles)
+            {
+                var displayText = role switch
+                {
+                    "Admin" => "Admin",
+                    "Customer" => "Müşteri",
+                    "Developer" => "Geliştirici",
+                    _ => role
+                };
+                <option value="@role">@displayText</option>
+            }
+        }
+    </select>
+    <span asp-validation-for="Name" class="text-danger"></span>
+    <br />
+    <button class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Ekle
+    </button>
+</form>

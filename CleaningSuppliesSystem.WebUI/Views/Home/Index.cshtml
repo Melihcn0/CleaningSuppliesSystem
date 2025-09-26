@@ -3,8 +3,6 @@
     Layout = "~/Views/UILayout/Layout.cshtml";
 }
 
-
-
 <!-- Banner -->
 @await Component.InvokeAsync("_HomeBannerComponent")
 <!-- Category -->
@@ -17,3 +15,54 @@
 @await Component.InvokeAsync("_HomeRecentProductComponent")
 <!-- Service -->
 @await Component.InvokeAsync("_HomeServiceComponent")
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var promoAlert = null;
+
+        @* ViewBag'dan JS değişkenine aktar *@
+        @if (ViewBag.PromoAlert != null)
+        {
+            <text>
+                        promoAlert = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PromoAlert,
+                new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            </text>
+        }
+
+            if (promoAlert) {
+                Swal.fire({
+                    icon: promoAlert.icon,
+                    title: promoAlert.title,
+                    text: promoAlert.description,
+                    confirmButtonText: "Tamam",
+                    background: "#fff",
+                    color: "#000",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false,
+                    didOpen: () => {
+                        const confirmBtn = Swal.getConfirmButton();
+                        if (confirmBtn) {
+                            confirmBtn.style.backgroundColor = "#007bff";
+                            confirmBtn.style.color = "#fff";
+                            confirmBtn.style.border = "none";
+                            confirmBtn.style.transition = "all 0.3s ease";
+
+                            confirmBtn.addEventListener("mouseenter", () => {
+                                confirmBtn.style.boxShadow = "0 4px 20px 0 #3085d680";
+                                confirmBtn.style.transform = "translateY(-2px)";
+                            });
+                            confirmBtn.addEventListener("mouseleave", () => {
+                                confirmBtn.style.boxShadow = "none";
+                                confirmBtn.style.transform = "translateY(0)";
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
+

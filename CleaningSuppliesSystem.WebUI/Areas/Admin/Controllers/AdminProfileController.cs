@@ -1,11 +1,10 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.AdminProfileValidatorDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CompanyAddressValidatorDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.CompanyBankValidatorDto;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +26,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             var profileDto = await _client.GetFromJsonAsync<AdminProfileDto>("AdminProfiles/Profile");
             var addressDto = await _client.GetFromJsonAsync<CompanyAddressDto>("CompanyAddresses/Address");
             var bankDto = await _client.GetFromJsonAsync<CompanyBankDto>("CompanyBanks/Bank");
-
             var updateAdminDto = await _client.GetFromJsonAsync<UpdateAdminProfileDto>("AdminProfiles/UpdateAdminProfile");
             var updateAddressDto = await _client.GetFromJsonAsync<UpdateCompanyAddressDto>("CompanyAddresses/UpdateCompanyAddress");
             var updateBankDto = await _client.GetFromJsonAsync<UpdateCompanyBankDto>("CompanyBanks/UpdateCompanyBank");
@@ -68,7 +66,13 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 }
 
                 ViewBag.ActiveTab = "pills-edit-profile";
-                return View("Index", await GetAdminProfileViewModel( dto));
+                return View("Index", await GetAdminProfileViewModel(dto));
+            }
+
+            // 🔹 Kullanıcı adını normalize et
+            if (!string.IsNullOrWhiteSpace(dto.UserName))
+            {
+                dto.UserName = NormalizeUsername(dto.UserName);
             }
 
             var response = await _client.PutAsJsonAsync("AdminProfiles", dto);
@@ -84,6 +88,30 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             ViewBag.ActiveTab = "pills-edit-profile";
             return View("Index", await GetAdminProfileViewModel(dto));
         }
+
+
+        private static string NormalizeUsername(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return username;
+
+            var map = new Dictionary<char, char>
+            {
+                { 'i', 'I' }, { 'ı', 'I' },
+                { 'ç', 'C' }, { 'ö', 'O' },
+                { 'ü', 'U' }, { 'ş', 'S' },
+                { 'ğ', 'G' }
+            };
+
+            var normalized = username
+                .Trim()
+                .ToLowerInvariant()
+                .Select(c => map.ContainsKey(c) ? map[c] : c) // Türkçe karakterleri düzelt
+                .ToArray();
+
+            return new string(normalized).ToUpperInvariant();
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

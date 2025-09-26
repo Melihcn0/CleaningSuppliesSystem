@@ -14,7 +14,7 @@ namespace CleaningSuppliesSystem.WebUI.ViewComponents.Home
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var services = await _client.GetFromJsonAsync<List<ResultServiceDto>>("services/active");
+            var services = await _client.GetFromJsonAsync<List<ResultServiceDto>>("developerServices");
             var activeServices = services?.Where(s => s.IsShown).Take(5).ToList() ?? new List<ResultServiceDto>();
 
             return View(activeServices);

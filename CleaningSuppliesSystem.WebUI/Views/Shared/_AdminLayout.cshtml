@@ -84,7 +84,7 @@
             <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
         </button>
         <div>
-            <a href="#" class="sidebar-logo">
+            <a href="javascript:void(0)" class="sidebar-logo user-select-none">
                 <img src="~/images/ess_star_yatay_logo_dark1.png" alt="site logo" class="light-logo">
                 <img src="~/images/ess_star_yatay_logo_light1.png" alt="site logo" class="dark-logo">                
                 <img id="theme-logo" src="~/images/ess_star_logo_light.png" alt="site logo" class="logo-icon ">
@@ -162,47 +162,9 @@
                             </a>
                         </li>
                         <li>
-                            <a asp-area="Admin" asp-controller="RoleAssign" asp-action="RolesIndex">
-                                <span class="material-symbols-outlined menu-icon">manage_accounts</span>
-                                <span class="menu-text">Rol Atama</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="Admin" asp-controller="Role" asp-action="Index">
-                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span class="menu-text">Rol Listesi</span>
-                            </a>
-                        </li>
-                        <li>
                             <a asp-area="Admin" asp-controller="AdminProfile" asp-action="Index">
                                 <span class="material-symbols-outlined menu-icon">settings</span>
                                 <span class="menu-text">Ayarlar</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
-                        <span class="material-symbols-outlined menu-icon">person_celebrate</span>
-                        <span class="menu-text">Ana Sayfa Ayarları</span>
-                    </a>
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a asp-area="Admin" asp-controller="Banner" asp-action="Index">
-                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span class="menu-text">Banner Alanı</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="Admin" asp-controller="SecondaryBanner" asp-action="Index">
-                                <span class="material-symbols-outlined menu-icon">assignment_ind</span>
-                                <span class="menu-text">İkincil Banner Alanı</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="Admin" asp-controller="Service" asp-action="Index">
-                                <span class="material-symbols-outlined menu-icon">linked_services</span>
-                                <span class="menu-text">Hizmetler Alanı</span>
                             </a>
                         </li>
                     </ul>
@@ -264,6 +226,12 @@
                             </a>
                         </li> *@
                     </ul>
+                </li>
+                <li>
+                    <a asp-area="Admin" asp-controller="PromoAlert" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">chat_info</span>
+                        <span class="menu-text">Ön Gösterim Duyurusu</span>
+                    </a>
                 </li>
             </ul>
         </div>
@@ -393,91 +361,9 @@
                             </div>
                         </div><!-- Message dropdown end -->
 
-                        <div class="dropdown">
-                            <button class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center" type="button" data-bs-toggle="dropdown">
-                                <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
-                            </button>
-                            <div class="dropdown-menu to-top dropdown-menu-lg p-0">
-                                <div class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
-                                    <div>
-                                        <h6 class="text-lg text-primary-light fw-semibold mb-0">Bildirimler</h6>
-                                    </div>
-                                    <span class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
-                                </div>
 
-                                <div class="max-h-400-px overflow-y-auto scroll-sm pe-4">
-                                    <a href="javascript:void(0)" class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                <iconify-icon icon="bitcoin-icons:verify-outline" class="icon text-xxl"></iconify-icon>
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Congratulations</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Your profile has been Verified. Your profile has been Verified</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
+                        @await Component.InvokeAsync("_OrdersNotificationComponent")
 
-                                    <a href="javascript:void(0)" class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between bg-neutral-50">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                <img src="~/wowdash-admin/assets/images/notification/profile-1.png" alt="">
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Ronald Richards</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">You can stitch between artboards</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)" class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span class="w-44-px h-44-px bg-info-subtle text-info-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                AM
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Arlene McCoy</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)" class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between bg-neutral-50">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                <img src="~/wowdash-admin/assets/images/notification/profile-2.png" alt="">
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Annette Black</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-
-                                    <a href="javascript:void(0)" class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                        <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                                            <span class="w-44-px h-44-px bg-info-subtle text-info-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                                DR
-                                            </span>
-                                            <div>
-                                                <h6 class="text-md fw-semibold mb-4">Darlene Robertson</h6>
-                                                <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                            </div>
-                                        </div>
-                                        <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                                    </a>
-                                </div>
-
-                                <div class="text-center py-12 px-16">
-                                    <a href="javascript:void(0)" class="text-primary-600 fw-semibold text-md">See All Notification</a>
-                                </div>
-
-                            </div>
-                        </div><!-- Notification dropdown end -->
 
                         <div class="dropdown">
                             <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
@@ -521,12 +407,6 @@
                     @if (ViewBag.ShowBackButton == true)
                     {
                         <a asp-action="Index" class="btn btn-info-600 px-1 py-1 mb-1 d-flex align-items-center gap-1">
-                            <span class="material-symbols-outlined">arrow_left</span>
-                        </a>
-                    }
-                    @if (ViewBag.ServiceShowBackButton == true)
-                    {
-                        <a asp-action="Index" asp-controller="Service" class="btn btn-info-600 px-1 py-1 mb-1 d-flex align-items-center gap-1">
                             <span class="material-symbols-outlined">arrow_left</span>
                         </a>
                     }
@@ -668,37 +548,108 @@
 
 </body>
 </html>
-@section Scripts {
-    <script>
-        const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.row-checkbox');
 
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                checkboxes.forEach(cb => cb.checked = this.checked);
-                toggleMultiDeleteUI();
+
+<script>
+    $(document).ready(function() {
+
+        if ($('#dataTable').length) {
+
+            const selectedIds = new Set();
+
+            const table = $('#dataTable').DataTable({
+                responsive: true,
+                paging: false,
+                info: false,
+                searching: true,
+                ordering: true,
+                language: { url: '/wowdash-admin/assets/js/dataTable-tr.json' },
+
+                columnDefs: [
+                    { targets: 'no-sort', orderable: false },   // no-sort class’lı kolonlar sıralanamaz
+                    { targets: 0, width: "75px" }               // 1. kolon sabit genişlik
+                ],
+
+                order: [], // açılışta sıralama yok
+                dom: 'lrtip'
             });
-        }
 
-        document.addEventListener('change', e => {
-            if (e.target.classList.contains('row-checkbox')) {
-                toggleMultiDeleteUI();
+            // Custom search input
+            $('#customSearch').on('keyup', function() {
+                table.search(this.value).draw();
+            });
+
+            // Info ve sıra numarası
+            function updateTableInfo() {
+                const totalCount = table.rows({ search: 'applied' }).count();
+                if(totalCount > 0) {
+                    const start = 1;
+                    const end = totalCount;
+                    $('#tableInfo').text(`Toplam ${totalCount} kayıttan ${start} - ${end} arası gösteriliyor`);
+                } else {
+                    $('#tableInfo').text('');
+                }
             }
-        });
 
-        function toggleMultiDeleteUI() {
-            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
-            const deleteBtn = document.getElementById('deleteSelectedBtn');
-            if (deleteBtn) deleteBtn.disabled = selectedCount === 0;
+            updateTableInfo();
 
-            document.querySelectorAll('.action-btn').forEach(btn => {
-                btn.disabled = selectedCount > 0;
-                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
-                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            // Checkbox yönetimi
+            const deleteBtn = $('#deleteSelectedBtn');
+            const undoBtn = $('#undosoftdeleteSelectedBtn');
+            const permanentBtn = $('#permanentdeleteSelectedBtn');
+
+            function toggleMultiDeleteUI() {
+                const selectedCount = $('.row-checkbox:checked').length;
+                deleteBtn.prop('disabled', selectedCount === 0);
+                undoBtn.prop('disabled', selectedCount === 0);
+                permanentBtn.prop('disabled', selectedCount === 0);
+                $('.action-btn').prop('disabled', selectedCount > 0).css({
+                    pointerEvents: selectedCount > 0 ? 'none' : 'auto',
+                    opacity: selectedCount > 0 ? 0.5 : 1
+                });
+                $('#selectAll').prop('checked', $('.row-checkbox').length === selectedCount);
+            }
+
+            // Satır checkbox click
+            $(document).on('change', '.row-checkbox', function () {
+                const id = $(this).data('id');
+                if (this.checked) selectedIds.add(id);
+                else selectedIds.delete(id);
+                toggleMultiDeleteUI();
             });
+
+            // Select all
+            $(document).on('change', '#selectAll', function () {
+                $('.row-checkbox').prop('checked', this.checked).trigger('change');
+            });
+
+            // Satırın ilk hücresine tıklayınca checkbox toggle
+            $(document).on('click', '#dataTable tbody tr td:first-child', function(e) {
+                if (!$(e.target).is('input[type="checkbox"]')) {
+                    const checkbox = $(this).find('input.row-checkbox');
+                    if (checkbox.length) {
+                        checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+                    }
+                }
+            });
+
+            // Sıralama / arama sonrası sıra numarası ve info güncelle
+            table.on('order.dt search.dt', function () {
+                table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+                    const checkbox = $(cell).find('input.row-checkbox');
+                    $(cell).empty();
+                    $(cell).append(checkbox);
+                    $(cell).append(' ' + (i + 1));
+                });
+                updateTableInfo();
+            }).draw();
         }
-    </script>
-}
+
+    });
+</script>
+
+
+
 
 
 @{
@@ -708,7 +659,7 @@
     var toastId = isSuccess ? "successToast" : "errorToast";
     var toastMessage = isSuccess ? successMsg : errorMsg;
     var bgColor = isSuccess ? "bg-success-100" : "bg-danger-100";
-    var textColor = isSuccess ? "text-success-700" : "text-danger-700";
+    var textColor = isSuccess ? "text-success-600" : "text-danger-600";
     var borderColor = isSuccess ? "border-success-600" : "border-danger-600";
     var iconHtml = isSuccess
         ? "<iconify-icon icon='akar-icons:double-check' class='icon text-xl'></iconify-icon>"
@@ -750,25 +701,6 @@
         });
     </script>
 }
-
-<script>
-    $(document).ready(function () {
-        $('#dataTable').DataTable({
-            responsive: true,
-            language: {
-                url: '/wowdash-admin/assets/js/dataTable-tr.json'
-            },
-            columnDefs: [
-                {
-                    targets: 0,
-                    orderable: false,
-                    searchable: false,
-                    width: "75px" // 0. kolonun genişliğini 50 piksel olarak ayarlar
-                }
-            ]
-        });
-    });
-</script>
 
 <script>
     function resetThemeOnLogout() {

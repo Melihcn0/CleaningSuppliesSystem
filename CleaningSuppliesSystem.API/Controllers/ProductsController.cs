@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.Entity.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -47,16 +49,57 @@ namespace CleaningSuppliesSystem.API.Controllers
         }
 
         [HttpGet("active")]
-        public async Task<IActionResult> GetActiveProducts()
+        public async Task<IActionResult> GetActiveProducts(int page = 1, int pageSize = 10)
         {
-            var result = await _productService.TGetActiveProductsAsync();
+            var products = await _productService.TGetActiveProductsAsync();
+            var totalCount = products.Count;
+
+            var pagedData = products
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultProductDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("active-all")]
+        public async Task<IActionResult> GetActiveAllProducts()
+        {
+            var products = await _productService.TGetActiveProductsAsync();
+            var result = _mapper.Map<List<ResultProductDto>>(products);
             return Ok(result);
         }
+
         [HttpGet("deleted")]
-        public async Task<IActionResult> GetDeletedCategories()
+        public async Task<IActionResult> GetDeletedProducts(int page = 1, int pageSize = 10)
         {
-            var result = await _productService.TGetDeletedProductsAsync();
-            return Ok(result);
+            var products = await _productService.TGetDeletedProductsAsync();
+            var totalCount = products.Count;
+
+            var pagedData = products
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultProductDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]

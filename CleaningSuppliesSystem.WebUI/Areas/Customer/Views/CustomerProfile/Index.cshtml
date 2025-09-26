@@ -15,7 +15,7 @@
                     <div class="text-center border border-top-0 border-start-0 border-end-0">
                      <img src="~/images/Image7.png" alt=""
                              class="border br-white border-width-2-px w-160-px h-160-px rounded-circle object-fit-cover">
-                        <h6 class="mb-0 mt-16">
+                        <h6 class="mb-0">
                             @(!string.IsNullOrWhiteSpace(Model.CustomerProfile.FirstName) || !string.IsNullOrWhiteSpace(Model.CustomerProfile.LastName)
                                 ? $"{Model.CustomerProfile.FirstName} {Model.CustomerProfile.LastName}" : "-")
                         </h6>

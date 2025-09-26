@@ -170,8 +170,10 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
             {
                 "Admin" => RedirectToAction("Index", "AdminProfile", new { area = "Admin" }),
                 "Customer" => RedirectToAction("Index", "Home"),
+                "Developer" => RedirectToAction("Index", "DeveloperProfile", new { area = "Developer" }),
                 _ => RedirectToAction("AccessDenied", "ErrorPage")
             };
+
         }
 
 

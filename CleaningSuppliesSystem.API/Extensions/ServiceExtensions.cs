@@ -111,6 +111,12 @@ namespace CleaningSuppliesSystem.API.Extensions
             services.AddScoped<ICompanyBankService, CompanyBankManager>();
             services.AddScoped<ICompanyBankRepository, CompanyBankRepository>();
 
+            services.AddScoped<IDeveloperProfileService, DeveloperProfileManager>();
+            services.AddScoped<IDeveloperProfileRepository, DeveloperProfileRepository>();
+
+            services.AddScoped<IPromoAlertService, PromoAlertManager>();
+            services.AddScoped<IPromoAlertRepository, PromoAlertRepository>();
+
             services.AddHttpClient();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

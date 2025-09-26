@@ -16,7 +16,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
     public class UserManager(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, RoleManager<AppRole> _roleManager, IConfiguration _config, IHttpContextAccessor _httpContextAccessor) : IUserService
     {
 
-        public async Task<IdentityResult> CreateUserAsync(UserRegisterDto userRegisterDto)
+        public async Task<IdentityResult> TCreateUserAsync(UserRegisterDto userRegisterDto)
             {
                 var user = new AppUser
                 {
@@ -78,7 +78,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
                 return result;
             }
-            public async Task<LoginResultDto> LoginUserAsync(UserLoginDto userLoginDto)
+            public async Task<LoginResultDto> TLoginUserAsync(UserLoginDto userLoginDto)
             {
                 var errors = new List<IdentityError>();
                 var adminMail = _config["Mail:AdminReceiver"];
@@ -167,7 +167,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 };
             }
 
-            public async Task LogoutAsync()
+            public async Task TLogoutAsync()
             {
                 var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
                 if (user != null)
@@ -178,11 +178,11 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
                 await _signInManager.SignOutAsync();
             }
-            public Task<bool> CreateRoleAsync(UserRoleDto userRoleDto)
+            public Task<bool> TCreateRoleAsync(UserRoleDto userRoleDto)
             {
                 throw new NotImplementedException();
             }
-            public async Task<bool> AssignRoleAsync(List<AssignRoleDto> assignRoleDto)
+            public async Task<bool> TAssignRoleAsync(List<AssignRoleDto> assignRoleDto)
             {
                 throw new NotImplementedException();
                 //foreach(var item in assignRoleDto)
@@ -194,28 +194,28 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 //}
             }
 
-            public async Task<List<AppUser>> GetAllUsersAsync()
+            public async Task<List<AppUser>> TGetAllUsersAsync()
             {
                 return await _userManager.Users.ToListAsync();
             }
 
 
-            public async Task<AppUser> GetUserByIdAsync(int id)
+            public async Task<AppUser> TGetUserByIdAsync(int id)
             {
                 return await _userManager.Users.FirstOrDefaultAsync(x => x.Id == id);
             }
-            public async Task<string> GeneratePasswordResetTokenByIdAsync(int userId)
+            public async Task<string> TGeneratePasswordResetTokenByIdAsync(int userId)
             {
-                var user = await GetUserByIdAsync(userId);
+                var user = await TGetUserByIdAsync(userId);
                 if (user == null)
                     throw new Exception("Kullanıcı bulunamadı");
 
                 return await _userManager.GeneratePasswordResetTokenAsync(user);
             }
 
-            public async Task<IdentityResult> ResetPasswordByIdAsync(int userId, string token, string newPassword)
+            public async Task<IdentityResult> TResetPasswordByIdAsync(int userId, string token, string newPassword)
             {
-                var user = await GetUserByIdAsync(userId);
+                var user = await TGetUserByIdAsync(userId);
 
                 if (user is null)
                     return IdentityResult.Failed(new IdentityError { Description = "Kullanıcı bulunamadı." });
@@ -223,22 +223,37 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return await _userManager.ResetPasswordAsync(user, token, newPassword);
             }
 
-            public async Task<AppUser?> GetUserByEmailAsync(string email)
+            public async Task<AppUser?> TGetUserByEmailAsync(string email)
             {
                 return await _userManager.FindByEmailAsync(email);
             }
 
-            public async Task<bool> AssignRoleToUserAsync(int userId, string selectedRole)
-            {
-                var user = await _userManager.FindByIdAsync(userId.ToString());
-                var currentRoles = await _userManager.GetRolesAsync(user);
-                foreach (var role in currentRoles)
+        public async Task<bool> TAssignRoleToUserAsync(int userId, string selectedRole)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                return false;
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            foreach (var role in currentRoles)
                 await _userManager.RemoveFromRoleAsync(user, role);
-                if (!string.IsNullOrEmpty(selectedRole))
+
+            if (!string.IsNullOrEmpty(selectedRole))
+            {
                 await _userManager.AddToRoleAsync(user, selectedRole);
-                return true;
+
+                if (selectedRole == "Developer")
+                {
+                    user.IsActive = true;
+                    await _userManager.UpdateAsync(user);
+                }
             }
-            public async Task<bool> ToggleUserStatusAsync(int userId, bool newStatus)
+
+            return true;
+        }
+
+        public async Task<bool> TToggleUserStatusAsync(int userId, bool newStatus)
             {
                 var user = await _userManager.FindByIdAsync(userId.ToString());
                 if (user == null)
@@ -250,7 +265,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return result.Succeeded;
             }
 
-            public async Task<List<UserListDto>> GetAllUsersWithRolesAsync()
+            public async Task<List<UserListDto>> TGetAllUsersWithRolesAsync()
             {
                 var users = await _userManager.Users.ToListAsync();
                 var userList = new List<UserListDto>();
@@ -258,6 +273,33 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 foreach (var user in users)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
+                    userList.Add(new UserListDto
+                    {
+                        Id = user.Id,
+                        NameSurname = $"{user.FirstName} {user.LastName}",
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        CreatedAt = user.CreatedAt,
+                        IsActive = user.IsActive,
+                        Role = roles.ToList()
+                    });
+                }
+
+                return userList;
+            }
+
+
+        public async Task<List<UserListDto>> TGetNonDeveloperUsersWithRolesAsync()
+            {
+                var users = await _userManager.Users.ToListAsync();
+                var userList = new List<UserListDto>();
+
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    if (roles.Contains("Developer"))
+                        continue;
 
                     userList.Add(new UserListDto
                     {
@@ -273,9 +315,13 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
                 return userList;
             }
-            public async Task<List<AssignRoleDto>> GetUserRolesForAssignAsync(int userId)
+
+
+
+
+        public async Task<List<AssignRoleDto>> TGetUserRolesForAssignAsync(int userId)
             {
-                var user = await GetUserByIdAsync(userId);
+                var user = await TGetUserByIdAsync(userId);
                 if (user == null)
                     return null;
 

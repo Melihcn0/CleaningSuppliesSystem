@@ -66,7 +66,6 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             ViewBag.ActiveTab = TempData["ActiveTab"]?.ToString() ?? activeTab;
             return View(model);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCustomerProfile(UpdateCustomerProfileDto dto)
@@ -87,6 +86,12 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
                 return View("Index", model);
             }
 
+            // 🔹 Kullanıcı adını normalize et
+            if (!string.IsNullOrWhiteSpace(dto.UserName))
+            {
+                dto.UserName = NormalizeUsername(dto.UserName); // ✅ static method çağrısı
+            }
+
             var response = await _client.PutAsJsonAsync("CustomerProfile", dto);
 
             if (response.IsSuccessStatusCode)
@@ -101,6 +106,30 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Customer.Controllers
             var errorModel = await GetCustomerProfileViewModel(updateProfileDto: dto);
             return View("Index", errorModel);
         }
+
+        private static string NormalizeUsername(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return username;
+
+            var map = new Dictionary<char, char>
+            {
+                { 'i', 'I' }, { 'ı', 'I' },
+                { 'ç', 'C' }, { 'ö', 'O' },
+                { 'ü', 'U' }, { 'ş', 'S' },
+                { 'ğ', 'G' }
+            };
+
+            var normalized = username
+                .Trim()
+                .ToLowerInvariant()
+                .Select(c => map.ContainsKey(c) ? map[c] : c) // Türkçe karakterleri düzelt
+                .ToArray();
+
+            return new string(normalized).ToUpperInvariant();
+        }
+
+
 
         [HttpGet]
         public async Task<IActionResult> CreateAddressPartial()

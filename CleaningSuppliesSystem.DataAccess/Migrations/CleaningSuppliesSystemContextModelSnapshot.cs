@@ -792,6 +792,40 @@ namespace CleaningSuppliesSystem.DataAccess.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.PromoAlert", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsShown")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PromoAlerts");
+                });
+
             modelBuilder.Entity("CleaningSuppliesSystem.Entity.Entities.SecondaryBanner", b =>
                 {
                     b.Property<int>("Id")

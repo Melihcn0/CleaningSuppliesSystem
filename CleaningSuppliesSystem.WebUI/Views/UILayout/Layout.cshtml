@@ -157,6 +157,14 @@
                                 </a>
                             </li>
                         }
+                        else if (User.IsInRole("Developer"))
+                        {
+                            <li class="nav-item">
+                                <a href="/Developer/DeveloperProfile/Index" class="nav-link px-1 custom-nav-link">
+                                    Geliştirici Paneli
+                                </a>
+                            </li>
+                        }
 
                     </ul>
 
@@ -273,6 +281,6 @@
         }, 20 * 60 * 1000);
     </script>
 
-
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

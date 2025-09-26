@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CleaningSuppliesSystem.Business.Abstract;
-using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

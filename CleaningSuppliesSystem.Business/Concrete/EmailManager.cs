@@ -54,19 +54,30 @@ namespace CleaningSuppliesSystem.Business.Concrete
         }
         public async Task SendUserWelcomeMailAsync(string username, string email)
         {
-            var subject = "ESS Star Tedarik'e Hoş Geldiniz!";
-            var htmlBody = $@"
-              <div style='font-family: Arial; background-color:#f4f4f4; padding: 20px; border-radius: 8px;'>
-                <h2 style='color: #5cb85c;'>Kayıt Başarılı 🎉</h2>
-                <p>Merhaba <strong>{username}</strong>,</p>
-                <p>Sisteme başarıyla kayıt oldunuz.</p>
-                <p>Yetkili kişi hesabınızı onayladığında giriş yapabileceksiniz.</p>
-                <p>Durumunuzla ilgili bilgilendirme e-posta yoluyla yapılacaktır.</p>
-                <hr>
-                <small>Bu mail otomatik olarak gönderilmiştir. Yanıtlamanıza gerek yoktur.</small>
-              </div>";
+            try
+            {
+                var subject = "ESS Star Tedarik'e Hoş Geldiniz!";
+                var htmlBody = $@"
+          <div style='font-family: Arial; background-color:#f4f4f4; padding: 20px; border-radius: 8px;'>
+            <h2 style='color: #5cb85c;'>Kayıt Başarılı 🎉</h2>
+            <p>Merhaba <strong>{username}</strong>,</p>
+            <p>Sisteme başarıyla kayıt oldunuz.</p>
+            <p>Yetkili kişi hesabınızı onayladığında giriş yapabileceksiniz.</p>
+            <p>Durumunuzla ilgili bilgilendirme e-posta yoluyla yapılacaktır.</p>
+            <hr>
+            <small>Bu mail otomatik olarak gönderilmiştir. Yanıtlamanıza gerek yoktur.</small>
+          </div>";
 
-            await SendEmailAsync(email, subject, htmlBody);
+                await SendEmailAsync(email, subject, htmlBody);
+            }
+            catch (Exception ex)
+            {
+                // Logla ki nerede patlıyor göresin
+                Console.WriteLine($"[SendUserWelcomeMailAsync Hata]: {ex.Message}");
+
+                // burayı swallow edebilirsin (hata fırlatmadan geçsin)
+                // ya da throw ex; diyerek yukarıya geri fırlatabilirsin
+            }
         }
         public async Task SendAccountActivationMailAsync(string username, string email)
         {

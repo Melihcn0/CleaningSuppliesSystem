@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.Business.Concrete;
 using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.Entity.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -43,17 +45,57 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet("active")]
-    public async Task<IActionResult> GetActiveCategories()
+    public async Task<IActionResult> GetActiveCategories(int page = 1, int pageSize = 10)
     {
-        var result = await _categoryService.TGetActiveCategoriesAsync();
+        var categories = await _categoryService.TGetActiveCategoriesAsync();
+        var totalCount = categories.Count;
+
+        var pagedData = categories
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var response = new PagedResponse<ResultCategoryDto>
+        {
+            Data = pagedData,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+
+        return Ok(response);
+    }
+
+    [HttpGet("active-all")]
+    public async Task<IActionResult> GetActiveAllTopCategories()
+    {
+        var categories = await _categoryService.TGetActiveCategoriesAsync();
+        var result = _mapper.Map<List<ResultCategoryDto>>(categories);
         return Ok(result);
     }
 
     [HttpGet("deleted")]
-    public async Task<IActionResult> GetDeletedCategories()
+    public async Task<IActionResult> GetDeletedCategories(int page = 1, int pageSize = 10)
     {
-        var result = await _categoryService.TGetDeletedCategoriesAsync();
-        return Ok(result);
+        var categories = await _categoryService.TGetDeletedCategoriesAsync();
+        var totalCount = categories.Count;
+
+        var pagedData = categories
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var response = new PagedResponse<ResultCategoryDto>
+        {
+            Data = pagedData,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+
+        return Ok(response);
     }
 
     [HttpGet("{id}")]

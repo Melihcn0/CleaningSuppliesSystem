@@ -999,6 +999,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Customer\Data\" />
+    <Folder Include="Areas\Developer\Data\" />
   </ItemGroup>
 
   <ItemGroup>

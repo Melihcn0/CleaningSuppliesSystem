@@ -100,7 +100,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             product.IsDeleted = true;
             product.DeletedDate = DateTime.UtcNow;
             await _productRepository.UpdateAsync(product);
-            return (true, "Ürün başarıyla soft silindi.", product.Id);
+            return (true, "Ürün çöp kutusuna başarıyla taşındı.", product.Id);
         }
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteProductAsync(int id)
@@ -115,7 +115,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
             product.IsDeleted = false;
             product.DeletedDate = null;
             await _productRepository.UpdateAsync(product);
-            return (true, "Ürün başarıyla geri getirildi.", product.Id);
+            return (true, "Ürün çöp kutusundan başarıyla geri getirildi.", product.Id);
         }
 
         public async Task<(bool IsSuccess, string Message)> TPermanentDeleteProductAsync(int id)
@@ -125,10 +125,10 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Ürün bulunamadı.");
 
             if (!product.IsDeleted)
-                return (false, "Ürün soft silinmemiş. Önce soft silmeniz gerekir.");
+                return (false, "Ürün çöp kutusundan silinmemiş. Önce çöp kutusundan silmeniz gerekir.");
 
             await _productRepository.DeleteAsync(product.Id);
-            return (true, "Ürün kalıcı olarak silindi.");
+            return (true, "Ürün kalıcı olarak çöp kutusundan silindi.");
         }
 
         public async Task<List<ResultProductDto>> TGetActiveProductsAsync()

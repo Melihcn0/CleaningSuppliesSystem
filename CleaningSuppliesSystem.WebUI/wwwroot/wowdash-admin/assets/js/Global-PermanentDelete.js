@@ -49,6 +49,9 @@
 
                 addHoverEffect(confirmBtn, "#3085d6");
                 addHoverEffect(cancelBtn, "#ff4d4f");
+
+                // Boş tıklama veya enter/esc ile popup kapanmasını tamamen engelle
+                Swal.getPopup().addEventListener('click', e => e.stopPropagation());
             }
         }).then(result => {
             if (!result.isConfirmed) return;
@@ -70,9 +73,14 @@
                         timerProgressBar: true,
                         background: bgColor,
                         color: textColor,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
                         didOpen: () => {
                             const pb = Swal.getPopup().querySelector('.swal2-timer-progress-bar');
                             if (pb) pb.style.backgroundColor = isSuccess ? "#28a745" : "#dc3545";
+                            // Boş tıklama ile kapanmayı engelle
+                            Swal.getPopup().addEventListener('click', e => e.stopPropagation());
                         },
                         willClose: () => {
                             if (isSuccess) window.location.reload();
@@ -89,9 +97,13 @@
                         timerProgressBar: true,
                         background: bgColor,
                         color: textColor,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
                         didOpen: () => {
                             const pb = Swal.getPopup().querySelector('.swal2-timer-progress-bar');
                             if (pb) pb.style.backgroundColor = "#dc3545";
+                            Swal.getPopup().addEventListener('click', e => e.stopPropagation());
                         }
                     });
                 });

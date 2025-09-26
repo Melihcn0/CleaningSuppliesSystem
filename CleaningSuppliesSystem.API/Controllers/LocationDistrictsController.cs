@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,23 +28,65 @@ namespace CleaningSuppliesSystem.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
-            var district = await _locationDistrictService.TGetListAsync();
-            var result = _mapper.Map<List<ResultLocationDistrictDto>>(district);
+            var districts = await _locationDistrictService.TGetListAsync();
+            var result = _mapper.Map<List<ResultLocationDistrictDto>>(districts);
             return Ok(result);
         }
 
         [HttpGet("active")]
-        public async Task<IActionResult> GetActiveDistrict()
+        public async Task<IActionResult> GetActiveTopCategories(int page = 1, int pageSize = 10)
         {
-            var result = await _locationDistrictService.TGetActiveLocationDistrictsAsync();
+            var districts = await _locationDistrictService.TGetActiveLocationDistrictsAsync();
+            var totalCount = districts.Count;
+
+            var pagedData = districts
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultLocationDistrictDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("active-all")]
+        public async Task<IActionResult> GetActiveAllTopCategories()
+        {
+            var districts = await _locationDistrictService.TGetActiveLocationDistrictsAsync();
+            var result = _mapper.Map<List<ResultLocationDistrictDto>>(districts);
             return Ok(result);
         }
+
         [HttpGet("deleted")]
-        public async Task<IActionResult> GetDeletedDistrict()
+        public async Task<IActionResult> GetDeletedTopCategories(int page = 1, int pageSize = 10)
         {
-            var result = await _locationDistrictService.TGetDeletedLocationDistrictsAsync();
-            return Ok(result);
+            var districts = await _locationDistrictService.TGetDeletedLocationDistrictsAsync();
+            var totalCount = districts.Count;
+
+            var pagedData = districts
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultLocationDistrictDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateLocationDistrictDto createLocationDistrictDto)
         {

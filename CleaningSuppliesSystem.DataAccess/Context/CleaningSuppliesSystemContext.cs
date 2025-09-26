@@ -30,6 +30,7 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         public DbSet<LocationDistrict> LocationDistricts { get; set; }
         public DbSet<CompanyAddress> CompanyAddresses { get; set; }
         public DbSet<CompanyBank> CompanyBanks { get; set; }
+        public DbSet<PromoAlert> PromoAlerts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

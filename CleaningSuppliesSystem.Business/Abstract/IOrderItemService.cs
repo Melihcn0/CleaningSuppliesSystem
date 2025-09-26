@@ -12,5 +12,6 @@ namespace CleaningSuppliesSystem.Business.Abstract
         Task<List<OrderItem>> TGetOrderItemWithProductandCategoriesAsync();
         Task<OrderItem> TGetByIdAsyncWithProductandCategories(int id);
         Task TDecrementQuantityAsync(int id);
+        Task TIncrementQuantityAsync(int id);
     }
 }

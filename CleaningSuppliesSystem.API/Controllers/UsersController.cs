@@ -61,27 +61,36 @@ public class UsersController : ControllerBase
             AccessTokenCookie = cookieToken
         });
     }
-
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
+        if (string.IsNullOrWhiteSpace(loginDto.Identifier))
+        {
+            return BadRequest(new List<ErrorDetailDto>
+        {
+            new ErrorDetailDto { Code = "Identifier", Description = "Kullanıcı adı veya email boş olamaz." }
+        });
+        }
+
+        loginDto.Identifier = ConvertTurkishCharsToEnglish(loginDto.Identifier);
+
         var validationResult = await _loginValidator.ValidateAsync(loginDto);
         if (!validationResult.IsValid)
         {
             var validationErrors = validationResult.Errors
-                .Select(e => new ErrorDetailDto
-                {
-                    Code = e.PropertyName,
-                    Description = e.ErrorMessage
-                }).ToList();
+                .Select(e => new ErrorDetailDto { Code = e.PropertyName, Description = e.ErrorMessage })
+                .ToList();
             return BadRequest(validationErrors);
         }
 
         var errors = new List<ErrorDetailDto>();
 
-        var user = await _userManager.FindByEmailAsync(loginDto.Identifier)
-                   ?? await _userManager.FindByNameAsync(loginDto.Identifier);
+        // ✅ Email -> lowercase, Username -> Identity normalize
+        AppUser user = null;
+        if (loginDto.Identifier.Contains("@"))
+            user = await _userManager.FindByEmailAsync(loginDto.Identifier.ToLower());
+        else
+            user = await _userManager.FindByNameAsync(_userManager.NormalizeName(loginDto.Identifier));
 
         if (user == null)
         {
@@ -97,32 +106,22 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            // AccessFailedCount ve kalan deneme sayısı
             var accessFailedCount = await _userManager.GetAccessFailedCountAsync(user);
             var maxAttempts = 10;
-            var remaining = maxAttempts - accessFailedCount;
+            var remaining = Math.Max(maxAttempts - accessFailedCount, 0);
 
-            if (remaining < 0) remaining = 0;
+            errors.Add(new ErrorDetailDto { Code = "RemainingAttempts", Description = remaining.ToString() });
 
-            // Kalan deneme hakkını ekle
-            errors.Add(new ErrorDetailDto
-            {
-                Code = "RemainingAttempts",
-                Description = remaining.ToString()
-            });
-
-            // Kilitlenme durumu ayrı mesaj
             if (result.IsLockedOut)
             {
                 errors.Add(new ErrorDetailDto
                 {
                     Code = "AccountLockout",
-                    Description = $"Hesabınız geçici olarak kilitlendi. Lütfen 30 dakika sonra tekrar deneyin."
+                    Description = "Hesabınız geçici olarak kilitlendi. Lütfen 30 dakika sonra tekrar deneyin."
                 });
             }
             else
             {
-                // Yanlış şifre veya diğer giriş hataları
                 errors.Add(new ErrorDetailDto
                 {
                     Code = "Password",
@@ -145,48 +144,75 @@ public class UsersController : ControllerBase
             return BadRequest(errors);
         }
 
-        // Başarılı girişte AccessFailedCount otomatik sıfırlanır
-
         var token = await _jwtService.CreateTokenAsync(user);
         return Ok(token);
     }
 
+
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
-        var validationResult = await _registerValidator.ValidateAsync(registerDto);
-        if (!validationResult.IsValid)
+        try
         {
-            var errors = validationResult.Errors
-                .Select(e => new ErrorDetailDto
-                {
-                    Code = e.PropertyName,
-                    Description = e.ErrorMessage
-                }).ToList();
+            var validationResult = await _registerValidator.ValidateAsync(registerDto);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors
+                    .Select(e => new ErrorDetailDto
+                    {
+                        Code = e.PropertyName,
+                        Description = e.ErrorMessage ?? "Geçersiz değer."
+                    }).ToList();
 
-            return BadRequest(errors);
+                return BadRequest(errors);
+            }
+
+            var user = _mapper.Map<AppUser>(registerDto);
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
+            if (!result.Succeeded)
+            {
+                var identityErrors = result.Errors
+                    .Select(e => new ErrorDetailDto
+                    {
+                        Code = e.Code,
+                        Description = e.Description ?? "Bir hata oluştu."
+                    }).ToList();
+
+                return BadRequest(identityErrors);
+            }
+
+            await _userManager.AddToRoleAsync(user, "Customer");
+
+            await _emailService.NewUserMailAsync(user.UserName, user.Email);
+            await _emailService.SendUserWelcomeMailAsync(user.UserName, user.Email);
+
+            return Ok(new { message = "Kayıt Başarılı" });
         }
-
-        var user = _mapper.Map<AppUser>(registerDto);
-        var result = await _userManager.CreateAsync(user, registerDto.Password);
-        if (!result.Succeeded)
+        catch (Exception ex)
         {
-            var identityErrors = result.Errors
-                .Select(e => new ErrorDetailDto
-                {
-                    Code = e.Code,
-                    Description = e.Description
-                }).ToList();
-
-            return BadRequest(identityErrors);
+            Console.WriteLine("Register hata: " + ex.Message);
+            return BadRequest(new
+            {
+                Code = "Exception",
+                Description = ex.Message
+            });
         }
-
-        await _userManager.AddToRoleAsync(user, "Customer");
-        await _emailService.NewUserMailAsync(user.UserName, user.Email);
-        await _emailService.SendUserWelcomeMailAsync(user.UserName, user.Email);
-
-        return Ok(new { message = "Kayıt Başarılı" });
     }
+
+    private string ConvertTurkishCharsToEnglish(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return input;
+
+        return input
+            .Replace("ç", "c").Replace("Ç", "C")
+            .Replace("ğ", "g").Replace("Ğ", "G")
+            .Replace("ı", "I").Replace("İ", "I")
+            .Replace("ö", "o").Replace("Ö", "O")
+            .Replace("ş", "s").Replace("Ş", "S")
+            .Replace("ü", "u").Replace("Ü", "U");
+    }
+
+
 
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)

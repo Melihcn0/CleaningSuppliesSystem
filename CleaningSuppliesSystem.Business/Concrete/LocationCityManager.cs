@@ -51,10 +51,14 @@ namespace CleaningSuppliesSystem.Business.Concrete
             if (locationCity.IsDeleted)
                 return (false, "Şehir lokasyonu zaten silinmiş.", locationCity.CityId);
 
-            // Ürünlerde kullanım kontrolü (varsa)
-            var isUsedInDistricts = await _locationDistrictRepository.AnyAsync(x => x.CityId == id);
-            if (isUsedInDistricts)
-                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Silme yapılamaz.", locationCity.CityId);
+            var activeDistricts = await _locationDistrictRepository.AnyAsync(x => x.CityId == id && !x.IsDeleted);
+            var softDeletedDistricts = await _locationDistrictRepository.AnyAsync(x => x.CityId == id && x.IsDeleted);
+
+            if (activeDistricts)
+                return (false, "Bu şehir lokasyonu bazı aktif ilçe lokasyonlarında kullanılıyor. Silme yapılamaz.", locationCity.CityId);
+
+            if (softDeletedDistricts)
+                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Lütfen önce ilçeleri çöp kutusundan siliniz.", locationCity.CityId);
 
             locationCity.DeletedDate = DateTime.Now;
             locationCity.IsDeleted = true;

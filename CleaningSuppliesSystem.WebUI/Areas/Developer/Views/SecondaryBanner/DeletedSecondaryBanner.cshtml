@@ -1,0 +1,283 @@
+﻿@model PagedResponse<ResultSecondaryBannerDto>
+@{
+    ViewData["Title"] = "İkincil Banner Sayfası";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+
+    ViewData["PermanentDeleteUrl"] = "~/Developer/SecondaryBanner/PermanentDeleteSecondaryBanner";
+    ViewData["PermanentDeleteConfirmTitle"] = "İkincil banner alanı kalıcı olarak silinsin mi?";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    @Html.AntiForgeryToken()
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0 mt-1">Silinen Banner Listesi</h5>
+        <div class="d-flex align-items-center gap-2 md-0 mt-1">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3 gap-3">
+            <!-- Arama label + input -->
+            <div class="d-flex align-items-center">
+                <label for="customSearch" class="me-3">Ara :</label>
+                <input type="text" id="customSearch" class="form-control" placeholder="Ara..." style="width: 200px;" />
+            </div>
+
+            <div class="d-flex align-items-center">
+                <label for="pageSizeSelect" class="me-3">Sayfa başına :</label>
+                <select id="pageSizeSelect" class="form-select w-auto select-balanced">
+                    @foreach (var size in new int[] { 10, 30, 50, 100 })
+                    {
+                        if (Model.PageSize == size)
+                        {
+                            <option value="@size" selected>@size</option>
+                        }
+                        else
+                        {
+                            <option value="@size">@size</option>
+                        }
+                    }
+                </select>
+            </div>
+
+        </div>
+
+        <div class="table-responsive" style="overflow-y: hidden;">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th class="text-start">#</th>
+                    <th>İkincil Banner Seti</th>
+                    <th>Oluşturma | Son Güncelleme | Silinme Tarihleri</th>
+                    <th>İşlem</th>
+                </tr>   
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Data)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                        <td>
+                                <div class="d-flex justify-content-start align-items-start gap-4 py-3 text-center">
+                                    <!-- Kart 1 -->
+                                    <div class="card shadow-sm" style="width: 180px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@item.ImageUrl1">
+                                        <img src="@Url.Content(item.ImageUrl1)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 1" />
+                                        <div class="card-body p-3 d-flex flex-column gap-2 text-start">
+                                            <p class="card-title mb-0">Başlık1 :</p>
+                                            <p class="mb-0">@item.Title1</p>
+                                            <p class="card-title mb-0">Açıklama1 :</p>
+                                            <p class="mb-0">@item.Description1</p>
+                                            <p class="card-title mb-0">Buton Adı1 :</p>
+                                            <p class="mb-0">@item.ButtonTitle1</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kart 2 -->
+                                    <div class="card shadow-sm" style="width: 180px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@item.ImageUrl2">
+                                        <img src="@Url.Content(item.ImageUrl2)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 2" />
+                                        <div class="card-body p-3 d-flex flex-column gap-2 text-start">
+                                            <p class="card-title mb-0">Başlık2 :</p>
+                                            <p class="mb-0">@item.Title2</p>
+                                            <p class="card-title mb-0">Açıklama2 :</p>
+                                            <p class="mb-0">@item.Description2</p>
+                                            <p class="card-title mb-0">Buton Adı2 :</p>
+                                            <p class="mb-0">@item.ButtonTitle2</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kart 3 -->
+                                    <div class="card shadow-sm" style="width: 180px; cursor:pointer;" data-bs-toggle="modal" data-bs-target="#imageModal_@item.ImageUrl3">
+                                        <img src="@Url.Content(item.ImageUrl3)" class="card-img-top" style="height: 100px; object-fit: cover;" alt="Banner 3" />
+                                        <div class="card-body p-3 d-flex flex-column gap-2 text-start">
+                                            <p class="card-title mb-0">Başlık3 :</p>
+                                            <p class="mb-0">@item.Title3</p>
+                                            <p class="card-title mb-0">Açıklama3 :</p>
+                                            <p class="mb-0">@item.Description3</p>
+                                            <p class="card-title mb-0">Buton Adı3 :</p>
+                                            <p class="mb-0">@item.ButtonTitle3</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal fade" id="imageModal_@item.ImageUrl1" tabindex="-1" aria-hidden="true" style="background-color: rgba(0,0,0,0.6);">
+                                    <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                        <div class="modal-content bg-transparent border-0 position-relative">
+                                            <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal" aria-label="Close"
+                                                    style="position: fixed; top: 1rem; right: 1rem; width:2.5rem; height:2.5rem; z-index:1050;"></button>
+                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                                                <img src="@Url.Content(item.ImageUrl1)" class="img-fluid rounded" alt="Preview 1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="imageModal_@item.ImageUrl2" tabindex="-1" aria-hidden="true" style="background-color: rgba(0,0,0,0.6);">
+                                    <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                        <div class="modal-content bg-transparent border-0 position-relative">
+                                            <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal" aria-label="Close"
+                                                    style="position: fixed; top: 1rem; right: 1rem; width:2.5rem; height:2.5rem; z-index:1050;"></button>
+                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                                                <img src="@Url.Content(item.ImageUrl2)" class="img-fluid rounded" alt="Preview 2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="imageModal_@item.ImageUrl3" tabindex="-1" aria-hidden="true" style="background-color: rgba(0,0,0,0.6);">
+                                    <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                        <div class="modal-content bg-transparent border-0 position-relative">
+                                            <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal" aria-label="Close"
+                                                    style="position: fixed; top: 1rem; right: 1rem; width:2.5rem; height:2.5rem; z-index:1050;"></button>
+                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center">
+                                                <img src="@Url.Content(item.ImageUrl3)" class="img-fluid rounded" alt="Preview 3" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </td>
+                            <td>
+                                <div class="d-flex flex-column small gap-1">
+                                    <span>
+                                        🟢 <b>Oluşturma:</b>
+                                        @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                    <span>
+                                        🟡 <b>Güncelleme:</b>
+                                        @(item.UpdatedDate != null
+                                            ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                            : "Henüz güncelleme yapılmadı")
+                                    </span>
+                                    <span>
+                                        🔴 <b>Silinme:</b>
+                                        @item.DeletedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-nowrap gap-2">
+                                    <form asp-action="UndoSoftDeleteSecondaryBanner" asp-controller="SecondaryBanner" asp-area="Developer" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn rounded-pill btn-success-600 radius-8 d-inline-flex align-items-center btn-sm action-btn">
+                                            <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">undo</span> Geri al
+                                        </button>
+                                    </form>
+
+                                    <button type="button" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn permanent-delete-btn"
+                                            data-id="@item.Id">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete_forever</span> Sil
+                                    </button>
+                                </div>
+                            </td>
+                    </tr>
+                    }
+            </tbody>
+        </table>
+
+            <div class="d-flex justify-content-between align-items-center pt-3">
+                <div id="tableInfo" class="text-secondary-light fw-medium"></div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <ul class="pagination d-flex flex-wrap align-items-center justify-content-end mb-0" style="gap:2px;">
+                        <!-- İlk sayfa -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-end-0"
+                               href="@Url.Action("DeletedSecondaryBanner", new { page = 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-left" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Önceki -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("DeletedSecondaryBanner", new { page = Model.Page - 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-left-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Sayfa numaraları -->
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px @(i == Model.Page ? "bg-primary-600 text-white" : "")"
+                                   href="@Url.Action("DeletedSecondaryBanner", new { page = i, pageSize = Model.PageSize })">@i</a>
+                            </li>
+                        }
+
+                        <!-- Sonraki -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("DeletedSecondaryBanner", new { page = Model.Page + 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-right-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Son sayfa -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-start-0"
+                               href="@Url.Action("DeletedSecondaryBanner", new { page = Model.TotalPages, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-right" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+                    </ul>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+
+            const undoBtn = document.getElementById('undosoftdeleteSelectedBtn');
+            const permanentDeleteBtn = document.getElementById('permanentdeleteSelectedBtn');
+
+            if (undoBtn) undoBtn.disabled = selectedCount === 0;
+            if (permanentDeleteBtn) permanentDeleteBtn.disabled = selectedCount === 0;
+
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
+                        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.modal').forEach(function(modalEl){
+                modalEl.addEventListener('click', function (e) {
+                    const img = modalEl.querySelector('img');
+                    if (e.target !== img) {
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        modalInstance.hide();
+                    }
+                });
+            });
+        });
+
+                 document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            window.location.href = '@Url.Action("DeletedSecondaryBanner", "SecondaryBanner", new { area = "Developer" })?page=1&pageSize=' + pageSize;
+        });
+    </script>
+}

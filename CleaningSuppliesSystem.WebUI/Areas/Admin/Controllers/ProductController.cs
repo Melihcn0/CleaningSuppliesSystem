@@ -1,23 +1,17 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
-using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.DiscountValidatorDto;
-using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.FinanceValidatorDto;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.ProductValidatorDto;
-using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
 using CleaningSuppliesSystem.WebUI.Helpers;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Net.Http.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
-using System.Drawing;
 using SixLabors.ImageSharp.Processing;
 using Image = SixLabors.ImageSharp.Image;
 using Size = SixLabors.ImageSharp.Size;
@@ -30,15 +24,17 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     {
         private readonly HttpClient _client;
         private readonly IWebHostEnvironment _env;
+        private readonly PaginationHelper _paginationHelper;
 
-        public ProductController(IHttpClientFactory clientFactory, IWebHostEnvironment env)
+        public ProductController(IHttpClientFactory clientFactory, IWebHostEnvironment env, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
             _env = env;
+            _paginationHelper = paginationHelper;
         }
         private async Task LoadCategoriesAndBrandsAsync(int? selectedCategoryId = null, int? selectedBrandId = null)
         {
-            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active")
+            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active-all")
                              ?? new List<ResultCategoryDto>();
             ViewBag.Categories = new SelectList(categories, "Id", "Name", selectedCategoryId);
 
@@ -62,28 +58,21 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             return Json(brands);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var resultDtos = await _client.GetFromJsonAsync<List<ResultProductDto>>("products/active");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultProductDto>(
+                $"Products/active?page={page}&pageSize={pageSize}");
 
-            var vm = new ProductViewModel
-            {
-                ProductViewList = resultDtos
-            };
-
-            return View(vm);
+            return View(response);
         }
 
-        public async Task<IActionResult> DeletedProduct()
+        public async Task<IActionResult> DeletedProduct(int page = 1, int pageSize = 10)
         {
             ViewBag.ShowBackButton = true;
-            var resultdeletedDtos = await _client.GetFromJsonAsync<List<ResultProductDto>>("products/deleted");
-            var vm = new ProductViewModel
-            {
-                ProductViewList = resultdeletedDtos
-            };
+            var response = await _paginationHelper.GetPagedDataAsync<ResultProductDto>(
+                $"Products/deleted?page={page}&pageSize={pageSize}");
 
-            return View(vm);
+            return View(response);
         }
 
         [HttpGet]
@@ -341,6 +330,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> ApplyDiscount(int id)
         {
+            ViewBag.ShowBackButton = true;
             var dto = await _client.GetFromJsonAsync<UpdateDiscountDto>($"products/discountproduct/{id}");
             if (dto == null)
                 return NotFound();

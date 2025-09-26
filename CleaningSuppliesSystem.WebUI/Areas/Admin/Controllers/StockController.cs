@@ -10,6 +10,7 @@ using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.StockValidatorDto;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
 
 namespace CleaningSuppliesSystem.WebUI.Controllers
 {
@@ -18,20 +19,22 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
     public class StockController : Controller
     {
         private readonly HttpClient _client;
+        private readonly PaginationHelper _paginationHelper;
 
-        public StockController(IHttpClientFactory clientFactory)
+        public StockController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
 
         private async Task LoadTopCategoriesDropdownAsync(int? selectedTopCategoryId = null)
         {
-            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topcategories/active");
+            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topcategories/active-all");
             ViewBag.topCategories = new SelectList(topCategories, "Id", "Name", selectedTopCategoryId);
         }
         private async Task LoadAllDropdownsAsync(CreateStockOperationDto dto)
         {
-            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topcategories/active");
+            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active-all");
             ViewBag.topCategories = topCategories.Select(x => new SelectListItem
             {
                 Value = x.Id.ToString(),
@@ -99,22 +102,18 @@ namespace CleaningSuppliesSystem.WebUI.Controllers
                 ViewBag.products = new List<SelectListItem>();
             }
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var result = await _client.GetFromJsonAsync<List<ResultStockOperationDto>>("stocks/active");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultStockOperationDto>(
+                $"Stocks/active?page={page}&pageSize={pageSize}");
 
-            var vm = new StockOperationViewModel
-            {
-                StockOperationViewList = result
-            };
-
-            return View(vm);
+            return View(response);
         }
 
         [HttpGet]
         public async Task<IActionResult> CreateStockOperation()
         {
-            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active");
+            var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("topCategories/active-all");
             ViewBag.ShowBackButton = true;
             ViewBag.topCategories = topCategories.Select(x => new SelectListItem
             {

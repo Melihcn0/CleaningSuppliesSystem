@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.ProductDtos;
 using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
@@ -31,6 +32,7 @@ namespace CleaningSuppliesSystem.API.Controllers
             _updateValidator = updateValidator;
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Get()
@@ -41,16 +43,57 @@ namespace CleaningSuppliesSystem.API.Controllers
         }
 
         [HttpGet("active")]
-        public async Task<IActionResult> GetActiveTopCategories()
+        public async Task<IActionResult> GetActiveTopCategories(int page = 1, int pageSize = 10)
         {
-            var result = await _topCategoryService.TGetActiveTopCategoriesAsync();
+            var topCategories = await _topCategoryService.TGetActiveTopCategoriesAsync();
+            var totalCount = topCategories.Count;
+
+            var pagedData = topCategories
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultTopCategoryDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("active-all")]
+        public async Task<IActionResult> GetActiveAllTopCategories()
+        {
+            var topCategories = await _topCategoryService.TGetActiveTopCategoriesAsync();
+            var result = _mapper.Map<List<ResultTopCategoryDto>>(topCategories);
             return Ok(result);
         }
+
         [HttpGet("deleted")]
-        public async Task<IActionResult> GetDeletedTopCategories()
+        public async Task<IActionResult> GetDeletedTopCategories(int page = 1, int pageSize = 10)
         {
-            var result = await _topCategoryService.TGetDeletedTopCategoriesAsync();
-            return Ok(result);
+            var topCategories = await _topCategoryService.TGetDeletedTopCategoriesAsync();
+            var totalCount = topCategories.Count;
+
+            var pagedData = topCategories
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultTopCategoryDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]

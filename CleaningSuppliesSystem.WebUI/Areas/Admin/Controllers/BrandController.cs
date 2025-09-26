@@ -4,6 +4,7 @@ using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.BrandValidatorDto;
 using CleaningSuppliesSystem.Entity.Entities;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,40 +16,34 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class BrandController : Controller
     {
         private readonly HttpClient _client;
+        private readonly PaginationHelper _paginationHelper;
 
-        public BrandController(IHttpClientFactory clientFactory)
+        public BrandController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
 
         private async Task LoadCategoriesDropdownAsync(int? selectedCategoryId = null)
         {
-            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active");
+            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active-all");
             ViewBag.categories = new SelectList(categories, "Id", "Name", selectedCategoryId);
         }
-
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var resultDtos = await _client.GetFromJsonAsync<List<ResultBrandDto>>("Brands/active");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultBrandDto>(
+                $"Brands/active?page={page}&pageSize={pageSize}");
 
-            var vm = new BrandViewModel
-            {
-                BrandViewList = resultDtos
-            };
-
-            return View(vm);
+            return View(response);
         }
 
-        public async Task<IActionResult> DeletedBrands()
+        public async Task<IActionResult> DeletedBrands(int page = 1, int pageSize = 10)
         {
             ViewBag.ShowBackButton = true;
-            var resultdeletedDtos = await _client.GetFromJsonAsync<List<ResultBrandDto>>("Brands/deleted");
-            var vm = new BrandViewModel
-            {
-                BrandViewList = resultdeletedDtos
-            };
+            var response = await _paginationHelper.GetPagedDataAsync<ResultBrandDto>(
+                $"Brands/deleted?page={page}&pageSize={pageSize}");
 
-            return View(vm);
+            return View(response);
         }
 
         public async Task<IActionResult> CreateBrand()
@@ -98,7 +93,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             if (brand == null)
                 return NotFound();
 
-            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active");
+            var categories = await _client.GetFromJsonAsync<List<ResultCategoryDto>>("categories/active-all");
             ViewBag.categories = new SelectList(categories, "Id", "Name", brand.CategoryId);
 
             return View(brand);

@@ -97,5 +97,21 @@ namespace CleaningSuppliesSystem.Business.Concrete
             return await _orderRepository.ValidateCustomerProfileAsync(userId);
         }
 
+        public async Task<List<ExpiredOrderDto>> TGetExpiredOrdersAsync()
+        {
+            var orders = await _orderRepository.GetOrdersWithItemsAsync();
+
+            var ongoingStatuses = new[] { "Onay Bekleniyor", "Onaylandı", "Hazırlanıyor", "Kargoya Verildi" };
+
+            var ongoingOrders = orders
+                .Where(o => ongoingStatuses.Contains(o.Status)) // sadece devam eden siparişler
+                .Select(o => _mapper.Map<ExpiredOrderDto>(o))
+                .ToList();
+
+            return ongoingOrders;
+        }
+
+
+
     }
 }

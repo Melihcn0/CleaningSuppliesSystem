@@ -22,9 +22,11 @@ using CleaningSuppliesSystem.DTO.DTOs.Customer.CustomerCorporateDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyAddressDtos;
-using CleaningSuppliesSystem.DTO.DTOs.Customer.AdminProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Admin.AdminProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Developer.DeveloperProfileDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.PromoAlertDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -178,6 +180,8 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<AppRole, ResultRoleDto>().ReverseMap();
 
             CreateMap<UpdateDiscountDto, Order>().ReverseMap();
+            CreateMap<UpdateDiscountDto, Product>().ReverseMap();
+
 
             CreateMap<CreateBrandDto, Brand>().ReverseMap();
             CreateMap<UpdateBrandDto, Brand>().ReverseMap();
@@ -305,6 +309,10 @@ namespace CleaningSuppliesSystem.API.Mapping
 
             CreateMap<AppUser, UpdateAdminProfileDto>().ReverseMap();
 
+            CreateMap<AppUser, DeveloperProfileDto>();
+
+            CreateMap<AppUser, UpdateDeveloperProfileDto>().ReverseMap();
+
             CreateMap<CompanyAddress, CompanyAddressDto>().ReverseMap();
             CreateMap<CompanyAddress, UpdateCompanyAddressDto>().ReverseMap();
             //CreateMap<AppUser, UpdateCompanyAddressDto>()
@@ -325,8 +333,22 @@ namespace CleaningSuppliesSystem.API.Mapping
             //    .ForMember(dest => dest.AccountHolder, opt => opt.MapFrom(src => src.CompanyBank.AccountHolder))
             //    .ForMember(dest => dest.IBAN, opt => opt.MapFrom(src => src.CompanyBank.IBAN));
 
+            CreateMap<Order, ExpiredOrderDto>()
+                .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => src.OrderNumber))
+                .ForMember(dest => dest.CustomerNameSurname, opt => opt.MapFrom(src => src.AppUser.FirstName + " " + src.AppUser.LastName))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.CreatedDate))
+                .ForMember(dest => dest.DiffDays, opt => opt.MapFrom(src => (DateTime.Now - src.CreatedDate).Days))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src =>
+                    (DateTime.Now - src.CreatedDate).Days >= 7 && src.Status == "Onay Bekleniyor"
+                        ? $"Siparişiniz {(DateTime.Now - src.CreatedDate).Days} gündür bekliyor. İptal edilmesi gerekiyor!"
+                        : $"Devam eden siparişiniz var."
+                ));
 
-
+            // PromoAlert
+            CreateMap<CreatePromoAlertDto, PromoAlert>().ReverseMap();
+            CreateMap<ResultPromoAlertDto, PromoAlert>().ReverseMap();
+            CreateMap<UpdatePromoAlertDto, PromoAlert>().ReverseMap();
 
 
         }

@@ -103,7 +103,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             var isUsed = await _serviceRepository.AnyAsync(s => s.ServiceIconId == id && !s.IsDeleted);
             if (isUsed)
-                return (false, "Bu ikon serviste kullanılıyor, silinemez.", id);
+                return (false, "Bu ikon hizmette kullanılıyor, çöp kutusuna taşınamaz.", id);
 
             entity.IsDeleted = true;
             entity.DeletedDate = DateTime.Now;
@@ -120,12 +120,22 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
             if (!entity.IsDeleted)
                 return (false, "İkon zaten aktif.", id);
+            var isAlreadyExists = await _serviceIconRepository
+                .AnyAsync(x => x.IconName == entity.IconName
+                            && x.IconUrl == entity.IconUrl
+                            && !x.IsDeleted);
+
+            if (isAlreadyExists)
+                return (false, $"{entity.IconName} - ({entity.IconUrl}) isimli hizmet ikonu zaten aktif olarak kullanılıyor. Geri alma işlemi yapılamaz.", id);
+
 
             entity.IsDeleted = false;
             entity.DeletedDate = null;
             await _serviceIconRepository.UpdateAsync(entity);
+
             return (true, "İkon çöp kutusundan başarıyla geri getirildi.", id);
         }
+
 
         public async Task<List<ResultServiceIconDto>> TGetUnusedActiveServiceIconsAsync()
         {

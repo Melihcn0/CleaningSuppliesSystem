@@ -1,0 +1,201 @@
+﻿@model PagedResponse<UserViewModel>
+@{
+    ViewData["Title"] = "Rol Atama Sayfası";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+    int count = 0;
+    var userIdToEdit = TempData["userId"] != null ? (int)TempData["userId"] : 0;
+}
+
+<div class="card basic-data-table">
+    @Html.AntiForgeryToken()
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0">Rol Atama</h5>
+    </div>
+    <div class="card-body">
+        <!-- Filtreleme ve sayfa başına veri dropdown'u -->
+        <div class="d-flex align-items-center mb-2 gap-3">
+            <!-- Arama label + input -->
+            <div class="d-flex align-items-center">
+                <label for="customSearch" class="me-3">Ara :</label>
+                <input type="text" id="customSearch" class="form-control" placeholder="Ara..." style="width: 200px;" />
+            </div>
+
+            <div class="d-flex align-items-center">
+                <label for="pageSizeSelect" class="me-3">Sayfa başına :</label>
+                <select id="pageSizeSelect" class="form-select w-auto select-balanced">
+                    @foreach (var size in new int[] { 10, 30, 50, 100 })
+                    {
+                        if (Model.PageSize == size)
+                        {
+                            <option value="@size" selected>@size</option>
+                        }
+                        else
+                        {
+                            <option value="@size">@size</option>
+                        }
+                    }
+                </select>
+            </div>
+
+        </div>
+        <div class="table-responsive" style="overflow-y: hidden;">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Ad Soyad | Kullanıcı Adı | Mail</th>
+                    <th>Kayıt Tarihi</th>
+                    <th>Rol</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Data)
+                {
+                    <tr>
+                        <td>@(++count)</td>
+                        <td>@item.NameSurname - @item.UserName - @item.Email</td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span>
+                                        🟢 <b>Kayıt:</b>
+                                        @item.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                </div>
+                            </td>
+                        <td>
+                        @foreach (var role in item.Role)
+                        {
+                            var badgeClass = role == "Customer" ? "bg-dark-dark-gradient"
+                            : role == "Admin" ? "bg-dark-primary-gradient"
+                            : role == "Developer" ? "bg-dark-danger-gradient"
+                            : "bg-dark-lilac-gradient";
+
+                            var displayText = role == "Customer" ? "Müşteri"
+                            : role == "Admin" ? "Yetkili"
+                            : role == "Developer" ? "Geliştirici"
+                            : role;
+
+                            <span class="badge text-sm fw-semibold @badgeClass px-20 py-9 radius-4 text-white">@displayText</span>
+                        }
+                        </td>
+                            <td>
+                                <div class="dropdown dropend">
+                                    <button class="btn rounded-pill btn-primary-100 text-primary-600 not-active px-18 py-11 dropdown-toggle toggle-icon icon-right btn-sm"
+                                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Rol Ata
+                                    </button>
+                                    <ul class="dropdown-menu p-3">
+                                        @{
+                                            var availableRoles = new List<string> { "Admin", "Customer", "Developer" };
+                                            var userRoles = item.Role ?? new List<string>();
+                                            var assignableRoles = availableRoles.Except(userRoles).ToList();
+                                        }
+
+                                        @if (assignableRoles.Any())
+                                        {
+                                            foreach (var role in assignableRoles)
+                                            {
+                                                var buttonText = role switch
+                                                {
+                                                    "Admin" => "Yetkili Yap",
+                                                    "Customer" => "Müşteri Yap",
+                                                    "Developer" => "Geliştirici Yap",
+                                                    _ => role
+                                                };
+
+                                                var badgeClass = role == "Customer" ? "bg-dark-dark-gradient"
+                                                : role == "Admin" ? "bg-dark-primary-gradient"
+                                                : role == "Developer" ? "bg-dark-danger-gradient"
+                                                : "bg-dark-lilac-gradient";
+
+                                                <li class="mb-2">
+                                                    <form asp-action="AssignRole" asp-controller="RoleAssign" asp-area="Developer" method="post" class="w-100">
+                                                        <input type="hidden" name="userId" value="@item.Id" />
+                                                        <input type="hidden" name="assignRoleList[0].RoleName" value="@role" />
+                                                        <input type="hidden" name="assignRoleList[0].RoleExist" value="true" />
+                                                        <button type="submit"
+                                                                class="badge text-sm fw-semibold text-white @badgeClass w-100 text-center px-20 py-9 radius-4">
+                                                            @buttonText
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <li>
+                                                <span class="dropdown-item text-muted text-center">Tüm roller atanmış</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+
+
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+            <div class="d-flex justify-content-between align-items-center pt-3">
+                <div id="tableInfo" class="text-secondary-light fw-medium"></div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <ul class="pagination d-flex flex-wrap align-items-center justify-content-end mb-0" style="gap:2px;">
+                        <!-- İlk sayfa -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-end-0"
+                               href="@Url.Action("RolesIndex", new { page = 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-left" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Önceki -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("RolesIndex", new { page = Model.Page - 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-left-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Sayfa numaraları -->
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px @(i == Model.Page ? "bg-primary-600 text-white" : "")"
+                                   href="@Url.Action("RolesIndex", new { page = i, pageSize = Model.PageSize })">@i</a>
+                            </li>
+                        }
+
+                        <!-- Sonraki -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("RolesIndex", new { page = Model.Page + 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-right-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Son sayfa -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-start-0"
+                               href="@Url.Action("RolesIndex", new { page = Model.TotalPages, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-right" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            window.location.href = '@Url.Action("RolesIndex", "RoleAssign", new { area = "Developer" })?page=1&pageSize=' + pageSize;
+        });
+    </script>
+}

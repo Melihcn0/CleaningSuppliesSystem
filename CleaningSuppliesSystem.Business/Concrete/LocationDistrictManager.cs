@@ -42,23 +42,22 @@ namespace CleaningSuppliesSystem.Business.Concrete
 
         public async Task<(bool IsSuccess, string Message, int SoftDeletedId)> TSoftDeleteLocationDistrictAsync(int id)
         {
-            var LocationDistrict = await _locationDistrictRepository.GetByIdAsync(id);
-            if (LocationDistrict == null)
+            var locationDistrict = await _locationDistrictRepository.GetByIdAsync(id);
+            if (locationDistrict == null)
                 return (false, "İlçe lokasyonu bulunamadı.", 0);
 
-            if (LocationDistrict.IsDeleted)
-                return (false, "İlçe lokasyonu zaten silinmiş.", LocationDistrict.DistrictId);
+            if (locationDistrict.IsDeleted)
+                return (false, "İlçe lokasyonu zaten silinmiş.", locationDistrict.DistrictId);
 
-            // Ürünlerde kullanım kontrolü (varsa)
-            var isUsedInDistricts = await _locationCityRepository.AnyAsync(x => x.CityId == id);
-            if (isUsedInDistricts)
-                return (false, "Bu şehir lokasyonu bazı ilçe lokasyonlarında kullanılıyor. Silme yapılamaz.", LocationDistrict.DistrictId);
+            // Soft delete
+            locationDistrict.IsDeleted = true;
+            locationDistrict.DeletedDate = DateTime.Now;
+            await _locationDistrictRepository.UpdateAsync(locationDistrict);
 
-            LocationDistrict.DeletedDate = DateTime.Now;
-            LocationDistrict.IsDeleted = true;
-            await _locationDistrictRepository.UpdateAsync(LocationDistrict);
-            return (true, "İlçe lokasyonu çöp kutusuna başarıyla taşındı.", LocationDistrict.DistrictId);
+            return (true, "İlçe lokasyonu çöp kutusuna başarıyla taşındı.", locationDistrict.DistrictId);
         }
+
+
 
         public async Task<(bool IsSuccess, string Message, int UndoSoftDeletedId)> TUndoSoftDeleteLocationDistrictAsync(int id)
         {

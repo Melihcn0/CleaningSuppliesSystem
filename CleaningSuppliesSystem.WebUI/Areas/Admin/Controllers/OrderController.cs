@@ -1,4 +1,7 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
+using CleaningSuppliesSystem.WebUI.Helpers;
+using CleaningSuppliesSystem.WebUI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -10,51 +13,74 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly HttpClient _client;
+        private readonly PaginationHelper _paginationHelper;
 
-        public OrderController(IHttpClientFactory clientFactory)
+        public OrderController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
-        public async Task<IActionResult> Index()
-        {
-            var response = await _client.GetAsync("orders");
 
-            if (response.IsSuccessStatusCode)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        {
+            var response = await _paginationHelper.GetPagedDataAsync<AdminResultOrderDto>(
+                $"orders?page={page}&pageSize={pageSize}");
+
+            if (response == null)
             {
-                var orders = await response.Content.ReadFromJsonAsync<List<AdminResultOrderDto>>() ?? new List<AdminResultOrderDto>();
-                return View(orders);
+                response = new PagedResponse<AdminResultOrderDto>
+                {
+                    Data = new List<AdminResultOrderDto>(),
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    TotalPages = 0
+                };
             }
 
-            TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
-            return View(new List<AdminResultOrderDto>());
+            return View(response);
         }
-        public async Task<IActionResult> CompletedOrders()
-        {
-            var response = await _client.GetAsync("orders/completed");
 
-            if (!response.IsSuccessStatusCode)
+
+        public async Task<IActionResult> CompletedOrders(int page = 1, int pageSize = 10)
+        {
+            var response = await _paginationHelper.GetPagedDataAsync<AdminResultOrderDto>(
+                $"orders/completed?page={page}&pageSize={pageSize}");
+
+            if (response == null)
             {
-                TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
-                return View(new List<AdminResultOrderDto>());
+                response = new PagedResponse<AdminResultOrderDto>
+                {
+                    Data = new List<AdminResultOrderDto>(),
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    TotalPages = 0
+                };
             }
 
-            var orders = await response.Content.ReadFromJsonAsync<List<AdminResultOrderDto>>() ?? new List<AdminResultOrderDto>();
-            return View(orders);
+            return View(response);
         }
-        public async Task<IActionResult> CancelledOrders()
-        {
-            var response = await _client.GetAsync("orders/cancelled");
 
-            if (!response.IsSuccessStatusCode)
+        public async Task<IActionResult> CancelledOrders(int page = 1, int pageSize = 10)
+        {
+            var response = await _paginationHelper.GetPagedDataAsync<AdminResultOrderDto>(
+                $"orders/cancelled?page={page}&pageSize={pageSize}");
+
+            if (response == null)
             {
-                TempData["ErrorMessage"] = "Siparişler yüklenemedi.";
-                return View(new List<AdminResultOrderDto>());
+                response = new PagedResponse<AdminResultOrderDto>
+                {
+                    Data = new List<AdminResultOrderDto>(),
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    TotalPages = 0
+                };
             }
 
-            var orders = await response.Content.ReadFromJsonAsync<List<AdminResultOrderDto>>() ?? new List<AdminResultOrderDto>();
-            return View(orders);
+            return View(response);
         }
-
         public async Task<IActionResult> OrderDetails(int id)
         {
             var response = await _client.GetAsync($"orders/AdminResult/{id}");
@@ -196,6 +222,26 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
                 }
 
                 return Json(new { success = true, message = "Miktar başarıyla azaltıldı." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Increment(int id, int orderId)
+        {
+            try
+            {
+                var response = await _client.PostAsync($"orderitems/increment/{id}", null);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Json(new { success = false, message = "Miktar arttırılamadı." });
+                }
+
+                return Json(new { success = true, message = "Miktar başarıyla arttırıldı." });
             }
             catch (Exception ex)
             {

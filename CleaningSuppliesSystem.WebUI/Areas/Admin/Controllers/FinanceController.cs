@@ -1,5 +1,6 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.FinanceValidatorDto;
 using CleaningSuppliesSystem.WebUI.Helpers;
 using FluentValidation;
@@ -14,15 +15,28 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class FinanceController : Controller
     {
         private readonly HttpClient _client;
+        private readonly PaginationHelper _paginationHelper;
 
-        public FinanceController(IHttpClientFactory clientFactory)
+        public FinanceController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var finances = await _client.GetFromJsonAsync<List<ResultFinanceDto>>("Finances/active");
-            return View(finances);
+            var response = await _paginationHelper.GetPagedDataAsync<ResultFinanceDto>(
+                $"Finances/active?page={page}&pageSize={pageSize}");
+
+            return View(response);
+        }
+
+        public async Task<IActionResult> DeletedFinances(int page = 1, int pageSize = 10)
+        {
+            ViewBag.ShowBackButton = true;
+            var response = await _paginationHelper.GetPagedDataAsync<ResultFinanceDto>(
+                $"Finances/deleted?page={page}&pageSize={pageSize}");
+
+            return View(response);
         }
 
         [HttpPost]
@@ -49,14 +63,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             else
                 TempData["ErrorMessage"] = "Finans kaydının çöp kutusundan geri alma işlemi başarısız.";
 
-            return RedirectToAction(nameof(DeletedFinance));
-        }
-
-        public async Task<IActionResult> DeletedFinance()
-        {
-            ViewBag.ShowBackButton = true;
-            var values = await _client.GetFromJsonAsync<List<ResultFinanceDto>>("finances/deleted");
-            return View(values);
+            return RedirectToAction(nameof(DeletedFinances));
         }
 
         public IActionResult CreateFinance()

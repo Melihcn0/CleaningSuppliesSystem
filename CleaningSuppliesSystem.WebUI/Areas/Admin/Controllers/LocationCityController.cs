@@ -1,8 +1,10 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.BrandDtos;
 using CleaningSuppliesSystem.DTO.DTOs.CategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.LocationValidatorDto;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,32 +16,27 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class LocationCityController : Controller
     {
         private readonly HttpClient _client;
-        public LocationCityController(IHttpClientFactory clientFactory)
+        private readonly PaginationHelper _paginationHelper;
+        public LocationCityController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var resultDtos = await _client.GetFromJsonAsync<List<ResultLocationCityDto>>("locationCities/active");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultLocationCityDto>(
+                $"LocationCities/active?page={page}&pageSize={pageSize}");
 
-            var vm = new LocationCityViewModel
-            {
-                CityViewList = resultDtos
-            };
-
-            return View(vm);
+            return View(response);
         }
 
-        public async Task<IActionResult> DeletedCities()
+        public async Task<IActionResult> DeletedCities(int page = 1, int pageSize = 10)
         {
             ViewBag.ShowBackButton = true;
-            var resultdeletedDtos = await _client.GetFromJsonAsync<List<ResultLocationCityDto>>("locationCities/deleted");
-            var vm = new LocationCityViewModel
-            {
-                CityViewList = resultdeletedDtos
-            };
+            var response = await _paginationHelper.GetPagedDataAsync<ResultLocationCityDto>(
+                $"LocationCities/deleted?page={page}&pageSize={pageSize}");
 
-            return View(vm);
+            return View(response);
         }
 
         public async Task<IActionResult> CreateCity()
@@ -76,6 +73,7 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
             TempData["ErrorMessage"] = "Şehir eklenemedi.";
             return View(dto);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDeletedCity(int id)

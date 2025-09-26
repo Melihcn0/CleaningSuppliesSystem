@@ -13,9 +13,9 @@ namespace CleaningSuppliesSystem.Business.Abstract
 {
     public interface IRoleService
     {
-        Task<List<AppRole>> GetAllRolesAsync();
-        Task<AppRole> GetRoleByIdAsync(int id);
-        Task<IdentityResult> CreateRoleAsync(AppRole role);
-        Task<bool> ShouldShowCreateRoleButtonAsync();
+        Task<List<AppRole>> TGetAllRolesAsync();
+        Task<AppRole> TGetRoleByIdAsync(int id);
+        Task<IdentityResult> TCreateRoleAsync(AppRole role);
+        Task<bool> TShouldShowCreateRoleButtonAsync();
     }
 }

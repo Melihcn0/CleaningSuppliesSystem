@@ -75,7 +75,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 return (false, "Banner zaten silinmiş.", banner.Id);
 
             if (banner.IsShown)
-                return (false, "Şu anda gösterimde olan bir banner soft silinemez. Lütfen başka bir banneri aktif hale getirin.", banner.Id);
+                return (false, "Şu anda gösterimde olan bir banner çöp kutusuna taşınamaz. Lütfen başka bir banneri aktif hale getirin.", banner.Id);
 
             banner.DeletedDate = DateTime.Now;
             banner.IsDeleted = true;

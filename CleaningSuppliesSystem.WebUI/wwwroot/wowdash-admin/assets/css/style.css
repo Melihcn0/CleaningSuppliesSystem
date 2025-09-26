@@ -15122,7 +15122,7 @@ td.fc-header-center {
 }
 
 .sidebar-logo img {
-  max-height: 3.4375rem;
+  max-height: 2.4375rem;
 }
 
 .sidebar-logo img.dark-logo {
@@ -15550,4 +15550,8 @@ html[data-theme="dark"] .btn-outline-danger {
     overflow: hidden !important;
 }
 
+.select-balanced {
+    background-position: right 0.8rem center;
+    padding-right: 2rem; /* metin ile çentik arasında boşluk */
+}
 

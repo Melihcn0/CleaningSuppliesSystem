@@ -1,5 +1,7 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.TopCategoryDto;
+using CleaningSuppliesSystem.WebUI.Helpers;
+using CleaningSuppliesSystem.WebUI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,23 +10,28 @@ using Microsoft.AspNetCore.Mvc;
 public class TopCategoryController : Controller
 {
     private readonly HttpClient _client;
+    private readonly PaginationHelper _paginationHelper;
 
-    public TopCategoryController(IHttpClientFactory clientFactory)
+    public TopCategoryController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
     {
         _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+        _paginationHelper = paginationHelper;
     }
-
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
-        var topCategories = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("TopCategories/active");
-        return View(topCategories);
+        var response = await _paginationHelper.GetPagedDataAsync<ResultTopCategoryDto>(
+            $"TopCategories/active?page={page}&pageSize={pageSize}");
+
+        return View(response);
     }
 
-    public async Task<IActionResult> DeletedTopCategory()
+    public async Task<IActionResult> DeletedTopCategory(int page = 1, int pageSize = 10)
     {
         ViewBag.ShowBackButton = true;
-        var deleted = await _client.GetFromJsonAsync<List<ResultTopCategoryDto>>("TopCategories/deleted");
-        return View(deleted);
+        var response = await _paginationHelper.GetPagedDataAsync<ResultTopCategoryDto>(
+            $"TopCategories/deleted?page={page}&pageSize={pageSize}");
+
+        return View(response);
     }
 
     public IActionResult CreateTopCategory()

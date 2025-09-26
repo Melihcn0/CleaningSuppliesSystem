@@ -3,7 +3,7 @@
     const token = tokenEl ? tokenEl.value : "";
     const theme = document.documentElement.getAttribute("data-theme") || "light";
 
-    function massAction(endpoint, confirmTitle, confirmTitle) {
+    function massAction(endpoint, confirmTitle) {
         const selectedIds = Array.from(document.querySelectorAll('.row-checkbox:checked'))
             .map(cb => cb.dataset.id);
 

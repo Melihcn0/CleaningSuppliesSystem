@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,17 +33,59 @@ namespace CleaningSuppliesSystem.API.Controllers
             var result = _mapper.Map<List<ResultFinanceDto>>(values);
             return Ok(result);
         }
+
         [HttpGet("active")]
-        public async Task<IActionResult> GetActiveFinances()
+        public async Task<IActionResult> GetActiveFinances(int page = 1, int pageSize = 10)
         {
-            var result = await _financeService.TGetActiveFinancesAsync();
+            var finances = await _financeService.TGetActiveFinancesAsync();
+            var totalCount = finances.Count;
+
+            var pagedData = finances
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultFinanceDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("active-all")]
+        public async Task<IActionResult> GetActiveAllFinances()
+        {
+            var finances = await _financeService.TGetActiveFinancesAsync();
+            var result = _mapper.Map<List<ResultTopCategoryDto>>(finances);
             return Ok(result);
         }
+
         [HttpGet("deleted")]
-        public async Task<IActionResult> GetDeletedFinances()
+        public async Task<IActionResult> GetDeletedFinances(int page = 1, int pageSize = 10)
         {
-            var result = await _financeService.TGetDeletedFinancesAsync();
-            return Ok(result);
+            var finances = await _financeService.TGetDeletedFinancesAsync();
+            var totalCount = finances.Count;
+
+            var pagedData = finances
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<ResultFinanceDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]

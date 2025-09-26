@@ -12,7 +12,7 @@ namespace CleaningSuppliesSystem.WebUI.ViewComponents.Home
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var allBanners = await _client.GetFromJsonAsync<List<ResultSecondaryBannerDto>>("secondarybanners");
+            var allBanners = await _client.GetFromJsonAsync<List<ResultSecondaryBannerDto>>("developerSecondarybanners");
 
             var banner = allBanners?
                 .FirstOrDefault(b => b.IsShown && !b.IsDeleted);

@@ -41,6 +41,17 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 await _orderItemRepository.DeleteAsync(id);
             }
         }
+
+        public async Task TIncrementQuantityAsync(int id)
+        {
+            var item = await _orderItemRepository.GetByIdAsync(id);
+            if (item == null)
+                throw new Exception("Ürün bulunamadı");
+
+            item.Quantity++;
+            await _orderItemRepository.UpdateAsync(item);
+        }
+
     }
 }
 

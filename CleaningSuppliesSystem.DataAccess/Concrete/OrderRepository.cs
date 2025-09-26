@@ -40,9 +40,6 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
                 .OrderByDescending(o => o.CreatedDate) // En yeni sipariş en üstte
                 .ToListAsync();
         }
-
-
-
         public async Task<Order> GetOrderByIdWithDetailsAsync(int id)
         {
             return await _context.Orders
@@ -186,19 +183,16 @@ namespace CleaningSuppliesSystem.DataAccess.Concrete
 
             return $"{year}-{formattedNumber}";
         }
-
-
-
         public async Task<List<Order>> GetOrdersWithItemsAsync()
         {
             return await _context.Orders
+                .Include(o => o.AppUser)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .Include(o => o.Invoice)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
         }
-
         public async Task<List<Order>> GetOrdersByUserIdWithDetailsAsync(int userId)
         {
             return await _context.Orders

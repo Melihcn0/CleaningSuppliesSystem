@@ -1,0 +1,276 @@
+﻿@model PagedResponse<ResultBannerDto>
+@{
+    ViewData["Title"] = "Banner Sayfası";
+    Layout = "~/Views/Shared/_DeveloperLayout.cshtml";
+
+    ViewData["PermanentDeleteUrl"] = "~/Developer/Banner/PermanentDeleteBanner";
+    ViewData["PermanentDeleteConfirmTitle"] = "Banner alanı kalıcı olarak silinsin mi?";
+
+    int count = 0;
+}
+
+<div class="card basic-data-table">
+    @Html.AntiForgeryToken()
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="card-title mb-0 mt-1">Silinen Banner Listesi</h5>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filtreleme ve sayfa başına veri dropdown'u -->
+        <div class="d-flex align-items-center mb-3 gap-3">
+            <!-- Arama label + input -->
+            <div class="d-flex align-items-center">
+                <label for="customSearch" class="me-3">Ara :</label>
+                <input type="text" id="customSearch" class="form-control" placeholder="Ara..." style="width: 200px;" />
+            </div>
+
+            <div class="d-flex align-items-center">
+                <label for="pageSizeSelect" class="me-3">Sayfa başına :</label>
+                <select id="pageSizeSelect" class="form-select w-auto select-balanced">
+                    @foreach (var size in new int[] { 10, 30, 50, 100 })
+                    {
+                        if (Model.PageSize == size)
+                        {
+                            <option value="@size" selected>@size</option>
+                        }
+                        else
+                        {
+                            <option value="@size">@size</option>
+                        }
+                    }
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive" style="overflow-y: hidden;">
+        <table class="table table-hover mb-0" id="dataTable" style="width: 100%; margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th class="text-start">#</th>
+                    <th>Banner Seti</th>
+                    <th>Oluşturma | Son Güncelleme | Silinme Tarihleri</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Data)
+                {
+                    count++;
+                    <tr>
+                        <td>@count</td>
+                            <td class="text-center">
+                                <div class="d-flex flex-column align-items-center" style="max-width:600px; width:100%;">
+                                    <!-- Banner + Card Wrapper -->
+                                    <div class="d-flex flex-column w-100">
+                                        <!-- Banner Görseli -->
+                                        <div class="shadow-4 hover-scale-img overflow-hidden" style="border-top-left-radius:16px; border-top-right-radius:16px; height:160px;">
+                                            <a href="@Url.Content(item.ImageUrl)"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#imageModal_@item.Id"
+                                               class="w-100 h-100 d-block">
+                                                <img src="@Url.Content(item.ImageUrl)"
+                                                     class="w-100 h-100 object-fit-cover cursor-pointer hover-scale-img__img"
+                                                     alt="Banner"
+                                                     style="border-top-left-radius:16px; border-top-right-radius:16px;" />
+                                            </a>
+                                        </div>
+
+                                        <!-- İstatistikler Card -->
+                                        <div class="card w-100 shadow-sm radius-16" style="border-top-left-radius:0; border-top-right-radius:0; padding:12px; margin-top:-4px;">
+                                            <div class="d-flex justify-content-around text-center flex-wrap">
+                                                @if (!string.IsNullOrWhiteSpace(item.Statistic1Title))
+                                                {
+                                                    <div class="px-2 mb-2">
+                                                        <div class="fw-bold">@item.Statistic1</div>
+                                                        <small>@item.Statistic1Title</small>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(item.Statistic2Title))
+                                                {
+                                                    <div class="px-2 mb-2">
+                                                        <div class="fw-bold">@item.Statistic2</div>
+                                                        <small>@item.Statistic2Title</small>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(item.Statistic3Title))
+                                                {
+                                                    <div class="px-2 mb-2">
+                                                        <div class="fw-bold">@item.Statistic3</div>
+                                                        <small>@item.Statistic3Title</small>
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(item.Statistic4Title))
+                                                {
+                                                    <div class="px-2 mb-2">
+                                                        <div class="fw-bold">@item.Statistic4</div>
+                                                        <small>@item.Statistic4Title</small>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="imageModal_@item.Id" tabindex="-1" aria-hidden="true"
+                                     data-bs-backdrop="true" data-bs-keyboard="true" style="background-color: rgba(0,0,0,0.6);">
+                                    <div class="modal-dialog modal-fullscreen m-0 p-0">
+                                        <div class="modal-content bg-transparent border-0">
+                                            <div class="modal-body p-0 d-flex justify-content-center align-items-center position-relative">
+                                                <img src="@Url.Content(item.ImageUrl)" class="img-fluid rounded" alt="Preview" />
+                                                <button type="button"
+                                                        class="btn-close position-absolute"
+                                                        data-bs-dismiss="modal" aria-label="Close"
+                                                        style="top: 1rem; right: 2rem; width: 2.5rem; height: 2.5rem;"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <span>
+                                    🟢 <b>Oluşturma:</b>
+                                    @item.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                                <span>
+                                    🟡 <b>Güncelleme:</b>
+                                    @(item.UpdatedDate != null
+                                        ? item.UpdatedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                        : "Henüz güncelleme yapılmadı")
+                                </span>
+                                <span>
+                                    🔴 <b>Silinme:</b>
+                                    @item.DeletedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                </span>
+                            </div>
+                        </td>
+                            <td>
+                                <div class="d-flex flex-nowrap gap-2">
+                                    <form asp-action="UndoSoftDeleteBanner" asp-controller="Banner" asp-area="Developer" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn rounded-pill btn-success-600 radius-8 d-inline-flex align-items-center btn-sm action-btn" title="Geri al">
+                                            <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">undo</span> Geri Al
+                                        </button>
+                                    </form>
+                                    <button type="button"
+                                            class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center btn-sm action-btn permanent-delete-btn"
+                                            data-id="@item.Id" title="Kalıcı Sil">
+                                        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">delete_forever</span> Kalıcı Sil
+                                    </button>
+                                </div>
+                            </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+            <div class="d-flex justify-content-between align-items-center pt-3">
+                <div id="tableInfo" class="text-secondary-light fw-medium"></div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <ul class="pagination d-flex flex-wrap align-items-center justify-content-end mb-0" style="gap:2px;">
+                        <!-- İlk sayfa -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-end-0"
+                               href="@Url.Action("DeletedBanner", new { page = 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-left" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Önceki -->
+                        <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("DeletedBanner", new { page = Model.Page - 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-left-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Sayfa numaraları -->
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px @(i == Model.Page ? "bg-primary-600 text-white" : "")"
+                                   href="@Url.Action("DeletedBanner", new { page = i, pageSize = Model.PageSize })">@i</a>
+                            </li>
+                        }
+
+                        <!-- Sonraki -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                               href="@Url.Action("DeletedBanner", new { page = Model.Page + 1, pageSize = Model.PageSize })">
+                                <iconify-icon icon="iconamoon:arrow-right-2-light" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <!-- Son sayfa -->
+                        <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-start-0"
+                               href="@Url.Action("DeletedBanner", new { page = Model.TotalPages, pageSize = Model.PageSize })">
+                                <iconify-icon icon="ep:d-arrow-right" class="text-lg"></iconify-icon>
+                            </a>
+                        </li>
+                    </ul>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                toggleMultiDeleteUI();
+            });
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.classList.contains('row-checkbox')) {
+                toggleMultiDeleteUI();
+            }
+        });
+
+        function toggleMultiDeleteUI() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+
+            const undoBtn = document.getElementById('undosoftdeleteSelectedBtn');
+            const permanentDeleteBtn = document.getElementById('permanentdeleteSelectedBtn');
+
+            if (undoBtn) undoBtn.disabled = selectedCount === 0;
+            if (permanentDeleteBtn) permanentDeleteBtn.disabled = selectedCount === 0;
+
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.disabled = selectedCount > 0;
+                btn.style.pointerEvents = selectedCount > 0 ? 'none' : 'auto';
+                btn.style.opacity = selectedCount > 0 ? '0.5' : '1';
+            });
+        }
+                        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.modal').forEach(function(modalEl){
+                modalEl.addEventListener('click', function (e) {
+                    const img = modalEl.querySelector('img');
+                    if (e.target !== img) {
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        modalInstance.hide();
+                    }
+                });
+            });
+        });
+
+         document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            window.location.href = '@Url.Action("DeletedBanner", "Banner", new { area = "Developer" })?page=1&pageSize=' + pageSize;
+        });
+    </script>
+}
+
+

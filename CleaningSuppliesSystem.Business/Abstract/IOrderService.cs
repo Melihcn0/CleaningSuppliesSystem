@@ -20,5 +20,6 @@ namespace CleaningSuppliesSystem.Business.Abstract
         Task<List<Order>> TGetCancelledOrdersAsync();
         Task<OrderStatusUpdateDto> TUpdateStatusAsync(int orderId, string status);
         Task<(bool CanOrder, string? Message)> TValidateCustomerProfileAsync(int userId);
+        Task<List<ExpiredOrderDto>> TGetExpiredOrdersAsync();
     }
 }

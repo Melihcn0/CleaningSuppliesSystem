@@ -82,8 +82,8 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (string.IsNullOrEmpty(userIdentifier))
                 return Ok(new { isSuccess = false, message = "Kullanıcı oturumu bulunamadı." });
 
-            var user = await _userService.GetUserByEmailAsync(userIdentifier)
-                       ?? await _userService.GetUserByIdAsync(int.Parse(userIdentifier));
+            var user = await _userService.TGetUserByEmailAsync(userIdentifier)
+                       ?? await _userService.TGetUserByIdAsync(int.Parse(userIdentifier));
 
             if (user == null)
                 return Ok(new { isSuccess = false, message = "Kullanıcı bulunamadı." });
@@ -107,8 +107,8 @@ namespace CleaningSuppliesSystem.API.Controllers
             if (string.IsNullOrEmpty(userIdentifier))
                 return Ok(new { isSuccess = false, message = "Kullanıcı oturumu bulunamadı." });
 
-            var user = await _userService.GetUserByEmailAsync(userIdentifier)
-                       ?? await _userService.GetUserByIdAsync(int.Parse(userIdentifier));
+            var user = await _userService.TGetUserByEmailAsync(userIdentifier)
+                       ?? await _userService.TGetUserByIdAsync(int.Parse(userIdentifier));
 
             if (user == null)
                 return Ok(new { isSuccess = false, message = "Kullanıcı bulunamadı." });

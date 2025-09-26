@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CleaningSuppliesSystem.API.Models;
 using CleaningSuppliesSystem.Business.Abstract;
 using CleaningSuppliesSystem.DTO.DTOs.Customer.OrderItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.OrderDtos;
@@ -23,7 +24,7 @@ namespace CleaningSuppliesSystem.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMyOrders()
+        public async Task<IActionResult> GetMyOrders(int page = 1, int pageSize = 10)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
@@ -45,7 +46,23 @@ namespace CleaningSuppliesSystem.API.Controllers
                     order.OrderItems = new List<ResultOrderItemDto>();
             }
 
-            return Ok(orderDtos);
+            var totalCount = orderDtos.Count;
+
+            var pagedData = orderDtos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var response = new PagedResponse<CustomerResultOrderDto>
+            {
+                Data = pagedData,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("customerResult/{id}")]

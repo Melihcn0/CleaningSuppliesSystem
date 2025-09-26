@@ -1,0 +1,45 @@
+﻿@model CreatePromoAlertDto
+@{
+    ViewData["Title"] = "Ön Gösterim Oluşturma Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form asp-action="CreatePromoAlert" asp-controller="PromoAlert" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label asp-for="Icon" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            İkon Seçin <span class="text-danger-600">*</span>
+        </label>
+        <select asp-for="Icon" class="form-control" required>
+            <option value="" disabled selected>İkon Seçin</option>
+            <option value="success">✅ Success</option>
+            <option value="info">ℹ️ Info</option>
+            <option value="question">❓ Question</option>
+        </select>
+        <span asp-validation-for="Icon" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <label asp-for="Title" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Başlık <span class="text-danger-600">*</span>
+        </label>
+        <input asp-for="Title" class="form-control" maxlength="50" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <label asp-for="Description" class="form-label fw-semibold text-primary-light text-sm mb-8">
+            Açıklama <span class="text-danger-600">*</span>
+        </label>
+        <textarea asp-for="Description" class="form-control" rows="3" maxlength="100" required></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <br />
+    <button type="submit" class="btn rounded-pill btn-primary-600 radius-8 d-inline-flex align-items-center btn-sm">
+        <span class="material-symbols-outlined me-1 d-inline-flex align-items-center" style="font-size: 18px;">add</span>
+        Kaydet
+    </button>
+</form>
+

@@ -64,14 +64,26 @@
                             <td>@(hasDiscount ? item.DiscountRate.Value.ToString("N0") + "%" : "-")</td>
                             <td>@totalInclVatRow.ToString("C", new CultureInfo("tr-TR"))</td>
                             <td class="text-center">
-                                <div class="d-inline-flex gap-2">
-                                    <button class="btn btn-sm btn-warning d-inline-flex align-items-center btn-decrement px-2 py-1"
-                                            data-id="@item.Id" title="1 Adet Azalt">
-                                        1 Azalt
+                                <div class="d-flex align-items-center gap-2 justify-content-center">
+                                    <!-- + ve - butonları yan yana -->
+                                    <button class="btn btn-sm p-1 text-success btn-increment"
+                                            data-id="@item.Id"
+                                            title="1 Adet Arttır"
+                                            style="background: none; border: none; font-size: 18px;">
+                                        <span class="material-symbols-outlined">add</span>
                                     </button>
-                                    <button class="btn btn-sm btn-danger d-inline-flex align-items-center btn-remove px-2 py-1"
+
+                                    <button class="btn btn-sm p-1 text-danger btn-decrement"
+                                            data-id="@item.Id"
+                                            title="1 Adet Azalt"
+                                            style="background: none; border: none; font-size: 18px;">
+                                        <span class="material-symbols-outlined">remove</span>
+                                    </button>
+
+                                    <!-- Tümünü Sil -->
+                                    <button class="btn btn-sm btn-danger d-flex align-items-center btn-remove px-2 py-1"
                                             data-id="@item.Id" title="Tümünü Sil">
-                                        Tümünü Sil
+                                        <span class="material-symbols-outlined">delete_forever</span>
                                     </button>
                                 </div>
                             </td>

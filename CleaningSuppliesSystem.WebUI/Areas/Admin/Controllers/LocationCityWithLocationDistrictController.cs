@@ -1,5 +1,7 @@
 ﻿using CleaningSuppliesSystem.DTO.DTOs.LocationDtos;
+using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.WebUI.Areas.Admin.Models;
+using CleaningSuppliesSystem.WebUI.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,20 +12,19 @@ namespace CleaningSuppliesSystem.WebUI.Areas.Admin.Controllers
     public class LocationCityWithLocationDistrictController : Controller
     {
         private readonly HttpClient _client;
-        public LocationCityWithLocationDistrictController(IHttpClientFactory clientFactory)
+        private readonly PaginationHelper _paginationHelper;
+        public LocationCityWithLocationDistrictController(IHttpClientFactory clientFactory, PaginationHelper paginationHelper)
         {
             _client = clientFactory.CreateClient("CleaningSuppliesSystemClient");
+            _paginationHelper = paginationHelper;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var resultDtos = await _client.GetFromJsonAsync<List<ResultLocationCityWithLocationDistrictDto>>("locationCities/all-cityWithdistrict");
+            var response = await _paginationHelper.GetPagedDataAsync<ResultLocationCityWithLocationDistrictDto>(
+                $"LocationCities/all-cityWithdistrict?page={page}&pageSize={pageSize}");
 
-            var vm = new LocationCityViewModel
-            {
-                CityWithDistrictViewList = resultDtos
-            };
-
-            return View(vm);
+            return View(response);
         }
+
     }
 }

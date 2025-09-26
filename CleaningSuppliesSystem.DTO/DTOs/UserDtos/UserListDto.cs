@@ -15,6 +15,5 @@ namespace CleaningSuppliesSystem.DTO.DTOs.UserDtos
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }
         public List<string> Role { get; set; }
-        //public List<string> AllRoles { get; set; }
     }
 }

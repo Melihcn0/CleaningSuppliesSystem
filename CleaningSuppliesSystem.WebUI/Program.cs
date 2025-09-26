@@ -12,6 +12,7 @@ using CleaningSuppliesSystem.DTO.DTOs.LoginDtos;
 using System.Text;
 using CleaningSuppliesSystem.Entity.Entities;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using CleaningSuppliesSystem.WebUI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,7 @@ builder.Services.AddHttpContextAccessor();
 // TokenService ve DelegatingHandler
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddTransient<TokenHandler>();
+builder.Services.AddScoped<PaginationHelper>();
 
 // TempData için Session desteği ekleniyor
 builder.Services.AddSession(options =>
@@ -78,8 +80,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                         }
                     }
 
-                    // Session'a mesaj yaz
-                    context.HttpContext.Session.SetString("SessionExpiredWarning", message);
+                    var tempDataFactory = context.HttpContext.RequestServices.GetRequiredService<ITempDataDictionaryFactory>();
+                    var tempData = tempDataFactory.GetTempData(context.HttpContext);
+                    tempData["SessionExpiredWarning"] = message;
 
                     // Principal'ı reddet - redirect işlemini LoginController'a bırak
                     context.RejectPrincipal();

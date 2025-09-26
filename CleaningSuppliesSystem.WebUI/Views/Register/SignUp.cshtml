@@ -1,6 +1,7 @@
 ﻿@model UserRegisterDto
 @{
     Layout = null;
+    var passwordPattern = @"^(?=.*[!#$%^&*(),.?{}|<>])[^\s@]{8,30}$";
 }
 
 <!-- meta tags and other links -->
@@ -46,10 +47,12 @@
 </head>
 <body>
    
-  <section class="auth bg-base d-flex flex-wrap">
+<section class="auth bg-base d-flex flex-wrap">
     <div class="auth-left d-lg-block d-none">
-    </div>     
-
+        <div class="d-flex align-items-center flex-column h-100 justify-content-center">
+            <img src="~/images/ess_star_logo_dark.png" alt="login logo">
+        </div>
+    </div>
     <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
         <!-- Ana Sayfa Butonu -->
         <a href="~/Home/Index"
@@ -60,7 +63,7 @@
         <div class="max-w-464-px mx-auto w-100">
 
             <div>
-                <h4 class="mb-12">Hesap Oluştur</h4>
+                <h4 class="mb-12 mt-5">Hesap Oluştur</h4>
                 <p class="mb-28 text-secondary-light text-lg">Sipariş vermek için hesap oluşturun.</p>
             </div>
                 <form method="post">
@@ -70,7 +73,7 @@
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="f7:person"></iconify-icon>
                             </span>
-                            <input type="text" asp-for="FirstName" class="form-control border-start-0" placeholder="Adınız">
+                            <input type="text" asp-for="FirstName" class="form-control border-start-0" placeholder="Adınız" minlength="2" maxlength="30" required>
                         </div>
                         <span asp-validation-for="FirstName" class="text-danger d-block mt-1"></span>
                     </div>
@@ -81,7 +84,7 @@
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="f7:person"></iconify-icon>
                             </span>
-                            <input type="text" asp-for="LastName" class="form-control border-start-0" placeholder="Soyadınız">
+                            <input type="text" asp-for="LastName" class="form-control border-start-0" placeholder="Soyadınız" minlength="2" maxlength="30" required>
                         </div>
                         <span asp-validation-for="LastName" class="text-danger d-block mt-1"></span>
                     </div>
@@ -92,7 +95,7 @@
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="mage:email"></iconify-icon>
                             </span>
-                            <input type="email" asp-for="Email" class="form-control border-start-0" placeholder="Email adresiniz">
+                            <input type="email" asp-for="Email" class="form-control border-start-0" placeholder="Email adresiniz" maxlength="50" required>
                         </div>
                         <span asp-validation-for="Email" class="text-danger d-block mt-1"></span>
                     </div>
@@ -103,7 +106,7 @@
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="f7:person"></iconify-icon>
                             </span>
-                            <input type="text" asp-for="UserName" class="form-control border-start-0" placeholder="Kullanıcı Adınız">
+                            <input type="text" asp-for="UserName" class="form-control border-start-0" placeholder="Kullanıcı Adınız" pattern="^[a-zA-Z0-9._-]+$" title="Kullanıcı adı sadece harf, rakam, nokta, tire ve alt tire içerebilir." maxlength="50">
                         </div>
                         <span asp-validation-for="UserName" class="text-danger d-block mt-1"></span>
                     </div>
@@ -114,46 +117,109 @@
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
                             </span>
-                            <input type="password" asp-for="Password" class="form-control border-start-0" id="your-password" placeholder="Şifre">
-                            <span class="toggle-password position-absolute top-50 translate-middle-y end-0 me-3 text-secondary-light cursor-pointer" data-toggle="#your-password">
+                            <input type="password"
+                                   asp-for="Password"
+                                   class="form-control border-start-0"
+                                   id="Password"
+                                   placeholder="Şifre"
+                                   minlength="8"
+                                   maxlength="30"
+                                   required
+                                   pattern="@passwordPattern" />
+
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-toggle="#Password">
                                 <i class="ri-eye-line"></i>
-                            </span>
+                            </button>
                         </div>
                         <span asp-validation-for="Password" class="text-danger d-block mt-1"></span>
-                        <span class="text-white small d-block mt-1">Şifreniz en az 8 karakter olmalı</span>
                     </div>
 
                     <div class="mb-3">
-                        <label for="Password" class="form-label">Şifre Tekrar</label>
+                        <label for="ConfirmPassword" class="form-label">Şifre Tekrar</label>
                         <div class="input-group">
                             <span class="input-group-text border-end-0">
                                 <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
                             </span>
-                            <input type="password" asp-for="ConfirmPassword" class="form-control" placeholder="Şifreyi tekrar girin">
+                            <input type="password"
+                                   asp-for="ConfirmPassword"
+                                   class="form-control border-start-0"
+                                   id="ConfirmPassword"
+                                   placeholder="Şifreyi tekrar girin"
+                                   minlength="8"
+                                   maxlength="30"
+                                   required
+                                   pattern="@passwordPattern" />
                         </div>
                         <span asp-validation-for="ConfirmPassword" class="text-danger d-block mt-1"></span>
                     </div>
 
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" value="" id="condition">
+
+
+                    <div class="form-check mb-3 d-flex align-items-start">
+                        <input class="form-check-input me-2 mt-1"
+                               type="checkbox"
+                               id="condition"
+                               required>
                         <label class="form-check-label" for="condition">
-                            Kayıt olarak <a href="#" class="text-primary fw-semibold">Şartlar & Koşullar</a> ve <a href="#" class="text-primary fw-semibold">Gizlilik Politikası</a>'nı kabul etmiş olursunuz.
+                            Kayıt olarak
+                            <a href="#" class="text-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#termsModal">Şartlar & Koşullar</a> ve
+                            <a href="#" class="text-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#privacyModal">Gizlilik Politikası</a>'nı kabul etmiş olursunuz.
                         </label>
                     </div>
-                    <div class="form-check">
-                        <input asp-for="WantsNewsletter" class="form-check-input" type="checkbox" />
+
+
+                    <div class="form-check d-flex align-items-start">
+                        <input asp-for="WantsNewsletter" class="form-check-input me-2 mt-1" type="checkbox" />
                         <label asp-for="WantsNewsletter" class="form-check-label">
                             Kampanyalardan haberdar olmak istiyorum
                         </label>
                     </div>
 
-
-                    <button type="submit" class="btn btn-primary w-100">Kayıt Ol</button>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Kayıt Ol</button>
 
                     <div class="text-center mt-3">
                         <p class="mb-0">Zaten hesabınız var mı? <a href="/Login/SignIn" class="text-primary fw-semibold">Giriş Yap</a></p>
                     </div>
                 </form>
+
+                <!-- Şartlar & Koşullar Modal -->
+                <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="termsModalLabel">Şartlar & Koşullar</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Buraya Şartlar & Koşullar içeriğini ekleyebilirsin. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.</p>
+                                <p>Detaylar, kullanıcı hakları ve sorumluluklar burada yer alabilir.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gizlilik Politikası Modal -->
+                <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="privacyModalLabel">Gizlilik Politikası</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Buraya Gizlilik Politikası içeriğini ekleyebilirsin. Kullanıcı bilgilerinin nasıl işlendiği ve saklandığı detaylı şekilde burada anlatılabilir.</p>
+                                <p>Veri güvenliği ve kullanım şartları burada belirtilir.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
         </div>
     </div>
@@ -199,7 +265,7 @@
 
 
         // ================== Password Show Hide Js Start ==========
-            function initializePasswordToggle(toggleSelector) {
+        function initializePasswordToggle(toggleSelector) {
             $(toggleSelector).on('click', function () {
                 var $icon = $(this).find('i'); // i öğesini seç
                 var input = $($(this).attr("data-toggle"));
@@ -215,6 +281,7 @@
             });
         }
         initializePasswordToggle('.toggle-password');
+
     </script>
 
 </body>
