@@ -518,10 +518,10 @@
             </div>
 
             <div class="col-lg-10">
-                @if (Model.Products != null && Model.Products.Any())
+                @if (Model.PagedProducts.Data != null && Model.PagedProducts.Data.Any())
                 {
                     <div class="product-grid">
-                        @foreach (var product in Model.Products)
+                        @foreach (var product in Model.PagedProducts.Data)
                         {
                             var stockQuantity = product.StockQuantity ?? 0;
                             var isOutOfStock = stockQuantity == 0;
@@ -585,9 +585,6 @@
                                         }
                                     </div>
 
-
-
-
                                     @if (isOutOfStock)
                                     {
                                         <button class="add-to-cart-btn" disabled>
@@ -603,12 +600,58 @@
                                                 <button type="submit" class="add-to-cart-btn">Sepete Ekle</button>
                                             </div>
                                         </form>
-
                                     }
                                 </div>
                             </div>
                         }
                     </div>
+
+                    @* Pagination *@
+                    @if (Model.PagedProducts.TotalPages > 1)
+                    {
+                        <div class="d-flex justify-content-end my-3">
+                            <ul class="pagination d-flex flex-wrap align-items-center justify-content-end" style="gap:4px;">
+                                <li class="page-item @(Model.PagedProducts.Page == 1 ? "disabled" : "")">
+                                    <a class="page-link d-flex align-items-center justify-content-center fw-medium border-0"
+                                       style="min-width: 40px; height: 40px; background: #e8ecf4; color: #475569; border-radius: 20px 0 0 20px;"
+                                       href="@Url.Action("Index", new { categoryId = Model.SelectedCategoryId, page = 1, pageSize = Model.PagedProducts.PageSize })">
+                                        <iconify-icon icon="ep:d-arrow-left" style="font-size: 18px;"></iconify-icon>
+                                    </a>
+                                </li>
+                                <li class="page-item @(Model.PagedProducts.Page == 1 ? "disabled" : "")">
+                                    <a class="page-link d-flex align-items-center justify-content-center fw-medium border-0"
+                                       style="min-width: 40px; height: 40px; background: #e8ecf4; color: #475569;"
+                                       href="@Url.Action("Index", new { categoryId = Model.SelectedCategoryId, page = Model.PagedProducts.Page - 1, pageSize = Model.PagedProducts.PageSize })">
+                                        <iconify-icon icon="iconamoon:arrow-left-2-light" style="font-size: 18px;"></iconify-icon>
+                                    </a>
+                                </li>
+                                @for (int i = 1; i <= Model.PagedProducts.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.PagedProducts.Page ? "active" : "")">
+                                        <a class="page-link d-flex align-items-center justify-content-center fw-medium border-0"
+                                           style="min-width: 40px; height: 40px; background: @(i == Model.PagedProducts.Page ? "#4f46e5" : "#e8ecf4"); color: @(i == Model.PagedProducts.Page ? "white" : "#475569");"
+                                           href="@Url.Action("Index", new { categoryId = Model.SelectedCategoryId, page = i, pageSize = Model.PagedProducts.PageSize })">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+                                <li class="page-item @(Model.PagedProducts.Page == Model.PagedProducts.TotalPages ? "disabled" : "")">
+                                    <a class="page-link d-flex align-items-center justify-content-center fw-medium border-0"
+                                       style="min-width: 40px; height: 40px; background: #e8ecf4; color: #475569;"
+                                       href="@Url.Action("Index", new { categoryId = Model.SelectedCategoryId, page = Model.PagedProducts.Page + 1, pageSize = Model.PagedProducts.PageSize })">
+                                        <iconify-icon icon="iconamoon:arrow-right-2-light" style="font-size: 18px;"></iconify-icon>
+                                    </a>
+                                </li>
+                                <li class="page-item @(Model.PagedProducts.Page == Model.PagedProducts.TotalPages ? "disabled" : "")">
+                                    <a class="page-link d-flex align-items-center justify-content-center fw-medium border-0"
+                                       style="min-width: 40px; height: 40px; background: #e8ecf4; color: #475569; border-radius: 0 20px 20px 0;"
+                                       href="@Url.Action("Index", new { categoryId = Model.SelectedCategoryId, page = Model.PagedProducts.TotalPages, pageSize = Model.PagedProducts.PageSize })">
+                                        <iconify-icon icon="ep:d-arrow-right" style="font-size: 18px;"></iconify-icon>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    }
                 }
                 else
                 {
@@ -621,6 +664,7 @@
                     </div>
                 }
             </div>
+
         </div>
     </div>
 </div>

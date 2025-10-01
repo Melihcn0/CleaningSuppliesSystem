@@ -4,7 +4,6 @@ using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceIconDtos;
 using Newtonsoft.Json;
 using System.Text;
 using CleaningSuppliesSystem.DTO.DTOs.ValidatorDtos.Home.ServiceIconValidatorDto;
-using CleaningSuppliesSystem.DTO.DTOs.TopCategoryDtos;
 using CleaningSuppliesSystem.WebUI.Helpers;
 
 namespace CleaningSuppliesSystem.WebUI.Areas.Developer.Controllers

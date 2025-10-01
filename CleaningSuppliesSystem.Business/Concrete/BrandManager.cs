@@ -162,7 +162,7 @@ namespace CleaningSuppliesSystem.Business.Concrete
                 brand.IsDeleted = true;
                 brand.DeletedDate = DateTime.UtcNow;
                 await _brandRepository.UpdateAsync(brand);
-                results.Add((id, true, "Marka başarıyla soft silindi."));
+                results.Add((id, true, "Marka başarıyla silindi."));
             }
 
             return results;
@@ -240,7 +240,6 @@ namespace CleaningSuppliesSystem.Business.Concrete
             results = results.Select(r => (r.Id, true, "Marka başarıyla geri getirildi.")).ToList();
             return results;
         }
-
         public async Task TPermanentDeleteRangeBrandAsync(List<int> ids)
         {
             await _brandRepository.PermanentDeleteRangeAsync(ids);

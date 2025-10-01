@@ -1,0 +1,112 @@
+﻿<footer class="py-5">
+    <div class="container-lg">
+        <div class="row g-3">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="footer-menu mb-5">
+                    <img src="~/images/ess_star_yatay_logo_dark1.png" width="240" height="70" alt="logo">
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <div class="footer-menu">
+                    <h5 class="widget-title">Ess Star</h5>
+                    <ul class="menu-list list-unstyled">
+                        <li class="menu-item">
+                            <a href="#" class="nav-link">Hakkımızda</a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="nav-link">Vizyonumuz</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <div class="footer-menu">
+                    <h5 class="widget-title">Müşteri Servisi</h5>
+                    <ul class="menu-list list-unstyled">
+                        <li class="menu-item">
+                            <a href="#" class="nav-link">İletişim</a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="nav-link">Gizlilik Politikası</a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="nav-link">S.S.S</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6 col-sm-12">
+                <div class="card shadow-lg rounded-3 border-0">
+                    <div class="card-body">
+
+                        @* Success Alert *@
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                @TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        @* Error Alert *@
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                @TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <h5 class="widget-title mb-3">Bize Ulaşın</h5>
+                        <form id="contactForm" asp-controller="Contact" asp-action="SendMessage" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <input type="text" name="Name" class="form-control" placeholder="Ad" maxlength="50" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" name="Surname" class="form-control" placeholder="Soyad" maxlength="50" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <input type="tel" id="PhoneNumber" name="PhoneNumber" class="form-control" placeholder="+90 5XX XXX XX XX" maxlength="17" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <textarea name="Message" class="form-control" rows="2" placeholder="Mesajınız" maxlength="100" required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-dark mt-3 w-100">Gönder</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</footer>
+
+<script src="https://www.google.com/recaptcha/api.js?render=reCAPTCHA_site_key"></script>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const alerts = document.querySelectorAll(".alert");
+
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (typeof bootstrap !== 'undefined') {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                        bsAlert.close();
+                    } else {
+                        alert.remove();
+                    }
+                }, 3000);
+            });
+        });
+    </script>
+}

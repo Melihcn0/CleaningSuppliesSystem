@@ -117,6 +117,9 @@ namespace CleaningSuppliesSystem.API.Extensions
             services.AddScoped<IPromoAlertService, PromoAlertManager>();
             services.AddScoped<IPromoAlertRepository, PromoAlertRepository>();
 
+            services.AddScoped<IContactService, ContactManager>();
+            services.AddScoped<IContactRepository, ContactRepository>();
+
             services.AddHttpClient();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

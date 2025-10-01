@@ -1,15 +1,12 @@
 ﻿// Program.cs
 using Microsoft.AspNetCore.Identity;
 using System.Reflection;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using CleaningSuppliesSystem.WebUI.Services.TokenServices;
 using CleaningSuppliesSystem.WebUI.Handlers;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using CleaningSuppliesSystem.DTO.DTOs.LoginDtos;
-using System.Text;
 using CleaningSuppliesSystem.Entity.Entities;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using CleaningSuppliesSystem.WebUI.Helpers;
@@ -22,7 +19,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 // HttpContext
 builder.Services.AddHttpContextAccessor();
 
-// TokenService ve DelegatingHandler
+
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddTransient<TokenHandler>();
 builder.Services.AddScoped<PaginationHelper>();

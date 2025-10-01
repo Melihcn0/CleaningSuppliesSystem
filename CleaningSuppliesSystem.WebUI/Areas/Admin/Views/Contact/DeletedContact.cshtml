@@ -1,0 +1,191 @@
+﻿@model PagedResponse<ResultContactDto>
+@{
+    ViewData["Title"] = "Silinen Mesajlar Sayfası";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["UndoSoftDeleteUrl"] = "~/Admin/Contact/UndoSoftDeleteMultiple";
+    ViewData["UndoSoftDeleteConfirmTitle"] = "Seçili mesaj geri alınsın mı?";
+
+    ViewData["PermanentDeleteMultipleUrl"] = "~/Admin/Contact/PermanentDeleteMultiple";
+    ViewData["PermanentDeleteMultipleConfirmTitle"] = "Seçili mesaj kalıcı olarak silinsin mi?";
+
+}
+
+<div class="row gy-4">
+    <!-- Sol Menü -->
+    <div class="col-xxl-3">
+        <div class="card h-100 p-0">
+            <div class="card-body p-24">
+                <ul>
+                    <li class="@(ViewData["ActiveTab"]?.ToString() == "Active" ? "item-active mb-4" : "mb-4")">
+                        <a asp-controller="Contact" asp-action="Index" class="bg-hover-primary-50 px-12 py-8 w-100 radius-8 text-secondary-light">
+                            <span class="d-flex align-items-center gap-10 justify-content-between w-100">
+                                <span class="d-flex align-items-center gap-10">
+                                    <span class="icon text-xxl line-height-1 d-flex">
+                                        <iconify-icon icon="uil:envelope" class="icon line-height-1"></iconify-icon>
+                                    </span>
+                                    <span class="fw-semibold">Gelen Kutusu</span>
+                                </span>
+                                <span class="fw-medium">@ViewBag.ActiveCount</span>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="@(ViewData["ActiveTab"]?.ToString() == "Deleted" ? "item-active mb-4" : "mb-4")">
+                        <a asp-controller="Contact" asp-action="DeletedContact" class="bg-hover-primary-50 px-12 py-8 w-100 radius-8 text-secondary-light">
+                            <span class="d-flex align-items-center gap-10 justify-content-between w-100">
+                                <span class="d-flex align-items-center gap-10">
+                                    <span class="icon text-xxl line-height-1 d-flex">
+                                        <iconify-icon icon="material-symbols:delete-outline" class="icon line-height-1"></iconify-icon>
+                                    </span>
+                                    <span class="fw-semibold">Çöp Kutusu</span>
+                                </span>
+                                <span class="fw-medium">@ViewBag.DeletedCount</span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sağ İçerik -->
+    <div class="col-xxl-9">
+        <div class="card h-100 p-0 email-card">
+            <!-- Header -->
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2 w-100">
+                        <div class="d-flex align-items-center gap-3">
+                            <!-- Yenile Butonu -->
+                            <button type="button" class="reload-button text-secondary-light text-xl d-flex align-items-center" onclick="location.reload();">
+                                <iconify-icon icon="tabler:reload" class="icon"></iconify-icon>
+                            </button>
+
+                            <button id="undosoftdeleteSelectedBtn" class="btn rounded-pill btn-success-600 radius-8 d-inline-flex align-items-center border-0" disabled>
+                                <span class="material-symbols-outlined d-inline-flex align-items-center" style="font-size: 18px;">undo</span> Geri Al
+                            </button>
+
+                            <button id="permanentdeleteSelectedBtn" class="btn rounded-pill btn-danger-600 radius-8 d-inline-flex align-items-center border-0" disabled>
+                                <span class="material-symbols-outlined d-inline-flex align-items-center" style="font-size: 18px;">delete_forever</span> Çöp Kutusundan Sil
+                            </button>
+
+                            <!-- Sayfa başına -->
+                            <label for="pageSizeSelect" class="me-2 mb-0">Sayfa başına :</label>
+                            <select id="pageSizeSelect" class="form-select w-auto select-balanced">
+                                @foreach (var size in new int[] { 10, 30, 50, 100 })
+                                {
+                                    if (Model?.PageSize == size)
+                                    {
+                                        <option value="@size" selected>@size</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@size">@size</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        @if (Model.TotalPages > 1)
+                        {
+                            <div class="d-flex justify-content-end my-1">
+                                <ul class="pagination d-flex flex-wrap align-items-center justify-content-end" style="gap:2px;">
+                                    <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                                        <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-end-0"
+                                           href="@Url.Action("DeletedContact", new { page = 1, pageSize = Model.PageSize })">
+                                            <iconify-icon icon="ep:d-arrow-left" class="text-lg"></iconify-icon>
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                                        <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                                           href="@Url.Action("DeletedContact", new { page = Model.Page - 1, pageSize = Model.PageSize })">
+                                            <iconify-icon icon="iconamoon:arrow-left-2-light" class="text-lg"></iconify-icon>
+                                        </a>
+                                    </li>
+
+                                    @for (int i = 1; i <= Model.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                                            <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px @(i == Model.Page ? "bg-primary-600 text-white" : "")"
+                                               href="@Url.Action("DeletedContact", new { page = i, pageSize = Model.PageSize })">@i</a>
+                                        </li>
+                                    }
+
+                                    <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px"
+                                           href="@Url.Action("DeletedContact", new { page = Model.Page + 1, pageSize = Model.PageSize })">
+                                            <iconify-icon icon="iconamoon:arrow-right-2-light" class="text-lg"></iconify-icon>
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link bg-primary-50 text-secondary-light fw-medium border-0 px-16 py-8 d-flex align-items-center justify-content-center h-40-px w-40-px rounded-pill rounded-start-0"
+                                           href="@Url.Action("DeletedContact", new { page = Model.TotalPages, pageSize = Model.PageSize })">
+                                            <iconify-icon icon="ep:d-arrow-right" class="text-lg"></iconify-icon>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-0">
+                <ul class="overflow-x-auto">
+                    @if (Model != null && Model.Data.Any())
+                    {
+                        foreach (var contact in Model.Data)
+                        {
+                            <li class="email-item px-24 py-16 d-flex gap-4 align-items-center border-bottom cursor-pointer bg-hover-neutral-200 min-w-max-content">
+                                <div class="form-check style-check d-flex align-items-center">
+                                    <input class="form-check-input radius-4 border border-neutral-400 row-checkbox"
+                                           type="checkbox"
+                                           data-id="@contact.Id">
+                                </div>
+
+                                <a href="view-details.html" class="text-primary-light fw-medium text-md text-line-1 w-190-px">
+                                    @($"{contact.Name} {contact.Surname}")
+                                </a>
+
+                                <span class="text-primary-light fw-medium text-md w-150-px text-line-1">
+                                    @contact.PhoneNumber
+                                </span>
+
+                                <a href="view-details.html" class="text-primary-light fw-medium mb-0 text-line-1 max-w-540-px">
+                                    @{
+                                        var shortMessage = contact.Message.Length > 50
+                                        ? contact.Message.Substring(0, 50) + "..."
+                                        : contact.Message;
+                                    }
+                                    @shortMessage
+                                </a>
+
+                                <span class="text-primary-light fw-medium min-w-max-content ms-auto">
+                                    @contact.CreatedDate.ToString("dd.MM.yyyy HH:mm (dddd)")
+                                </span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="px-24 py-16">Hiç mesaj bulunamadı.</li>
+                    }
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            window.location.href = '@Url.Action("DeletedContact", "Contact", new { area = "Admin" })?page=1&pageSize=' + pageSize;
+        });
+    </script>
+}

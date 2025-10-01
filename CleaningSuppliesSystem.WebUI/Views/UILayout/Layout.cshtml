@@ -209,55 +209,6 @@
 
    @RenderBody()
 
-    <footer class="py-5">
-        <div class="container-lg">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer-menu mb-5">
-                        <img src="~/images/ess_star_yatay_logo_dark1.png" width="240" height="70" alt="logo">
-                    </div>
-                </div>
-
-                <div class="col-md-2 col-sm-6">
-                    <div class="footer-menu">
-                        <h5 class="widget-title">Ess Star</h5>
-                        <ul class="menu-list list-unstyled">
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Hakkımızda</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Vizyonumuz </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-2 col-sm-6">
-                    <div class="footer-menu">
-                        <h5 class="widget-title">Müşteri Servisi</h5>
-                        <ul class="menu-list list-unstyled">
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">İletişim</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">Gizlik Politikası</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#" class="nav-link">S.S.S</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer-menu">
-                        <h5 class="widget-title">Mail Bülteni</h5>
-                        <p>Kampanyalardan ilk siz haberdar olmak için mail bültenimize abone olun</p>
-                        <a href="/Login/SignIn" class="btn btn-dark mt-3">Abone Ol</a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </footer>
     <div id="footer-bottom mt-5">
         <div class="container-lg">
             <div class="row">
@@ -273,12 +224,35 @@
     <script src="~/organic-1.0.0/js/plugins.js"></script>
     <script src="~/organic-1.0.0/js/script.js"></script>
 
-
-        <script>
+    <script>
         // 20 dakika = 20 * 60 * 1000 ms header refresh
         setTimeout(() => {
             location.reload();
         }, 20 * 60 * 1000);
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const phoneInput = document.getElementById('PhoneNumber');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function() {
+                    let value = this.value.replace(/\D/g, '').slice(0,12); // max 12 rakam (+90 + 10 hane)
+
+                    // Başlangıç kontrolü
+                    if (value.startsWith('0')) value = '90' + value.slice(1);
+                    else if (!value.startsWith('90')) value = '90' + value;
+
+                    // Formatlı yaz
+                    let formatted = '+' + value.slice(0,2);
+                    if (value.length > 2) formatted += ' ' + value.slice(2,5);
+                    if (value.length > 5) formatted += ' ' + value.slice(5,8);
+                    if (value.length > 8) formatted += ' ' + value.slice(8,10);
+                    if (value.length > 10) formatted += ' ' + value.slice(10,12);
+
+                    this.value = formatted;
+                });
+            }
+        });
     </script>
 
     @RenderSection("Scripts", required: false)

@@ -20,9 +20,9 @@ namespace CleaningSuppliesSystem.WebUI.ViewComponents.Home
             var recentProducts = allProducts?
                 .Where(p => p.IsShown && !p.IsDeleted)
                 .OrderByDescending(p => p.CreatedDate)
-                .Take(15) // Son eklenen 20 ürün
+                .Take(10) // Son eklenen 10 ürün
                 .OrderBy(_ => rnd.Next()) // Bunları karıştır
-                .Take(10) // Rastgele 10 tanesini al
+                .Take(5) // Rastgele 5 tanesini al
                 .ToList() ?? new List<ResultProductDto>();
 
             return View(recentProducts);

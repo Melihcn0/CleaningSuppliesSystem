@@ -5,7 +5,7 @@ namespace CleaningSuppliesSystem.WebUI.Models
 {
     public class ProductListViewModel
     {
-        public List<ResultProductDto> Products { get; set; }
+        public PagedResponse<ResultProductDto> PagedProducts { get; set; }
         public List<ResultCategoryDto> Categories { get; set; }
         public int? SelectedCategoryId { get; set; }
     }

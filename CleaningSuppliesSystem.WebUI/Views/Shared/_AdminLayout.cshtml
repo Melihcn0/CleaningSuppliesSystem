@@ -233,6 +233,12 @@
                         <span class="menu-text">Ön Gösterim Duyurusu</span>
                     </a>
                 </li>
+                <li>
+                    <a asp-area="Admin" asp-controller="Contact" asp-action="Index">
+                        <span class="material-symbols-outlined menu-icon">chat</span>
+                        <span class="menu-text">Mesajlar</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </aside>
@@ -255,7 +261,7 @@
                     <div class="d-flex flex-wrap align-items-center gap-3">
                         <button type="button" data-theme-toggle class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
 
-                        <div class="dropdown">
+@*                         <div class="dropdown">
                             <button class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center" type="button" data-bs-toggle="dropdown">
                                 <iconify-icon icon="mage:email" class="text-primary-light text-xl"></iconify-icon>
                             </button>
@@ -359,7 +365,7 @@
                                     <a href="javascript:void(0)" class="text-primary-600 fw-semibold text-md">See All Message</a>
                                 </div>
                             </div>
-                        </div><!-- Message dropdown end -->
+                        </div><!-- Message dropdown end --> *@
 
 
                         @await Component.InvokeAsync("_OrdersNotificationComponent")
@@ -798,3 +804,24 @@
         });
     }
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const softDeleteBtn = document.getElementById("deleteSelectedBtn");
+        const undoSoftDeleteBtn = document.getElementById("undosoftdeleteSelectedBtn");
+        const permanentBtn = document.getElementById("permanentdeleteSelectedBtn");
+        const checkboxes = document.querySelectorAll(".row-checkbox");
+
+        function toggleButtons() {
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            if (softDeleteBtn) softDeleteBtn.disabled = !anyChecked;
+            if (undoSoftDeleteBtn) undoSoftDeleteBtn.disabled = !anyChecked;
+            if (permanentBtn) permanentBtn.disabled = !anyChecked;
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener("change", toggleButtons));
+
+        toggleButtons();
+    });
+</script>
+

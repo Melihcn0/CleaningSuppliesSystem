@@ -27,6 +27,7 @@ using CleaningSuppliesSystem.DTO.DTOs.InvoiceItemDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Admin.CompanyBankDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Developer.DeveloperProfileDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.PromoAlertDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.ContactDtos;
 
 namespace CleaningSuppliesSystem.API.Mapping
 {
@@ -350,7 +351,9 @@ namespace CleaningSuppliesSystem.API.Mapping
             CreateMap<ResultPromoAlertDto, PromoAlert>().ReverseMap();
             CreateMap<UpdatePromoAlertDto, PromoAlert>().ReverseMap();
 
-
+            // Contact
+            CreateMap<CreateContactDto, Contact>().ReverseMap();
+            CreateMap<ResultContactDto, Contact>().ReverseMap();
         }
     }
 }

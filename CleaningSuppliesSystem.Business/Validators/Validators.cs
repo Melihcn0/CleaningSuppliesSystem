@@ -10,6 +10,7 @@ using CleaningSuppliesSystem.DTO.DTOs.DiscountDtos;
 using CleaningSuppliesSystem.DTO.DTOs.FinanceDtos;
 using CleaningSuppliesSystem.DTO.DTOs.ForgotPasswordDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.BannerDtos;
+using CleaningSuppliesSystem.DTO.DTOs.Home.ContactDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.PromoAlertDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.SecondaryBannerDtos;
 using CleaningSuppliesSystem.DTO.DTOs.Home.ServiceDtos;
@@ -1040,6 +1041,28 @@ namespace CleaningSuppliesSystem.Business.Validators
                     .NotEmpty().WithMessage("Lütfen bir ikon seçin.")
                     .Must(icon => new[] { "question", "success", "warning", "error", "info" }.Contains(icon))
                     .WithMessage("Geçersiz ikon seçimi.");
+            }
+        }
+        public class CreateContactValidator : AbstractValidator<CreateContactDto>
+        {
+            public CreateContactValidator()
+            {
+                RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Ad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Ad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.Surname)
+                    .NotEmpty().WithMessage("Soyad boş bırakılamaz.")
+                    .MaximumLength(50).WithMessage("Soyad en fazla 50 karakter olabilir.");
+
+                RuleFor(x => x.PhoneNumber)
+                    .NotEmpty().WithMessage("Telefon numarası boş bırakılamaz.")
+                    .MinimumLength(17).WithMessage("Telefon numarası en az 17 karakter olmalıdır.")
+                    .MaximumLength(17).WithMessage("Telefon numarası en fazla 17 karakter olmalıdır.");
+
+                RuleFor(x => x.Message)
+                    .NotEmpty().WithMessage("Mesaj boş bırakılamaz.")
+                    .MaximumLength(100).WithMessage("Mesaj en fazla 100 karakter olabilir.");
             }
         }
     }

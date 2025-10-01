@@ -31,6 +31,7 @@ namespace CleaningSuppliesSystem.DataAccess.Context
         public DbSet<CompanyAddress> CompanyAddresses { get; set; }
         public DbSet<CompanyBank> CompanyBanks { get; set; }
         public DbSet<PromoAlert> PromoAlerts { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
